@@ -1,0 +1,70 @@
+mysql:
+  host: 'localhost:3306'
+  database-name: 'ablockalypse'
+  username: 'user'
+  password: 'password'
+
+
+character:
+  nurse:
+    display-name: "&aNurse"
+    description: "Raises effectiveness of bandages/ first aid kits"
+    menu:
+      index: 10
+      texture: aa #TODO set
+  farmer:
+    display-name: "&aFarmer"
+    description: "Can repair armour"
+  sprinter:
+    display-name: "&aSprinter"
+    description: "Can sprint faster"
+  construction_worker:
+    display-name: "&aConstruction Worker"
+    description: "Reduces damage taken"
+  police_officer:
+    display-name: "&aPolice Officer"
+    description: "Does more weapon damage"
+  shop_owner:
+    display-name: "&aShop Owner"
+    description: "Items cost less"
+  mechanic:
+    display-name: "&aMechanic"
+    description: "Can repair weapons"
+  chef:
+    display-name: "&aChef"
+    description: "Raises effectiveness of all foods"
+  dog_walker:
+    display-name: "&aDog Walker"
+    description: "Can tame/ starts with wolf (can re-tame wolves if they lose theirs)"
+  warehouse_worker:
+    display-name: "&aWarehouse Worker (Spy?)"
+    description: "Has Nightvision"
+  thief:
+    display-name: "&aThief"
+    description: "Name is hidden at all times (only visible within 5 block radius)"
+  gambler:
+    display-name: "&aGambler (Youtuber?)"
+    description: "Increase of luck on mob drops"
+  it_consultant:
+    display-name: "&aI.T Consultant"
+    description: "Quiet (zombies can only hear them if within 5 block radius)"
+  free_runner:
+    display-name: "&aFree Runner"
+    description: "No fall damage"
+  baller:
+    display-name: "&aBaller"
+    description: "Jump Boost"
+  survivalist:
+    display-name: "&aSurvivalist"
+    description: "Hunger and Thirst decreases slower"
+
+message:
+  player-only: "&cThis command must be run by a player."
+  invalid-location-type: "&c{input} is not a valid location type. Valid types: {valid}"
+  location-add-success: "&aLocation set with success"
+  location-add-already: "&cThis location is already set"
+  location-list-none: "&cThere isn't any location of this type set"
+  location-list-header: "&aLocations of type {type}. Click to teleport"
+  location-list-entry: "&7{world} {x} {y} {z}, pitch={pitch}, yaw={yaw}"
+  location-remove-success: "&aLocation removed with success"
+  location-remove-none: "&cThis location is not set"

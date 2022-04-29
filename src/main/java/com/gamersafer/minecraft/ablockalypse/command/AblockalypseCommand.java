@@ -1,8 +1,9 @@
 package com.gamersafer.minecraft.ablockalypse.command;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
+import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
-import com.gamersafer.minecraft.ablockalypse.location.LocationType;
+import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,7 +12,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AblockalypseCommand implements CommandExecutor {
@@ -19,10 +21,12 @@ public class AblockalypseCommand implements CommandExecutor {
     private final AblockalypsePlugin plugin;
     private final LocationManager locationManager;
 
-    public AblockalypseCommand(AblockalypsePlugin plugin) {
+    public AblockalypseCommand(AblockalypsePlugin plugin, LocationManager locationManager) {
         this.plugin = plugin;
-        this.locationManager = null; // todo get as argument
+        this.locationManager = locationManager;
     }
+
+    // todo permissions and autocompletion
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
@@ -38,62 +42,114 @@ public class AblockalypseCommand implements CommandExecutor {
             return false;
         }
 
-        if (args.length == 3 && args[0].equalsIgnoreCase("location")) {
-            LocationType locationType;
-            // validate location type
-            try {
-                locationType = LocationType.valueOf(args[1]);
-            } catch (IllegalArgumentException e) {
-                player.sendMessage(plugin.getMessage("invalid-location-type")
-                        .replace("{input}", args[1])
-                        .replace("{valid}", Arrays.stream(LocationType.values())
-                                .map(LocationType::name)
-                                .map(String::toLowerCase)
-                                .collect(Collectors.joining(", "))));
-                return false;
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("backstory")) {
+                // display the character selection menu. this subcommand is supposed to be used only by staff members for debug purposes
+                CharacterSelectionMenu.open(player);
+                return true;
             }
+        } else if (args.length == 2) {
 
-            if (args[2].equalsIgnoreCase("list")) {
-                Collection<Location> locations = locationManager.getLocations(locationType);
+            if (args[0].equalsIgnoreCase("hospital")) {
+                if (args[1].equalsIgnoreCase("tp")) {
+                    Optional<Location> hospitalLoc = locationManager.getHospital();
 
-                // check whether there are locations to display
-                if (locations.isEmpty()) {
-                    player.sendMessage(plugin.getMessage("location-list-none"));
+                    if (hospitalLoc.isPresent()) {
+                        // teleport to the hospital
+                        player.sendMessage(plugin.getMessage("hospital-location-tp"));
+                        player.teleport(hospitalLoc.get());
+                    } else {
+                        // the location has not been set yet
+                        player.sendMessage(plugin.getMessage("hospital-location-none"));
+                    }
+
+                    return true;
+                } else if (args[1].equalsIgnoreCase("set")) {
+                    // set location and send feedback message
+                    locationManager.setHospital(player.getLocation());
+                    player.sendMessage(plugin.getMessage("hospital-location-set"));
+                    return true;
+                }
+            } else if (args[0].equalsIgnoreCase("spawnpoint")) {
+                if (args[1].equalsIgnoreCase("list")) {
+                    List<Location> spawnPoints = locationManager.getSpawnPoints();
+                    if (spawnPoints.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("spawn-list-none"));
+                    } else {
+                        player.sendMessage(plugin.getMessage("spawn-list-header"));
+
+                        for (Location loc : spawnPoints) {
+                            // todo click to teleport
+                            player.sendMessage(plugin.getMessage("spawn-list-entry")
+                                    .replace("{world}", loc.getWorld().getName())
+                                    .replace("{x}", Double.toString(loc.getX()))
+                                    .replace("{y}", Double.toString(loc.getY()))
+                                    .replace("{z}", Double.toString(loc.getZ()))
+                                    .replace("{pitch}", Float.toString(loc.getPitch()))
+                                    .replace("{yaw}", Float.toString(loc.getYaw()))
+                            );
+                        }
+                    }
+
+                    return true;
+                } else if (args[1].equalsIgnoreCase("add")) {
+                    // try to add the location
+                    boolean added = locationManager.addSpawnPoint(player.getLocation());
+
+                    // send feedback message
+                    String messageId = added ? "spawn-add-success" : "spawn-add-already";
+                    player.sendMessage(plugin.getMessage(messageId));
+
+                    return true;
+                } else if (args[1].equalsIgnoreCase("remove")) {
+                    // try to remove the location and send feedback message
+                    boolean removed = locationManager.removeSpawnPoint(player.getLocation());
+                    String messageId = removed ? "spawn-remove-success" : "spawn-remove-none";
+                    player.sendMessage(plugin.getMessage(messageId));
+
+                    return true;
+                }
+            }
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("cinematic")) {
+                // validate character type
+                Character character;
+                try {
+                    character = Character.valueOf(args[1].toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    player.sendMessage(plugin.getMessage("invalid-character-type")
+                            .replace("{input}", args[1])
+                            .replace("{valid}", Arrays.stream(Character.values())
+                                    .map(Character::name)
+                                    .map(String::toLowerCase)
+                                    .collect(Collectors.joining(", ")))
+                    );
                     return true;
                 }
 
-                player.sendMessage(plugin.getMessage("location-list-header")
-                        .replace("{type}", locationType.name().toLowerCase()));
+                if (args[2].equalsIgnoreCase("set")) {
 
-                for (Location loc : locations) {
-                    // todo click to teleport
-                    player.sendMessage(plugin.getMessage("location-list-entry")
-                            .replace("{world}", loc.getWorld().getName())
-                            .replace("{x}", Double.toString(loc.getX()))
-                            .replace("{y}", Double.toString(loc.getY()))
-                            .replace("{z}", Double.toString(loc.getZ()))
-                            .replace("{pitch}", Float.toString(loc.getPitch()))
-                            .replace("{yaw}", Float.toString(loc.getYaw()))
-                    );
+                    // set the location and send feedback message
+                    locationManager.setCinematicLoc(character, player.getLocation());
+                    player.sendMessage(plugin.getMessage("cinematic-location-set-success")
+                            .replace("{character}", character.name().toLowerCase()));
+
+                    return true;
+                } else if (args[2].equalsIgnoreCase("tp")) {
+
+                    Optional<Location> cinematicLoc = locationManager.getCinematicLoc(character);
+                    if (cinematicLoc.isPresent()) {
+                        // teleport the player
+                        player.sendMessage(plugin.getMessage("cinematic-location-tp")
+                                .replace("{character}", character.name().toLowerCase()));
+                        player.teleport(cinematicLoc.get());
+                    } else {
+                        // the location is not present
+                        player.sendMessage(plugin.getMessage("cinematic-location-none")
+                                .replace("{character}", character.name().toLowerCase()));
+                    }
+                    return true;
                 }
-                return true;
-            } else if (args[2].equalsIgnoreCase("add")) {
-                // try to add the location
-                boolean added = locationManager.addLocation(locationType, player.getLocation());
-
-                // send feedback message
-                String messageId = added ? "location-add-success" : "location-add-already";
-                player.sendMessage(plugin.getMessage(messageId));
-
-                return true;
-            } else if (args[2].equalsIgnoreCase("remove")) {
-                Location location = player.getLocation();
-
-                boolean removed = locationManager.addLocation(locationType, player.getLocation());
-                String messageId = removed ? "location-remove-success" : "location-remove-none";
-                player.sendMessage(plugin.getMessage(messageId));
-
-                return true;
             }
         }
 
@@ -102,12 +158,17 @@ public class AblockalypseCommand implements CommandExecutor {
     }
 
     private void sendHelpMenu(CommandSender sender) {
-
+        // todo send messages
         /*
-        /ablockalypse cinematic <type> set
-         /ablockalypse location <type> list
-         /ablockalypse location <type> set
-         /ablockalypse location <type> remove
+         /ablockalypse reload
+         /ablockalypse backstory
+         /ablockalypse hospital set
+         /ablockalypse hospital tp
+         /ablockalypse cinematic <character> set
+         /ablockalypse cinematic <character> tp
+         /ablockalypse spawnpoint list
+         /ablockalypse spawnpoint add
+         /ablockalypse spawnpoint remove
          */
     }
 

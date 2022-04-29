@@ -58,13 +58,25 @@ character:
     display-name: "&aSurvivalist"
     description: "Hunger and Thirst decreases slower"
 
+menu:
+  character-selection:
+    title: "&cSelect a character"
+    size: 36
+
 message:
   player-only: "&cThis command must be run by a player."
-  invalid-location-type: "&c{input} is not a valid location type. Valid types: {valid}"
-  location-add-success: "&aLocation set with success"
-  location-add-already: "&cThis location is already set"
-  location-list-none: "&cThere isn't any location of this type set"
-  location-list-header: "&aLocations of type {type}. Click to teleport"
-  location-list-entry: "&7{world} {x} {y} {z}, pitch={pitch}, yaw={yaw}"
-  location-remove-success: "&aLocation removed with success"
-  location-remove-none: "&cThis location is not set"
+  invalid-character-type: "&c{input} is not a valid character. Valid types: {valid}"
+  hospital-location-set: "&aHospital location set with success"
+  hospital-location-tp: "&aTeleporting to the hospital..."
+  hospital-location-none: "&cThe hospital location is not set"
+  spawn-add-success: "&aLocation set with success"
+  spawn-add-already: "&cThis location was already set"
+  spawn-list-none: "&cThere isn't any spawn point"
+  spawn-list-header: "&aSpawn locations. Click to teleport"
+  spawn-list-entry: "&7{world} {x} {y} {z}, pitch={pitch}, yaw={yaw}"
+  spawn-remove-success: "&aLocation removed with success"
+  spawn-remove-none: "&cThis location is not set"
+  cinematic-location-set-success: "&aCinematic location for {character} set with success"
+  cinematic-location-tp: "&aTeleporting to the cinematic location for the character {character}..."
+  cinematic-location-none: "&cThe cinematic location of the character {character} is not set"
+  character-selector-already: "&cYou have already selected a character. You'll be able to change it once you die."

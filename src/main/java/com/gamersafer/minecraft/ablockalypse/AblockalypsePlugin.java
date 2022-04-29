@@ -3,6 +3,9 @@ package com.gamersafer.minecraft.ablockalypse;
 import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
+import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
+import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
+import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -16,6 +19,11 @@ public class AblockalypsePlugin extends JavaPlugin {
     private static AblockalypsePlugin instance;
 
     private StoryStorage storyStorage;
+    private LocationManager locationManager;
+
+    public static AblockalypsePlugin getInstance() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
@@ -35,23 +43,27 @@ public class AblockalypsePlugin extends JavaPlugin {
         HikariDataSource dataSource = new HikariDataSource(hikariConfig);
 
         this.storyStorage = new StoryCache(new StoryDAO(dataSource));
+        this.locationManager = new LocationManager();
 
         // register commands
         //noinspection ConstantConditions
-        getCommand("ablockalypse").setExecutor(new AblockalypseCommand(this));
+        getCommand("ablockalypse").setExecutor(new AblockalypseCommand(this, locationManager));
 
         // register listeners
-
+        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage), this);
     }
 
-
-    public static AblockalypsePlugin getInstance() {
-        return instance;
+    @Override
+    public void onDisable() {
+        storyStorage.shutdown();
+        locationManager.shutdown();
     }
 
     public void reload() {
         reloadConfig();
         Character.reload();
+        CharacterSelectionMenu.reload();
+        MenuListener.reload();
     }
 
     public void sendMessage(CommandSender user, String messageId) {

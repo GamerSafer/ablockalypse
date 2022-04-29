@@ -2,13 +2,14 @@ package com.gamersafer.minecraft.ablockalypse;
 
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
 public enum Character {
 
-        /*
+        /* TODO remove
 Nurse - Raises effectiveness of bandages/ first aid kits
 Farmer - Can repair armour
 Sprinter - Can sprint faster
@@ -51,11 +52,13 @@ Survivalist - Hunger and Thirst decreases slower
 
     private ItemStack menuItem;
 
+    private Location showroom;
+
     public static void reload() {
-        Arrays.stream(values()).forEach(Character::resetValues);
+        Arrays.stream(values()).forEach(Character::resetConfigValues);
     }
 
-    private void resetValues() {
+    private void resetConfigValues() {
         menuIndex = -1;
         displayName = null;
         description = null;
@@ -92,11 +95,10 @@ Survivalist - Hunger and Thirst decreases slower
     }
 
     private String getConfigPath() {
-
         return "character." + name().toLowerCase();
     }
 
-    private static String getColoredConfigString(String path) {
+    private String getColoredConfigString(String path) {
         String str = AblockalypsePlugin.getInstance().getConfig().getString(path);
         //noinspection ConstantConditions
         return ChatColor.translateAlternateColorCodes('&', str);

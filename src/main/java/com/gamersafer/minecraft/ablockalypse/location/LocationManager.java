@@ -1,31 +1,57 @@
 package com.gamersafer.minecraft.ablockalypse.location;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.gamersafer.minecraft.ablockalypse.Character;
 import org.bukkit.Location;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class LocationManager {
 
-    private final Multimap<LocationType, Location> locations;
+    private final Map<Character, Location> cinematicLocations;
+    private final List<Location> spawnPoints;
+    private Location hospital;
 
     public LocationManager() {
-        locations = HashMultimap.create();
+        cinematicLocations = new EnumMap<>(Character.class);
+        hospital = null;
+        spawnPoints = new ArrayList<>();
+        // todo load persisted locations
     }
 
-    // TODO SHOWROOM locations need to be associated with a character type
-
-    public Collection<Location> getLocations(LocationType locationType) {
-        return locations.get(locationType);
+    public Optional<Location> getHospital() {
+        return Optional.ofNullable(hospital);
     }
 
-    public boolean addLocation(LocationType locationType, Location location) {
-        return locations.put(locationType, location);
+    public void setHospital(Location hospital) {
+        this.hospital = hospital;
     }
 
-    public boolean removeLocation(LocationType locationType, Location location) {
-        return locations.remove(locationType, location);
+    public Optional<Location> getCinematicLoc(Character character) {
+        return Optional.ofNullable(cinematicLocations.get(character));
+    }
+
+    public void setCinematicLoc(Character character, Location location) {
+        cinematicLocations.put(character, location);
+    }
+
+    public List<Location> getSpawnPoints() {
+        return spawnPoints;
+    }
+
+    public boolean addSpawnPoint(Location location) {
+        return spawnPoints.add(location);
+    }
+
+    public boolean removeSpawnPoint(Location location) {
+        return spawnPoints.remove(location);
+    }
+
+    public void shutdown() {
+        // todo persist locations
     }
 
 }

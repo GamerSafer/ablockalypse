@@ -21,7 +21,9 @@ import java.util.Optional;
 
 public class LocationManager {
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Location.class, new LocationTypeAdapter())
+            .setPrettyPrinting().create();
 
     private final Map<Character, Location> cinematicLocations;
     private final List<Location> spawnPoints;
@@ -57,7 +59,6 @@ public class LocationManager {
     }
 
     private void saveLocations() {
-        // NOTE: on java 17+, we need to: --add-opens java.base/java.lang.ref=ALL-UNNAMED
         try (Writer writer = Files.newBufferedWriter(Paths.get(AblockalypsePlugin.getInstance().getDataFolder() + "/locations.json"),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 

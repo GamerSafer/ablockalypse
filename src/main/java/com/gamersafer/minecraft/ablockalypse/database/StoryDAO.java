@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,25 +38,26 @@ public class StoryDAO implements StoryStorage {
                 "  id            int(11) NOT NULL AUTO_INCREMENT," +
                 "  playerUuid    varchar(48) COLLATE utf8mb4_unicode_ci NOT NULL," +
                 "  characterType varchar(48)                            NOT NULL," +
-                "  characterName varchar(48)                            NOT NULL," +
+                "  characterName varchar(20)                            NOT NULL," +
                 "  startTime     TIMESTAMP                              NOT NULL," +
                 "  endTime       TIMESTAMP," +
                 "  PRIMARY KEY (`id`)" +
                 ")ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
         // this is executed only on startup. it's okay to run it on the primary thread
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(tableCreationQuery)) {
-            statement.execute();
+        try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement(tableCreationQuery)) {
+            statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
     public CompletableFuture<Optional<Story>> getActiveStory(UUID playerUuid) {
         return CompletableFuture.supplyAsync(() -> {
             Story result = null;
 
-            try (PreparedStatement statement = dataSource.getConnection().prepareStatement("SELECT id, characterName, startTime FROM story WHERE playerUuid = UNHEX(?) AND endTime = NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterName, startTime FROM story WHERE playerUuid = UNHEX(?) AND endTime = NULL LIMIT 1;")) {
                 statement.setString(1, playerUuid.toString().replaceAll("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -74,11 +76,12 @@ public class StoryDAO implements StoryStorage {
         }, executor);
     }
 
+    @Override
     public CompletableFuture<List<Story>> getAllStories(UUID playerUuid) {
         return CompletableFuture.supplyAsync(() -> {
             List<Story> stories = new ArrayList<>();
 
-            try (PreparedStatement statement = dataSource.getConnection().prepareStatement("SELECT id, characterType, characterName, startTime, endTime FROM story WHERE playerUuid = UNHEX(?) ORDER BY id DESC;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime, endTime FROM story WHERE playerUuid = UNHEX(?) ORDER BY id DESC;")) {
                 statement.setString(1, playerUuid.toString().replaceAll("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
@@ -98,10 +101,11 @@ public class StoryDAO implements StoryStorage {
         }, executor);
     }
 
+    @Override
     public CompletableFuture<Story> startNewStory(UUID playerUuid, Character character, String characterName, LocalDateTime startTime) {
         return CompletableFuture.supplyAsync(() -> {
-            try (PreparedStatement statement = dataSource.getConnection()
-                    .prepareStatement("INSERT INTO story (playerUuid, characterType, characterName, startTime) VALUES (UNHEX(?), ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement statement = conn.prepareStatement("INSERT INTO story (playerUuid, characterType, characterName, startTime) VALUES (UNHEX(?), ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
                 statement.setString(1, playerUuid.toString().replaceAll("-", ""));
                 statement.setString(2, character.name());
@@ -124,20 +128,22 @@ public class StoryDAO implements StoryStorage {
         }, executor);
     }
 
+    @Override
     public CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime) {
-        try (PreparedStatement statement = dataSource.getConnection().prepareStatement("UPDATE story SET endTime = ? WHERE playerUuid = UNHEX(?) AND endTime = NULL LIMIT 1;")) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET endTime = ? WHERE playerUuid = UNHEX(?) AND endTime = NULL LIMIT 1;")) {
 
-            statement.setTimestamp(1, Timestamp.valueOf(endTime));
-            statement.setString(2, playerUuid.toString().replaceAll("-", ""));
+                statement.setTimestamp(1, Timestamp.valueOf(endTime));
+                statement.setString(2, playerUuid.toString().replaceAll("-", ""));
 
-            int affectedRow = statement.executeUpdate();
-            if (affectedRow != 1) {
-                throw new RuntimeException("Couldn't end the story of " + playerUuid);
+                int affectedRow = statement.executeUpdate();
+                if (affectedRow != 1) {
+                    throw new RuntimeException("Couldn't end the story of " + playerUuid);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
+        }, executor);
     }
 
     @Override

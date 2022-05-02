@@ -1,7 +1,9 @@
 package com.gamersafer.minecraft.ablockalypse.database.api;
 
 import com.gamersafer.minecraft.ablockalypse.Character;
+import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
+import com.google.common.base.Preconditions;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,14 @@ public interface StoryStorage {
     CompletableFuture<Optional<Story>> getActiveStory(UUID playerUuid);
 
     CompletableFuture<List<Story>> getAllStories(UUID playerUuid);
+
+    default CompletableFuture<Story> startNewStory(OnboardingSessionData onboardingSessionData) {
+        Preconditions.checkArgument(onboardingSessionData.isComplete());
+        return startNewStory(onboardingSessionData.getPlayerUuid(),
+                onboardingSessionData.getCharacter(),
+                onboardingSessionData.getName(),
+                LocalDateTime.now());
+    }
 
     CompletableFuture<Story> startNewStory(UUID playerUuid, Character character, String characterName, LocalDateTime startTime);
 

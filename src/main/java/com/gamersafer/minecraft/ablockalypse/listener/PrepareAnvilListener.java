@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.inventory.ItemStack;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class PrepareAnvilListener implements Listener {
 
     private final AblockalypsePlugin plugin;

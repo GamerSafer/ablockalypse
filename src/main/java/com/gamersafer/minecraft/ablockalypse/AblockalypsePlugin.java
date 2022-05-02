@@ -7,18 +7,25 @@ import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
+import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AblockalypsePlugin extends JavaPlugin {
 
     private static AblockalypsePlugin instance;
 
+    private HikariDataSource dataSource;
     private StoryStorage storyStorage;
     private LocationManager locationManager;
 
@@ -41,17 +48,17 @@ public class AblockalypsePlugin extends JavaPlugin {
         hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        HikariDataSource dataSource = new HikariDataSource(hikariConfig);
+        dataSource = new HikariDataSource(hikariConfig);
 
         this.storyStorage = new StoryCache(new StoryDAO(dataSource));
         this.locationManager = new LocationManager();
 
         // register commands
         //noinspection ConstantConditions
-        getCommand("ablockalypse").setExecutor(new AblockalypseCommand(this, locationManager));
+        getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, locationManager));
 
         // register listeners
-        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage), this);
+        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
     }
 
@@ -59,6 +66,8 @@ public class AblockalypsePlugin extends JavaPlugin {
     public void onDisable() {
         storyStorage.shutdown();
         locationManager.shutdown();
+
+        dataSource.close();
     }
 
     public void reload() {
@@ -68,6 +77,10 @@ public class AblockalypsePlugin extends JavaPlugin {
         MenuListener.reload();
     }
 
+    public StoryStorage getStoryStorage() {
+        return storyStorage;
+    }
+
     public void sendMessage(CommandSender user, String messageId) {
         user.sendMessage(getMessage(messageId));
     }
@@ -75,6 +88,49 @@ public class AblockalypsePlugin extends JavaPlugin {
     public String getMessage(String messageId) {
         //noinspection ConstantConditions
         return ChatColor.translateAlternateColorCodes('&', getConfig().getString("message." + messageId));
+    }
+
+    public List<String> getMessageList(String messageId) {
+        return getConfig().getStringList("message." + messageId).stream()
+                .map(line -> ChatColor.translateAlternateColorCodes('&', line))
+                .collect(Collectors.toList());
+    }
+
+    // todo move to StoryManager
+    public void startNewStory(OnboardingSessionData data) {
+        // make sure we have all the data to start a new story
+        if (!data.isComplete()) {
+            throw new IllegalStateException("The following session data incomplete. Unable to start a story. data=" + data);
+        }
+
+        // make sure the player is online
+        Player player = Bukkit.getPlayer(data.getPlayerUuid());
+        if (player == null) {
+            throw new IllegalStateException("Unable to start a new story for the player " + data.getPlayerUuid() + ". He is offline.");
+        }
+
+        // make sure there player doesn't already have an active story
+        storyStorage.getActiveStory(player.getUniqueId()).thenAccept(activeStory -> {
+            if (activeStory.isPresent()) {
+                throw new IllegalStateException("Unable to start a new story for " + data.getPlayerUuid() + ". He already has an active story!");
+            }
+
+            // start new story
+            storyStorage.startNewStory(data).thenAccept(story -> {
+                // log message if there isn't any configured spawn
+                if (locationManager.getSpawnPoints().isEmpty()) {
+                    // this should never happen...
+                    getLogger().severe("Unable to teleport the player " + data.getPlayerUuid() + " to a spawn point. Please configure them!");
+                }
+
+                // try to teleport the player to a spawn
+                locationManager.getNextSpawnPoint().ifPresent(player::teleport);
+
+                // send feedback message
+                player.sendMessage(getMessage("onboarding-prompt-started")
+                        .replace("{character_name}", data.getName()));
+            }).thenRun(() -> getLogger().info("The player " + data.getPlayerUuid() + " just started a new story as a " + data.getCharacter().name()));
+        });
     }
 
 }

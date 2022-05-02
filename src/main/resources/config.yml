@@ -10,111 +10,112 @@ mysql:
 character:
   nurse:
     display-name: "&aNurse"
-    description: "Raises effectiveness of bandages/ first aid kits"
-    menu:
-      index: 0
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  farmer:
-    display-name: "&aFarmer"
-    description: "Can repair armour"
-    menu:
-      index: 1
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  sprinter:
-    display-name: "&aSprinter"
-    description: "Can sprint faster"
-    menu:
-      index: 2
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  construction_worker:
-    display-name: "&aConstruction Worker"
-    description: "Reduces damage taken"
-    menu:
-      index: 3
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  police_officer:
-    display-name: "&aPolice Officer"
-    description: "Does more weapon damage"
-    menu:
-      index: 4
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  shop_owner:
-    display-name: "&aShop Owner"
-    description: "Items cost less"
-    menu:
-      index: 5
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  mechanic:
-    display-name: "&aMechanic"
-    description: "Can repair weapons"
-    menu:
-      index: 6
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  chef:
-    display-name: "&aChef"
-    description: "Raises effectiveness of all foods"
-    menu:
-      index: 7
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  dog_walker:
-    display-name: "&aDog Walker"
-    description: "Can tame/ starts with wolf (can re-tame wolves if they lose theirs)"
-    menu:
-      index: 8
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  warehouse_worker:
-    display-name: "&aWarehouse Worker (Spy?)"
-    description: "Has Nightvision"
-    menu:
-      index: 9
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  thief:
-    display-name: "&aThief"
-    description: "Name is hidden at all times (only visible within 5 block radius)"
+    description: "&7Raises effectiveness of bandages/ first aid kits"
     menu:
       index: 10
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  gambler:
-    display-name: "&aGambler (Youtuber?)"
-    description: "Increase of luck on mob drops"
+  farmer:
+    display-name: "&aFarmer"
+    description: "&7Can repair armour"
     menu:
       index: 11
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  it_consultant:
-    display-name: "&aI.T Consultant"
-    description: "Quiet (zombies can only hear them if within 5 block radius)"
+  sprinter:
+    display-name: "&aSprinter"
+    description: "&7Can sprint faster"
     menu:
       index: 12
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  free_runner:
-    display-name: "&aFree Runner"
-    description: "No fall damage"
+  construction_worker:
+    display-name: "&aConstruction Worker"
+    description: "&7Reduces damage taken"
     menu:
       index: 13
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  baller:
-    display-name: "&aBaller"
-    description: "Jump Boost"
+  police_officer:
+    display-name: "&aPolice Officer"
+    description: "&7Does more weapon damage"
     menu:
       index: 14
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  survivalist:
-    display-name: "&aSurvivalist"
-    description: "Hunger and Thirst decreases slower"
+  shop_owner:
+    display-name: "&aShop Owner"
+    description: "&7Items cost less"
     menu:
       index: 15
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  mechanic:
+    display-name: "&aMechanic"
+    description: "&7Can repair weapons"
+    menu:
+      index: 16
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  chef:
+    display-name: "&aChef"
+    description: "&7Raises effectiveness of all foods"
+    menu:
+      index: 19
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  dog_walker:
+    display-name: "&aDog Walker"
+    description: "&7Can tame/ starts with wolf (can re-tame wolves if they lose theirs)"
+    menu:
+      index: 20
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  warehouse_worker:
+    display-name: "&aWarehouse Worker (Spy?)"
+    description: "&7Has Nightvision"
+    menu:
+      index: 21
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  thief:
+    display-name: "&aThief"
+    description: "&7Name is hidden at all times (only visible within 5 block radius)"
+    menu:
+      index: 22
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  gambler:
+    display-name: "&aGambler (Youtuber?)"
+    description: "&7Increase of luck on mob drops"
+    menu:
+      index: 23
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  it_consultant:
+    display-name: "&aI.T Consultant"
+    description: "&7Quiet (zombies can only hear them if within 5 block radius)"
+    menu:
+      index: 24
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  free_runner:
+    display-name: "&aFree Runner"
+    description: "&7No fall damage"
+    menu:
+      index: 25
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  baller:
+    display-name: "&aBaller"
+    description: "&7Jump Boost"
+    menu:
+      index: 30
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
+  survivalist:
+    display-name: "&aSurvivalist"
+    description: "&7Hunger and Thirst decreases slower"
+    menu:
+      index: 32
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
 
 menu:
   character-selection:
     title: "&cSelect a character"
-    size: 36
+    size: 45
 
 onboarding:
   cinematic-delay-seconds: 5
 
 message:
   player-only: "&cThis command must be run by a player."
+  config-reloaded: "&cConfig reloaded."
   invalid-character-type: "&c{input} is not a valid character. Valid types: {valid}"
   hospital-location-set: "&aHospital location set with success"
   hospital-location-tp: "&aTeleporting to the hospital..."
@@ -123,10 +124,27 @@ message:
   spawn-add-already: "&cThis location was already set"
   spawn-list-none: "&cThere isn't any spawn point"
   spawn-list-header: "&aSpawn locations. Click to teleport"
-  spawn-list-entry: "&7{world} {x} {y} {z}, pitch={pitch}, yaw={yaw}"
+  spawn-list-entry: "&7 - {world} x={x} y={y} z={z}, pitch={pitch}, yaw={yaw}"
   spawn-remove-success: "&aLocation removed with success"
   spawn-remove-none: "&cThis location is not set"
   cinematic-location-set-success: "&aCinematic location for {character} set with success"
   cinematic-location-tp: "&aTeleporting to the cinematic location for the character {character}..."
   cinematic-location-none: "&cThe cinematic location of the character {character} is not set"
   character-selector-already: "&cYou have already selected a character. You'll be able to change it once you die."
+  onboarding-prompt-cancel: "&cType 'CANCEL' to exit."
+  onboarding-prompt-cancelled: "&cThe character selection process has been cancelled"
+  onboarding-prompt-confirm: "&aAre you sure you want to be a {character}&a? Write yes or no"
+  onboarding-prompt-name: "&aWhat's your character's name?" # TODO add info on the name requirements
+  onboarding-prompt-creating: "&eCreating your character..."
+  onboarding-prompt-started: "&a{character_name} welcome!"
+  help-menu:
+    - "&aAblockalypse commands:"
+    - " &c/ablockalypse reload - &7Reload the config"
+    - " &c/ablockalypse backstory - &7Open the select character menu"
+    - " &c/ablockalypse hospital set - &7Set the hospital location"
+    - " &c/ablockalypse hospital tp - &7Teleport to the hospital"
+    - " &c/ablockalypse cinematic <character> set - &7Set the cinematic room location of a char"
+    - " &c/ablockalypse cinematic <character> tp - &7Tp to a cinematic room"
+    - " &c/ablockalypse spawnpoint list - &7Display all spawn locations"
+    - " &c/ablockalypse spawnpoint add - &7Mark a location as a spawn"
+    - " &c/ablockalypse spawnpoint remove - &7Remove a location from the spawn list"

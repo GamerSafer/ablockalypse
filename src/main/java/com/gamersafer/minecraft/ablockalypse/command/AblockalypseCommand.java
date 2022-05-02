@@ -8,15 +8,22 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AblockalypseCommand implements CommandExecutor {
+public class AblockalypseCommand implements CommandExecutor, TabCompleter {
+
+    public static final String COMMAND = "ablockalypse";
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     private final AblockalypsePlugin plugin;
     private final LocationManager locationManager;
@@ -26,13 +33,14 @@ public class AblockalypseCommand implements CommandExecutor {
         this.locationManager = locationManager;
     }
 
-    // todo permissions and autocompletion
+    // todo permissions
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
         // reload command
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             plugin.reload();
+            plugin.sendMessage(sender, "config-reloaded");
             return true;
         }
 
@@ -86,11 +94,11 @@ public class AblockalypseCommand implements CommandExecutor {
                             // todo click to teleport
                             player.sendMessage(plugin.getMessage("spawn-list-entry")
                                     .replace("{world}", loc.getWorld().getName())
-                                    .replace("{x}", Double.toString(loc.getX()))
-                                    .replace("{y}", Double.toString(loc.getY()))
-                                    .replace("{z}", Double.toString(loc.getZ()))
-                                    .replace("{pitch}", Float.toString(loc.getPitch()))
-                                    .replace("{yaw}", Float.toString(loc.getYaw()))
+                                    .replace("{x}", DECIMAL_FORMAT.format(loc.getX()))
+                                    .replace("{y}", DECIMAL_FORMAT.format(loc.getY()))
+                                    .replace("{z}", DECIMAL_FORMAT.format(loc.getZ()))
+                                    .replace("{pitch}", DECIMAL_FORMAT.format(loc.getPitch()))
+                                    .replace("{yaw}", DECIMAL_FORMAT.format(loc.getYaw()))
                             );
                         }
                     }
@@ -162,18 +170,37 @@ public class AblockalypseCommand implements CommandExecutor {
     }
 
     private void sendHelpMenu(CommandSender sender) {
-        // todo send messages
-        /*
-         /ablockalypse reload
-         /ablockalypse backstory
-         /ablockalypse hospital set
-         /ablockalypse hospital tp
-         /ablockalypse cinematic <character> set
-         /ablockalypse cinematic <character> tp
-         /ablockalypse spawnpoint list
-         /ablockalypse spawnpoint add
-         /ablockalypse spawnpoint remove
-         */
+        plugin.getMessageList("help-menu").forEach(sender::sendMessage);
     }
 
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!command.getName().equalsIgnoreCase(COMMAND)) {
+            return Collections.emptyList();
+        }
+
+        return switch (args.length) {
+            case 0, 1 -> List.of("reload", "backstory", "hospital", "cinematic", "spawnpoint");
+            case 2 -> {
+                if (args[0].equalsIgnoreCase("hospital")) {
+                    yield List.of("set", "tp");
+                } else if (args[0].equalsIgnoreCase("spawnpoint")) {
+                    yield List.of("list", "add", "remove");
+                } else if (args[0].equalsIgnoreCase("cinematic")) {
+                    yield Arrays.stream(Character.values())
+                            .map(Character::name)
+                            .map(String::toLowerCase)
+                            .collect(Collectors.toList());
+                }
+                yield Collections.emptyList();
+            }
+            case 3 -> {
+                if (args[0].equalsIgnoreCase("cinematic")) {
+                    yield List.of("set", "tp");
+                }
+                yield Collections.emptyList();
+            }
+            default -> Collections.emptyList();
+        };
+    }
 }

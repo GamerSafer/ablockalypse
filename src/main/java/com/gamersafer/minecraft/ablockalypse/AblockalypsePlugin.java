@@ -4,6 +4,7 @@ import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
@@ -51,6 +52,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         // register listeners
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage), this);
+        getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
     }
 
     @Override

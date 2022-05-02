@@ -6,7 +6,7 @@ CREATE TABLE story
     characterName varchar(48)                            NOT NULL,
     startTime     TIMESTAMP                              NOT NULL,
     endTime       TIMESTAMP,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /* todo add a constrain to make sure there is max 1 active story per user */

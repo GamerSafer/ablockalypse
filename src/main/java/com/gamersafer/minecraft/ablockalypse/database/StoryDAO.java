@@ -27,6 +27,28 @@ public class StoryDAO implements StoryStorage {
 
     public StoryDAO(DataSource dataSource) {
         this.dataSource = dataSource;
+
+        // create the story table if it doesn't exist
+        createTable();
+    }
+
+    private void createTable() {
+        String tableCreationQuery = "CREATE TABLE IF NOT EXISTS story (" +
+                "  id            int(11) NOT NULL AUTO_INCREMENT," +
+                "  playerUuid    varchar(48) COLLATE utf8mb4_unicode_ci NOT NULL," +
+                "  characterType varchar(48)                            NOT NULL," +
+                "  characterName varchar(48)                            NOT NULL," +
+                "  startTime     TIMESTAMP                              NOT NULL," +
+                "  endTime       TIMESTAMP," +
+                "  PRIMARY KEY (`id`)" +
+                ")ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+
+        // this is executed only on startup. it's okay to run it on the primary thread
+        try (PreparedStatement statement = dataSource.getConnection().prepareStatement(tableCreationQuery)) {
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CompletableFuture<Optional<Story>> getActiveStory(UUID playerUuid) {

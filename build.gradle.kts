@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.gamersafer.minecraft"
@@ -15,10 +16,20 @@ dependencies {
     compileOnly("com.mojang:authlib:3.3.39")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
-//    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-//    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
 
-//tasks.getByName<Test>("test") {
-//    useJUnitPlatform()
-//}
+tasks {
+    compileJava {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
+
+    shadowJar {
+        archiveFileName.set("ablockalypse-all-${version}.jar")
+        relocate("com/zaxxer/hikari", "lib/com/zaxxer/hikari")
+    }
+}

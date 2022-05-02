@@ -38,7 +38,11 @@ public class AblockalypseCommand implements CommandExecutor {
 
         // only players will be allowed to run commands after this point
         if (!(sender instanceof Player player)) {
-            plugin.sendMessage(sender, "player-only");
+            if (args.length == 0) {
+                sendHelpMenu(sender);
+            } else {
+                plugin.sendMessage(sender, "player-only");
+            }
             return false;
         }
 

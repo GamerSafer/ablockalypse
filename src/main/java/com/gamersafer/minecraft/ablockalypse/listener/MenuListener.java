@@ -38,6 +38,7 @@ public class MenuListener implements Listener {
 
         // character selection menu
         if (CharacterSelectionMenu.isEquals(event.getInventory())) {
+            event.setCancelled(true);
             Character clickedCharacter = slotToCharacter.get(event.getRawSlot());
 
             if (clickedCharacter != null) {
@@ -55,7 +56,6 @@ public class MenuListener implements Listener {
 
                             // todo start onboarding process
                         });
-
             }
         }
     }

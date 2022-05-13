@@ -97,7 +97,10 @@ public class LocationManager {
      * @return the next spawn point or an empty optional if there isn't any spawn point set
      */
     public Optional<Location> getNextSpawnPoint() {
-        return Optional.ofNullable(spawnPoints.get(++lastSpawnPointIndex % spawnPoints.size()));
+        if (spawnPoints.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(spawnPoints.get(++lastSpawnPointIndex % spawnPoints.size()));
     }
 
     public boolean addSpawnPoint(Location location) {

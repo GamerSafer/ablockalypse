@@ -111,7 +111,7 @@ menu:
     size: 45
 
 onboarding:
-  cinematic-delay-seconds: 5
+  cinematic-delay-seconds: 3
 
 message:
   player-only: "&cThis command must be run by a player."

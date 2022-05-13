@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
 import com.google.common.base.Preconditions;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,13 @@ public interface StoryStorage {
 
     CompletableFuture<Story> startNewStory(UUID playerUuid, Character character, String characterName, LocalDateTime startTime);
 
+    default CompletableFuture<Void> endStory(UUID playerUuid) {
+        return this.endStory(playerUuid, LocalDateTime.now());
+    }
+
     CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime);
+
+    CompletableFuture<Duration> getPlaytime(UUID playerUuid);
 
     void shutdown();
 

@@ -83,23 +83,30 @@ public class MenuListener implements Listener {
                                 plugin.getLogger().warning("Unable to teleport " + player.getName() + " to the " + clickedCharacter.name() + " cinematic location since it's not set.");
                             }
 
-                            // create and start onboarding conversation
-                            Conversation conversation = new Conversation(plugin, player, new ConfirmCharacterSelectionPrompt());
-                            conversation.getContext().setSessionData(SESSION_DATA_KEY, new OnboardingSessionData(player.getUniqueId(), clickedCharacter));
-                            conversation.setLocalEchoEnabled(true);
+                            // wait X seconds and start onboarding conversation. during the conversation, the chat will be disabled for the player
+                            int delay = plugin.getConfig().getInt("onboarding.cinematic-delay-seconds");
+                            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                                Conversation conversation = new Conversation(plugin, player, new ConfirmCharacterSelectionPrompt());
+                                conversation.getContext().setSessionData(SESSION_DATA_KEY, new OnboardingSessionData(player.getUniqueId(), clickedCharacter));
+                                conversation.setLocalEchoEnabled(true);
 
-                            conversation.getCancellers().add(new ExactMatchConversationCanceller("CANCEL"));
-                            conversation.addConversationAbandonedListener(conversationCancellerEvent -> {
-                                if (conversationCancellerEvent.getCanceller() instanceof ExactMatchConversationCanceller) {
-                                    ((Player) conversationCancellerEvent.getContext().getForWhom())
-                                            .sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
+                                conversation.getCancellers().add(new ExactMatchConversationCanceller("CANCEL"));
+                                conversation.addConversationAbandonedListener(conversationCancellerEvent -> {
+                                    if (conversationCancellerEvent.getCanceller() instanceof ExactMatchConversationCanceller) {
+                                        Player conversationCancellerPlayer = ((Player) conversationCancellerEvent.getContext().getForWhom());
 
-                                    // todo teleport the player somewhere
-                                }
-                            });
-                            player.sendMessage(plugin.getMessage("onboarding-prompt-cancel"));
+                                        // teleport the player back to the hospital
+                                        //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
+                                        conversationCancellerPlayer.teleport(locationManager.getHospital().get());
 
-                            player.beginConversation(conversation);
+                                        // send feedback message
+                                        conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
+                                    }
+                                });
+                                player.sendMessage(plugin.getMessage("onboarding-prompt-cancel"));
+
+                                player.beginConversation(conversation);
+                            }, delay * 20L);
                         });
             }
         }
@@ -121,7 +128,6 @@ public class MenuListener implements Listener {
                 data.setCharacterConfirmed();
                 return new NameInputPrompt();
             }
-            // TODO teleport to hospital
             return null;
         }
 
@@ -154,7 +160,6 @@ public class MenuListener implements Listener {
             }
 
             // attempt to start new story
-            // todo wait X seconds (specified in the config) before starting the story
             AblockalypsePlugin.getInstance().startNewStory(data);
 
             return null;

@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -55,11 +56,19 @@ public class StoryCache implements StoryStorage {
     public CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime) {
         return base.endStory(playerUuid, endTime).thenRun(() -> {
 
+            // invalidate cache
             cacheActive.synchronous().invalidate(playerUuid);
-
-            // todo update the endDate of the story or invalidate cache all
-
+            cacheAll.synchronous().invalidate(playerUuid);
         });
+    }
+
+    @Override
+    public CompletableFuture<Duration> getPlaytime(UUID playerUuid) {
+        return cacheAll.get(playerUuid).thenApply(stories -> stories.stream()
+                .map(Story::survivalTime)
+                .reduce(Duration::plus)
+                .orElse(Duration.ZERO)
+        );
     }
 
     @Override

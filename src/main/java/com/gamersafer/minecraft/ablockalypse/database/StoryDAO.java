@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,7 +52,10 @@ public class StoryDAO implements StoryStorage {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }, executor);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Override
@@ -59,7 +63,7 @@ public class StoryDAO implements StoryStorage {
         return CompletableFuture.supplyAsync(() -> {
             Story result = null;
 
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime FROM story WHERE playerUuid = UNHEX(?) AND endTime = NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime FROM story WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
                 statement.setString(1, playerUuid.toString().replace("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -75,7 +79,10 @@ public class StoryDAO implements StoryStorage {
                 throw new RuntimeException(e);
             }
             return Optional.ofNullable(result);
-        }, executor);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Optional.empty();
+        });
     }
 
     @Override
@@ -92,7 +99,8 @@ public class StoryDAO implements StoryStorage {
                                 Character.valueOf(resultSet.getString("characterType")),
                                 resultSet.getString("characterName"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
-                                resultSet.getTimestamp("endTime").toLocalDateTime());
+                                Optional.ofNullable(resultSet.getTimestamp("endTime"))
+                                        .map(Timestamp::toLocalDateTime).orElse(null));
                         stories.add(story);
                     }
                 }
@@ -100,7 +108,10 @@ public class StoryDAO implements StoryStorage {
                 throw new RuntimeException(e);
             }
             return stories;
-        }, executor);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Collections.emptyList();
+        });
     }
 
     @Override
@@ -127,13 +138,16 @@ public class StoryDAO implements StoryStorage {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }, executor);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Override
     public CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET endTime = ? WHERE playerUuid = UNHEX(?) AND endTime = NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET endTime = ? WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
 
                 statement.setTimestamp(1, Timestamp.valueOf(endTime));
                 statement.setString(2, playerUuid.toString().replace("-", ""));
@@ -145,7 +159,10 @@ public class StoryDAO implements StoryStorage {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }, executor);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Override

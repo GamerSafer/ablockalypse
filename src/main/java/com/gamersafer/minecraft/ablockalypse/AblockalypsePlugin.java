@@ -14,11 +14,11 @@ import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
+import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -48,6 +48,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         instance = this;
 
         saveDefaultConfig();
+        FormatUtil.reload(getConfig());
 
         // initialize connection pool
         ConfigurationSection dbConfig = getConfig().getConfigurationSection("mysql");
@@ -65,7 +66,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         // register commands
         //noinspection ConstantConditions
-        getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, locationManager));
+        getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager));
 
         // register listeners
         getServer().getPluginManager().registerEvents(new EntityDamageByEntityListener(storyStorage), this);
@@ -87,6 +88,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
     public void reload() {
         reloadConfig();
+        FormatUtil.reload(getConfig());
         Character.reload();
         CharacterSelectionMenu.reload();
         MenuListener.reload();
@@ -102,12 +104,12 @@ public class AblockalypsePlugin extends JavaPlugin {
 
     public String getMessage(String messageId) {
         //noinspection ConstantConditions
-        return ChatColor.translateAlternateColorCodes('&', getConfig().getString("message." + messageId));
+        return FormatUtil.color(getConfig().getString("message." + messageId));
     }
 
     public List<String> getMessageList(String messageId) {
         return getConfig().getStringList("message." + messageId).stream()
-                .map(line -> ChatColor.translateAlternateColorCodes('&', line))
+                .map(FormatUtil::color)
                 .collect(Collectors.toList());
     }
 

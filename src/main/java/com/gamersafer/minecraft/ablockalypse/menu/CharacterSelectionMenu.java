@@ -2,8 +2,8 @@ package com.gamersafer.minecraft.ablockalypse.menu;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
+import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -13,8 +13,7 @@ public class CharacterSelectionMenu {
     private final Inventory inventory;
 
     public CharacterSelectionMenu() {
-        //noinspection ConstantConditions
-        String title = ChatColor.translateAlternateColorCodes('&', AblockalypsePlugin.getInstance().getConfig().getString("menu.character-selection.title"));
+        String title = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getString("menu.character-selection.title"));
         int size = AblockalypsePlugin.getInstance().getConfig().getInt("menu.character-selection.size");
 
         this.inventory = Bukkit.createInventory(null, size, title);

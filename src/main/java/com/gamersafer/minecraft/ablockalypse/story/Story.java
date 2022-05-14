@@ -4,7 +4,6 @@ import com.gamersafer.minecraft.ablockalypse.Character;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 import java.util.UUID;
@@ -23,7 +22,7 @@ public record Story(int id, UUID playerUuid, Character character, String charact
      * @return the story duration
      */
     public Duration survivalTime() {
-        Temporal end = endTime != null ? endTime : Instant.now();
+        Temporal end = endTime != null ? endTime : LocalDateTime.now();
         return Duration.between(startTime, end);
     }
 

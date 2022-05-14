@@ -2,9 +2,12 @@ package com.gamersafer.minecraft.ablockalypse.command;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
+import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
 import io.papermc.lib.PaperLib;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class AblockalypseCommand implements CommandExecutor, TabCompleter {
@@ -27,14 +31,14 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     private final AblockalypsePlugin plugin;
+    private final StoryStorage storyStorage;
     private final LocationManager locationManager;
 
-    public AblockalypseCommand(AblockalypsePlugin plugin, LocationManager locationManager) {
+    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
         this.plugin = plugin;
+        this.storyStorage = storyStorage;
         this.locationManager = locationManager;
     }
-
-    // todo permissions
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
@@ -60,6 +64,22 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 // display the character selection menu. this subcommand is supposed to be used only by staff members for debug purposes
                 CharacterSelectionMenu.open(player);
                 return true;
+            } else if (args[0].equalsIgnoreCase("stories")) {
+
+                storyStorage.getAllStories(player.getUniqueId()).thenAccept(stories -> {
+                    if (stories.isEmpty()) {
+                        plugin.sendMessage(player, "stories-own-none");
+                        return;
+
+                    }
+
+                    storyStorage.getPlaytime(player.getUniqueId()).thenAccept(playtime -> {
+                        // create and open the menu
+                        plugin.getServer().getScheduler().runTask(plugin, () -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
+                    });
+                });
+
+                return true;
             }
         } else if (args.length == 2) {
 
@@ -83,6 +103,30 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(plugin.getMessage("hospital-location-set"));
                     return true;
                 }
+            } else if (args[0].equalsIgnoreCase("stories")) {
+
+                String targetName = args[1];
+                UUID targetUuid = Bukkit.getPlayerUniqueId(targetName);
+
+                if (targetUuid == null) {
+                    player.sendMessage(plugin.getMessage("stories-target-invalid")
+                            .replace("{name}", targetName));
+                    return true;
+                }
+
+                storyStorage.getAllStories(targetUuid).thenAccept(stories -> {
+                    if (stories.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("stories-other-none")
+                                .replace("{name}", targetName));
+                        return;
+                    }
+
+                    storyStorage.getPlaytime(targetUuid).thenAccept(playtime -> {
+                        // create and open the menu
+                        plugin.getServer().getScheduler().runTask(plugin, () -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
+                    });
+                });
+                return true;
             } else if (args[0].equalsIgnoreCase("spawnpoint")) {
                 if (args[1].equalsIgnoreCase("list")) {
                     List<Location> spawnPoints = locationManager.getSpawnPoints();
@@ -181,10 +225,12 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "hospital", "cinematic", "spawnpoint");
+            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint");
             case 2 -> {
                 if (args[0].equalsIgnoreCase("hospital")) {
                     yield List.of("set", "tp");
+                } else if (args[0].equalsIgnoreCase("stories")) {
+                    yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
                 } else if (args[0].equalsIgnoreCase("spawnpoint")) {
                     yield List.of("list", "add", "remove");
                 } else if (args[0].equalsIgnoreCase("cinematic")) {

@@ -9,7 +9,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
@@ -62,8 +61,7 @@ public final class ItemUtil {
 
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        byte[] encodedData = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", textureUrl).getBytes());
-        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
+        profile.getProperties().put("textures", new Property("textures", textureUrl));
         try {
             Field profileField = headMeta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);

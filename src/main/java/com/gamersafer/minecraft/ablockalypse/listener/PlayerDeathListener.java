@@ -10,7 +10,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class PlayerDeathListener implements Listener {
 
     private final AblockalypsePlugin plugin;

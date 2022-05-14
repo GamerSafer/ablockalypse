@@ -109,9 +109,37 @@ menu:
   character-selection:
     title: "&cSelect a character"
     size: 45
-
+  past-stories:
+    title: "&c{player}'s stories (page {page}/{pageTot})"
+    items:
+      next-page:
+        material: ARROW
+        name: "&cNext page"
+        lore:
+          - "&7Click to open the next page"
+      prev-page:
+        material: ARROW
+        name: "&cPrevious page"
+        lore:
+          - "&7Click to open the previous page"
+      player-info:
+        material: PLAYER_HEAD
+        name: "&c{player}"
+        lore:
+          - ""
+          - "&7Playtime: {playtime}"
+      story-entry:
+        lore:
+          - ""
+          - "&7Start date: {startDate}"
+          - "&7End date: {endDate}"
+          - "&7Survival time: {survivaltime}"
 onboarding:
   cinematic-delay-seconds: 3
+
+format:
+  date-time: "yyyy-MM-dd HH:mm:ss"
+  duration: "d 'days', m 'minutes', s 'seconds'"
 
 message:
   player-only: "&cThis command must be run by a player."
@@ -134,13 +162,17 @@ message:
   onboarding-prompt-cancel: "&cType 'CANCEL' to exit."
   onboarding-prompt-cancelled: "&cThe character selection process has been cancelled"
   onboarding-prompt-confirm: "&aAre you sure you want to be a {character}&a? Write yes or no"
-  onboarding-prompt-name: "&aWhat's your character's name?" # TODO add info on the name requirements
+  onboarding-prompt-name: "&aWhat's your character's name? &7(8-20 chars long, no special chars)"
   onboarding-prompt-creating: "&eCreating your character..."
   onboarding-prompt-started: "&a{character_name} welcome!"
+  stories-target-invalid: "&cUnable to find the player {name}"
+  stories-own-none: "&cYou haven't started any story yet"
+  stories-other-none: "&cThe player {name} haven't started any story"
   help-menu:
     - "&aAblockalypse commands:"
     - " &c/ablockalypse reload - &7Reload the config"
     - " &c/ablockalypse backstory - &7Open the select character menu"
+    - " &c/ablockalypse stories <player> - &7Shows past stories of a player"
     - " &c/ablockalypse hospital set - &7Set the hospital location"
     - " &c/ablockalypse hospital tp - &7Teleport to the hospital"
     - " &c/ablockalypse cinematic <character> set - &7Set the cinematic room location of a char"

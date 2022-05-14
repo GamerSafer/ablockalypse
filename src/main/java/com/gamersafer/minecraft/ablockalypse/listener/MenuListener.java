@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
@@ -110,8 +111,22 @@ public class MenuListener implements Listener {
                             }, delay * 20L);
                         });
             }
+        } else if (event.getInventory().getHolder() instanceof PastStoriesMenu pastStoriesMenu) {
+            // past stories menu
+            event.setCancelled(true);
+
+            if (event.getCurrentItem() != null && !event.getCurrentItem().equals(PastStoriesMenu.GLASS_PANE)) {
+                // handle previous/next page navigation buttons
+                if (event.getRawSlot() == PastStoriesMenu.PREVIOUS_PAGE_SLOT) {
+                    pastStoriesMenu.openPreviousPage((Player) event.getWhoClicked());
+                } else if (event.getRawSlot() == PastStoriesMenu.PREVIOUS_PAGE_SLOT) {
+                    pastStoriesMenu.openNextPage((Player) event.getWhoClicked());
+                }
+            }
         }
     }
+
+    // todo listen to InventoryDragEvent
 
     private static class ConfirmCharacterSelectionPrompt extends ValidatingPrompt {
 

@@ -49,6 +49,9 @@ public class StoryCache implements StoryStorage {
                 }
             }
             return story;
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -59,6 +62,9 @@ public class StoryCache implements StoryStorage {
             // invalidate cache
             cacheActive.synchronous().invalidate(playerUuid);
             cacheAll.synchronous().invalidate(playerUuid);
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 
@@ -68,7 +74,10 @@ public class StoryCache implements StoryStorage {
                 .map(Story::survivalTime)
                 .reduce(Duration::plus)
                 .orElse(Duration.ZERO)
-        );
+        ).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Duration.ZERO;
+        });
     }
 
     @Override

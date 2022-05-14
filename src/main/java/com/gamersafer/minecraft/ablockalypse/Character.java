@@ -1,8 +1,7 @@
 package com.gamersafer.minecraft.ablockalypse;
 
+import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -52,8 +51,6 @@ Survivalist - Hunger and Thirst decreases slower
 
     private ItemStack menuItem;
 
-    private Location showroom;
-
     public static void reload() {
         Arrays.stream(values()).forEach(Character::resetConfigValues);
     }
@@ -100,8 +97,7 @@ Survivalist - Hunger and Thirst decreases slower
 
     private String getColoredConfigString(String path) {
         String str = AblockalypsePlugin.getInstance().getConfig().getString(path);
-        //noinspection ConstantConditions
-        return ChatColor.translateAlternateColorCodes('&', str);
+        return FormatUtil.color(str);
     }
 
 }

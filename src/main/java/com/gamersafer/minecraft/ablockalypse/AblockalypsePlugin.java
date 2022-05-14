@@ -16,6 +16,7 @@ import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -136,7 +137,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                     // try to teleport the player to the next spawn location
                     Optional<Location> spawnPoint = locationManager.getNextSpawnPoint();
                     if (spawnPoint.isPresent()) {
-                        player.teleport(spawnPoint.get());
+                        PaperLib.teleportAsync(player, spawnPoint.get());
                     } else {
                         // there isn't any configured spawn
                         getLogger().severe("Unable to teleport the player " + data.getPlayerUuid() + " to a spawn point. Please configure them!");

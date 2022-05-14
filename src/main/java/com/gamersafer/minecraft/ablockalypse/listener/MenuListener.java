@@ -6,6 +6,7 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
@@ -78,7 +79,7 @@ public class MenuListener implements Listener {
                             // teleport the player to the character-specific showroom
                             Optional<Location> cinematicLocOpt = locationManager.getCinematicLoc(clickedCharacter);
                             if (cinematicLocOpt.isPresent()) {
-                                player.teleport(cinematicLocOpt.get());
+                                PaperLib.teleportAsync(player, cinematicLocOpt.get());
                             } else {
                                 plugin.getLogger().warning("Unable to teleport " + player.getName() + " to the " + clickedCharacter.name() + " cinematic location since it's not set.");
                             }
@@ -97,7 +98,7 @@ public class MenuListener implements Listener {
 
                                         // teleport the player back to the hospital
                                         //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
-                                        conversationCancellerPlayer.teleport(locationManager.getHospital().get());
+                                        PaperLib.teleportAsync(player, locationManager.getHospital().get());
 
                                         // send feedback message
                                         conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));

@@ -4,6 +4,7 @@ import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
+import io.papermc.lib.PaperLib;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -69,7 +70,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     if (hospitalLoc.isPresent()) {
                         // teleport to the hospital
                         player.sendMessage(plugin.getMessage("hospital-location-tp"));
-                        player.teleport(hospitalLoc.get());
+                        PaperLib.teleportAsync(player, hospitalLoc.get());
                     } else {
                         // the location has not been set yet
                         player.sendMessage(plugin.getMessage("hospital-location-none"));
@@ -154,7 +155,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         // teleport the player
                         player.sendMessage(plugin.getMessage("cinematic-location-tp")
                                 .replace("{character}", character.name().toLowerCase()));
-                        player.teleport(cinematicLoc.get());
+                        PaperLib.teleportAsync(player, cinematicLoc.get());
                     } else {
                         // the location is not present
                         player.sendMessage(plugin.getMessage("cinematic-location-none")

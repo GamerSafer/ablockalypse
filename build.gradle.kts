@@ -16,6 +16,7 @@ dependencies {
     compileOnly("com.mojang:authlib:3.3.39")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("io.papermc:paperlib:1.0.7")
 }
 
 tasks {
@@ -31,5 +32,6 @@ tasks {
     shadowJar {
         archiveFileName.set("ablockalypse-all-${version}.jar")
         relocate("com/zaxxer/hikari", "lib/com/zaxxer/hikari")
+        relocate("io/papermc/lib", "com/gamersafer/minecraft/ablockalypse/paperlib")
     }
 }

@@ -30,7 +30,7 @@ public final class FormatUtil {
     }
 
     public static String format(Duration duration) {
-        return DurationFormatUtils.formatDuration(duration.toMillis(), durationFormat, true);
+        return DurationFormatUtils.formatDuration(duration.toMillis(), durationFormat, false);
     }
 
     public static String color(String str) {

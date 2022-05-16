@@ -7,6 +7,8 @@ import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -43,7 +45,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
         // reload command
-        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload") && hasPermission(sender, Permission.CMD_RELOAD)) {
             plugin.reload();
             plugin.sendMessage(sender, "config-reloaded");
             return true;
@@ -60,11 +62,11 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("backstory")) {
+            if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
                 // display the character selection menu. this subcommand is supposed to be used only by staff members for debug purposes
                 CharacterSelectionMenu.open(player);
                 return true;
-            } else if (args[0].equalsIgnoreCase("stories")) {
+            } else if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OWN)) {
 
                 storyStorage.getAllStories(player.getUniqueId()).thenAccept(stories -> {
                     if (stories.isEmpty()) {
@@ -84,7 +86,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 2) {
 
             if (args[0].equalsIgnoreCase("hospital")) {
-                if (args[1].equalsIgnoreCase("tp")) {
+                if (args[1].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_HOSPITAL_TP)) {
                     Optional<Location> hospitalLoc = locationManager.getHospital();
 
                     if (hospitalLoc.isPresent()) {
@@ -97,13 +99,13 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     }
 
                     return true;
-                } else if (args[1].equalsIgnoreCase("set")) {
+                } else if (args[1].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_HOSPITAL_SET)) {
                     // set location and send feedback message
                     locationManager.setHospital(player.getLocation());
                     player.sendMessage(plugin.getMessage("hospital-location-set"));
                     return true;
                 }
-            } else if (args[0].equalsIgnoreCase("stories")) {
+            } else if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OTHERS)) {
 
                 String targetName = args[1];
                 UUID targetUuid = Bukkit.getPlayerUniqueId(targetName);
@@ -128,7 +130,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 });
                 return true;
             } else if (args[0].equalsIgnoreCase("spawnpoint")) {
-                if (args[1].equalsIgnoreCase("list")) {
+                if (args[1].equalsIgnoreCase("list") && hasPermission(sender, Permission.CMD_SPAWNPOINT_LIST)) {
                     List<Location> spawnPoints = locationManager.getSpawnPoints();
                     if (spawnPoints.isEmpty()) {
                         player.sendMessage(plugin.getMessage("spawn-list-none"));
@@ -136,20 +138,22 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(plugin.getMessage("spawn-list-header"));
 
                         for (Location loc : spawnPoints) {
-                            // todo click to teleport
-                            player.sendMessage(plugin.getMessage("spawn-list-entry")
+                            String locMessage = plugin.getMessage("spawn-list-entry")
                                     .replace("{world}", loc.getWorld().getName())
                                     .replace("{x}", DECIMAL_FORMAT.format(loc.getX()))
                                     .replace("{y}", DECIMAL_FORMAT.format(loc.getY()))
                                     .replace("{z}", DECIMAL_FORMAT.format(loc.getZ()))
                                     .replace("{pitch}", DECIMAL_FORMAT.format(loc.getPitch()))
-                                    .replace("{yaw}", DECIMAL_FORMAT.format(loc.getYaw()))
-                            );
+                                    .replace("{yaw}", DECIMAL_FORMAT.format(loc.getYaw()));
+
+                            Component message = Component.text(locMessage).clickEvent(ClickEvent
+                                    .runCommand("/ablockalypse spawnpoint tploc:" + loc.hashCode()));
+                            player.sendMessage(message);
                         }
                     }
 
                     return true;
-                } else if (args[1].equalsIgnoreCase("add")) {
+                } else if (args[1].equalsIgnoreCase("add") && hasPermission(sender, Permission.CMD_SPAWNPOINT_ADD)) {
                     // try to add the location
                     boolean added = locationManager.addSpawnPoint(player.getLocation());
 
@@ -158,13 +162,32 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(plugin.getMessage(messageId));
 
                     return true;
-                } else if (args[1].equalsIgnoreCase("remove")) {
+                } else if (args[1].equalsIgnoreCase("remove") && hasPermission(sender, Permission.CMD_SPAWNPOINT_REMOVE)) {
                     // try to remove the location and send feedback message
                     boolean removed = locationManager.removeSpawnPoint(player.getLocation());
                     String messageId = removed ? "spawn-remove-success" : "spawn-remove-none";
                     player.sendMessage(plugin.getMessage(messageId));
 
                     return true;
+                } else if (args[1].toLowerCase().startsWith("tploc:") && hasPermission(sender, Permission.CMD_SPAWNPOINT_TP)) {
+                    // try to parse the location
+                    Optional<Location> spawnPoint;
+                    try {
+                        int locationHash = Integer.parseInt(args[1].split(":")[1]);
+                        spawnPoint = locationManager.getSpawnPoints().stream()
+                                .filter(loc -> loc.hashCode() == locationHash)
+                                .findFirst();
+                    } catch (Exception e) {
+                        spawnPoint = Optional.empty();
+                    }
+
+                    // try to teleport and send feedback message
+                    if (spawnPoint.isPresent()) {
+                        PaperLib.teleportAsync(player, spawnPoint.get());
+                        plugin.sendMessage(sender, "spawn-tp-success");
+                    } else {
+                        plugin.sendMessage(sender, "spawn-tp-invalid");
+                    }
                 }
             }
         } else if (args.length == 3) {
@@ -184,7 +207,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                if (args[2].equalsIgnoreCase("set")) {
+                if (args[2].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_CINEMATIC_SET)) {
 
                     // set the location and send feedback message
                     locationManager.setCinematicLoc(character, player.getLocation());
@@ -192,7 +215,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .replace("{character}", character.name().toLowerCase()));
 
                     return true;
-                } else if (args[2].equalsIgnoreCase("tp")) {
+                } else if (args[2].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_CINEMATIC_TP)) {
 
                     Optional<Location> cinematicLoc = locationManager.getCinematicLoc(character);
                     if (cinematicLoc.isPresent()) {
@@ -216,6 +239,14 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelpMenu(CommandSender sender) {
         plugin.getMessageList("help-menu").forEach(sender::sendMessage);
+    }
+
+    private boolean hasPermission(CommandSender sender, Permission... permission) {
+        boolean hasPerm = Arrays.stream(permission).map(Permission::toString).allMatch(sender::hasPermission);
+        if (!hasPerm) {
+            plugin.sendMessage(sender, "no-permission");
+        }
+        return hasPerm;
     }
 
     @Override

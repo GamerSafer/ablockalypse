@@ -9,22 +9,22 @@ import java.util.Arrays;
 public enum Character {
 
         /* TODO remove
-Nurse - Raises effectiveness of bandages/ first aid kits
+TODO Nurse - Raises effectiveness of bandages/ first aid kits
 Farmer - Can repair armour
-Sprinter - Can sprint faster
+TODO Sprinter - Can sprint faster
 Construction Worker - Reduces damage taken
 Police Officer - Does more weapon damage
-Shop Owner - Items cost less
+TODO Shop Owner - Items cost less
 Mechanic - Can repair weapons
 Chef - Raises effectiveness of all foods
-Dog Walker - Can tame/ starts with wolf (can re-tame wolves if they lose theirs)
+TODO Dog Walker - Can tame/ starts with wolf (can re-tame wolves if they lose theirs)
 Warehouse Worker (Spy?) - Has Nightvision
-Thief - Name is hidden at all times (only visible within 5 block radius)
-Gambler (Youtuber?) - increase of luck on mob drops
-I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
+TODO Thief - Name is hidden at all times (only visible within 5 block radius)
+TODO Gambler (Youtuber?) - increase of luck on mob drops
+TODO I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
 Free Runner - No fall damage
 Baller - Jump Boost
-Survivalist - Hunger and Thirst decreases slower
+Survivalist - Hunger and TODO Thirst decreases slower
  */
 
 

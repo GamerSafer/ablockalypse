@@ -38,15 +38,22 @@ public class PrepareAnvilListener implements Listener {
             // check whether the player is a farmer. that's the only character allowed to repair armor
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                 if (story.isEmpty() || story.get().character() != Character.FARMER) {
-
-                    // todo test does this block the anvil usage? do we need to block the thread until the future is complete?
+                    // cancel the event and send feedback message
                     event.getInventory().setRepairCost(0);
+                    event.setResult(null);
+                    plugin.sendMessage(player, "anvil-armor-no");
                 }
             });
         } else if (ItemUtil.WEAPONS.contains(firstItem.getType())) {
             // check whether the player is a mechanic. that's the only character allowed to repair weapons
-
-            // todo copy from above if it works
+            storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                if (story.isEmpty() || story.get().character() != Character.MECHANIC) {
+                    // cancel the event and send feedback message
+                    event.getInventory().setRepairCost(0);
+                    event.setResult(null);
+                    plugin.sendMessage(player, "anvil-weapon-no");
+                }
+            });
         }
     }
 

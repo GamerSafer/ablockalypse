@@ -14,18 +14,28 @@ import java.util.concurrent.CompletableFuture;
 
 public interface StoryStorage {
 
-    // TODO javadocs
-
     /**
      * Tries to get active story of a player. See {@link Story#isActive()}.
      *
-     * @param playerUuid The UUID of the player
+     * @param playerUuid the UUID of the player
      * @return his active story or an empty optional if he doesn't have a selected character
      */
     CompletableFuture<Optional<Story>> getActiveStory(UUID playerUuid);
 
+    /**
+     * Gets all stories started by the given player, including the active one ({@link #getActiveStory(UUID)})
+     *
+     * @param playerUuid the UUID of the player
+     * @return all e stories started by the player
+     */
     CompletableFuture<List<Story>> getAllStories(UUID playerUuid);
 
+    /**
+     * Starts a new story.
+     *
+     * @param onboardingSessionData the data of the story start
+     * @return the newly created story
+     */
     default CompletableFuture<Story> startNewStory(OnboardingSessionData onboardingSessionData) {
         Preconditions.checkArgument(onboardingSessionData.isComplete());
         return startNewStory(onboardingSessionData.getPlayerUuid(),
@@ -34,14 +44,37 @@ public interface StoryStorage {
                 LocalDateTime.now());
     }
 
+    /**
+     * Starts a new story with the given data.
+     *
+     * @param playerUuid    the of the player who is starting the story
+     * @param character     the character of the story
+     * @param characterName the display name of the character
+     * @param startTime     the story start time
+     * @return the newly created story
+     */
     CompletableFuture<Story> startNewStory(UUID playerUuid, Character character, String characterName, LocalDateTime startTime);
 
     default CompletableFuture<Void> endStory(UUID playerUuid) {
         return this.endStory(playerUuid, LocalDateTime.now());
     }
 
+    /**
+     * Ends the active story of the given player.
+     *
+     * @param playerUuid the UUID of the player whose active story to end
+     * @param endTime    the story end time
+     * @return a CompletableFuture that will complete once the story has been completed
+     */
     CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime);
 
+    /**
+     * Gets the playtime of the given player.
+     * The playtime is the sum of the survival time of all the stories started by a player. See {@link Story#survivalTime()}
+     *
+     * @param playerUuid the UUID of the player
+     * @return his playtime
+     */
     CompletableFuture<Duration> getPlaytime(UUID playerUuid);
 
     void shutdown();

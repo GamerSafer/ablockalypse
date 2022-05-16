@@ -139,10 +139,11 @@ onboarding:
 
 format:
   date-time: "yyyy-MM-dd HH:mm:ss"
-  duration: "d 'days', m 'minutes', s 'seconds'"
+  duration: "d 'days', mm 'minutes', ss 'seconds'"
 
 message:
   player-only: "&cThis command must be run by a player."
+  no-permission: "&cYou don't have permissions"
   config-reloaded: "&cConfig reloaded."
   invalid-character-type: "&c{input} is not a valid character. Valid types: {valid}"
   hospital-location-set: "&aHospital location set with success"
@@ -150,6 +151,8 @@ message:
   hospital-location-none: "&cThe hospital location is not set"
   spawn-add-success: "&aLocation set with success"
   spawn-add-already: "&cThis location was already set"
+  spawn-tp-invalid: "&cInvalid location"
+  spawn-tp-success: "&aTeleporting to the spawnpoint..."
   spawn-list-none: "&cThere isn't any spawn point"
   spawn-list-header: "&aSpawn locations. Click to teleport"
   spawn-list-entry: "&7 - {world} x={x} y={y} z={z}, pitch={pitch}, yaw={yaw}"
@@ -168,6 +171,8 @@ message:
   stories-target-invalid: "&cUnable to find the player {name}"
   stories-own-none: "&cYou haven't started any story yet"
   stories-other-none: "&cThe player {name} haven't started any story"
+  anvil-armor-no: "&cOnly Farmers can repair armor"
+  anvil-weapon-no: "&cOnly Mechanics can repair weapons"
   help-menu:
     - "&aAblockalypse commands:"
     - " &c/ablockalypse reload - &7Reload the config"

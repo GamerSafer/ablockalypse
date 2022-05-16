@@ -7,4 +7,3 @@ authors: [ GamerSafer ]
 commands:
   ablockalypse:
     description: Main command
-    permission: ablockalypse.cmd

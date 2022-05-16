@@ -82,30 +82,47 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 });
 
                 return true;
-            }
-        } else if (args.length == 2) {
+            } else if (args[0].toLowerCase().startsWith("tploc")) {
+                String messagePrefix = null;
+                Optional<Location> location = Optional.empty();
 
-            if (args[0].equalsIgnoreCase("hospital")) {
-                if (args[1].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_HOSPITAL_TP)) {
-                    Optional<Location> hospitalLoc = locationManager.getHospital();
+                if (args[0].toLowerCase().startsWith("tploc-hospital:") && hasPermission(sender, Permission.CMD_HOSPITAL_TP)) {
+                    messagePrefix = "hospital-tp";
 
-                    if (hospitalLoc.isPresent()) {
-                        // teleport to the hospital
-                        player.sendMessage(plugin.getMessage("hospital-location-tp"));
-                        PaperLib.teleportAsync(player, hospitalLoc.get());
-                    } else {
-                        // the location has not been set yet
-                        player.sendMessage(plugin.getMessage("hospital-location-none"));
+                    // try to parse the location
+                    try {
+                        int locationHash = Integer.parseInt(args[0].split(":")[1]);
+                        location = locationManager.getHospitalPoints().stream()
+                                .filter(loc -> loc.hashCode() == locationHash)
+                                .findFirst();
+                    } catch (Exception ignore) {
                     }
+                } else if (args[0].toLowerCase().startsWith("tploc-hospital:") && hasPermission(sender, Permission.CMD_SPAWNPOINT_TP)) {
+                    messagePrefix = "spawn-tp";
 
-                    return true;
-                } else if (args[1].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_HOSPITAL_SET)) {
-                    // set location and send feedback message
-                    locationManager.setHospital(player.getLocation());
-                    player.sendMessage(plugin.getMessage("hospital-location-set"));
+                    // try to parse the location
+                    try {
+                        int locationHash = Integer.parseInt(args[0].split(":")[1]);
+                        location = locationManager.getSpawnPoints().stream()
+                                .filter(loc -> loc.hashCode() == locationHash)
+                                .findFirst();
+                    } catch (Exception ignore) {
+                    }
+                }
+
+                if (messagePrefix != null) {
+                    // try to teleport and send feedback message
+                    if (location.isPresent()) {
+                        PaperLib.teleportAsync(player, location.get());
+                        plugin.sendMessage(sender, messagePrefix + "-success");
+                    } else {
+                        plugin.sendMessage(sender, messagePrefix + "-invalid");
+                    }
                     return true;
                 }
-            } else if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OTHERS)) {
+            }
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OTHERS)) {
 
                 String targetName = args[1];
                 UUID targetUuid = Bukkit.getPlayerUniqueId(targetName);
@@ -147,7 +164,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                                     .replace("{yaw}", DECIMAL_FORMAT.format(loc.getYaw()));
 
                             Component message = Component.text(locMessage).clickEvent(ClickEvent
-                                    .runCommand("/ablockalypse spawnpoint tploc:" + loc.hashCode()));
+                                    .runCommand("/ablockalypse tploc-spawn:" + loc.hashCode()));
                             player.sendMessage(message);
                         }
                     }
@@ -169,25 +186,47 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(plugin.getMessage(messageId));
 
                     return true;
-                } else if (args[1].toLowerCase().startsWith("tploc:") && hasPermission(sender, Permission.CMD_SPAWNPOINT_TP)) {
-                    // try to parse the location
-                    Optional<Location> spawnPoint;
-                    try {
-                        int locationHash = Integer.parseInt(args[1].split(":")[1]);
-                        spawnPoint = locationManager.getSpawnPoints().stream()
-                                .filter(loc -> loc.hashCode() == locationHash)
-                                .findFirst();
-                    } catch (Exception e) {
-                        spawnPoint = Optional.empty();
+                }
+            } else if (args[0].equalsIgnoreCase("hospital")) {
+                if (args[1].equalsIgnoreCase("list") && hasPermission(sender, Permission.CMD_HOSPITAL_LIST)) {
+                    List<Location> hospitalPoints = locationManager.getHospitalPoints();
+                    if (hospitalPoints.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("hospital-list-none"));
+                    } else {
+                        player.sendMessage(plugin.getMessage("hospital-list-header"));
+
+                        for (Location loc : hospitalPoints) {
+                            String locMessage = plugin.getMessage("hospital-list-entry")
+                                    .replace("{world}", loc.getWorld().getName())
+                                    .replace("{x}", DECIMAL_FORMAT.format(loc.getX()))
+                                    .replace("{y}", DECIMAL_FORMAT.format(loc.getY()))
+                                    .replace("{z}", DECIMAL_FORMAT.format(loc.getZ()))
+                                    .replace("{pitch}", DECIMAL_FORMAT.format(loc.getPitch()))
+                                    .replace("{yaw}", DECIMAL_FORMAT.format(loc.getYaw()));
+
+                            Component message = Component.text(locMessage).clickEvent(ClickEvent
+                                    .runCommand("/ablockalypse tploc-hospital:" + loc.hashCode()));
+                            player.sendMessage(message);
+                        }
                     }
 
-                    // try to teleport and send feedback message
-                    if (spawnPoint.isPresent()) {
-                        PaperLib.teleportAsync(player, spawnPoint.get());
-                        plugin.sendMessage(sender, "spawn-tp-success");
-                    } else {
-                        plugin.sendMessage(sender, "spawn-tp-invalid");
-                    }
+                    return true;
+                } else if (args[1].equalsIgnoreCase("add") && hasPermission(sender, Permission.CMD_HOSPITAL_ADD)) {
+                    // try to add the location
+                    boolean added = locationManager.addHospitalLoc(player.getLocation());
+
+                    // send feedback message
+                    String messageId = added ? "hospital-add-success" : "hospital-add-already";
+                    player.sendMessage(plugin.getMessage(messageId));
+
+                    return true;
+                } else if (args[1].equalsIgnoreCase("remove") && hasPermission(sender, Permission.CMD_HOSPITAL_REMOVE)) {
+                    // try to remove the location and send feedback message
+                    boolean removed = locationManager.removeHospitalLoc(player.getLocation());
+                    String messageId = removed ? "hospital-remove-success" : "hospital-remove-none";
+                    player.sendMessage(plugin.getMessage(messageId));
+
+                    return true;
                 }
             }
         } else if (args.length == 3) {

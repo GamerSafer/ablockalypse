@@ -99,7 +99,7 @@ public class MenuListener implements Listener {
 
                                         // teleport the player back to the hospital
                                         //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
-                                        PaperLib.teleportAsync(player, locationManager.getHospital().get());
+                                        PaperLib.teleportAsync(player, locationManager.getNextHospitalLoc().get());
 
                                         // send feedback message
                                         conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));

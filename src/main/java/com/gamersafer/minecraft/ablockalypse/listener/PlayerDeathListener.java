@@ -54,7 +54,7 @@ public class PlayerDeathListener implements Listener {
         Player player = event.getPlayer();
 
         // respawn at the hospital
-        event.setRespawnLocation(locationManager.getHospital().orElseThrow(() ->
+        event.setRespawnLocation(locationManager.getNextHospitalLoc().orElseThrow(() ->
                 new IllegalStateException("Unable to make " + player.getUniqueId() + " respawn at the hospital. Its location is not set")));
 
     }

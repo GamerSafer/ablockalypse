@@ -27,15 +27,17 @@ public class LocationManager {
 
     private final Map<Character, Location> cinematicLocations;
     private final List<Location> spawnPoints;
-    private Location hospital;
+    private final List<Location> hospitalPoints;
 
     private int lastSpawnPointIndex;
+    private int lastHospitalPointIndex;
 
     public LocationManager() {
         cinematicLocations = new EnumMap<>(Character.class);
-        hospital = null;
+        hospitalPoints = new ArrayList<>();
         spawnPoints = new ArrayList<>();
         lastSpawnPointIndex = -1;
+        lastHospitalPointIndex = -1;
 
         // try to load locations form json
         loadLocations();
@@ -48,7 +50,7 @@ public class LocationManager {
 
             if (data != null) {
                 cinematicLocations.putAll(data.cinematicLocations());
-                hospital = data.hospital();
+                hospitalPoints.addAll(data.hospital());
                 spawnPoints.addAll(data.spawnPoints());
             }
         } catch (NoSuchFileException ignore) {
@@ -62,7 +64,7 @@ public class LocationManager {
         try (Writer writer = Files.newBufferedWriter(Paths.get(AblockalypsePlugin.getInstance().getDataFolder() + "/locations.json"),
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
-            LocationStorageJson data = new LocationStorageJson(cinematicLocations, spawnPoints, hospital);
+            LocationStorageJson data = new LocationStorageJson(cinematicLocations, spawnPoints, hospitalPoints);
 
             GSON.toJson(data, writer);
 
@@ -71,12 +73,28 @@ public class LocationManager {
         }
     }
 
-    public Optional<Location> getHospital() {
-        return Optional.ofNullable(hospital);
+    public List<Location> getHospitalPoints() {
+        return hospitalPoints;
     }
 
-    public void setHospital(Location hospital) {
-        this.hospital = hospital;
+    /**
+     * There can be n hospital locations, and we cycle through them to avoid spawning players close to each other.
+     *
+     * @return the next hospital spawn point or an empty optional if there isn't any spawn point set
+     */
+    public Optional<Location> getNextHospitalLoc() {
+        if (spawnPoints.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(spawnPoints.get(++lastHospitalPointIndex % spawnPoints.size()));
+    }
+
+    public boolean addHospitalLoc(Location location) {
+        return hospitalPoints.add(location);
+    }
+
+    public boolean removeHospitalLoc(Location location) {
+        return hospitalPoints.remove(location);
     }
 
     public Optional<Location> getCinematicLoc(Character character) {
@@ -120,10 +138,10 @@ public class LocationManager {
     private static final class LocationStorageJson {
         private Map<Character, Location> cinematicLocations;
         private List<Location> spawnPoints;
-        private Location hospital;
+        private List<Location> hospital;
 
         private LocationStorageJson(Map<Character, Location> cinematicLocations, List<Location> spawnPoints,
-                                    Location hospital) {
+                                    List<Location> hospital) {
             this.cinematicLocations = cinematicLocations;
             this.spawnPoints = spawnPoints;
             this.hospital = hospital;
@@ -137,7 +155,7 @@ public class LocationManager {
             return spawnPoints;
         }
 
-        public Location hospital() {
+        public List<Location> hospital() {
             return hospital;
         }
     }

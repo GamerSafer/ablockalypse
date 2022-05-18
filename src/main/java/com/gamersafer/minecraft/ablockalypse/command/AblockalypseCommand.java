@@ -11,6 +11,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -114,6 +115,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     // try to teleport and send feedback message
                     if (location.isPresent()) {
                         PaperLib.teleportAsync(player, location.get());
+                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                         plugin.sendMessage(sender, messagePrefix + "-success");
                     } else {
                         plugin.sendMessage(sender, messagePrefix + "-invalid");
@@ -262,6 +264,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         player.sendMessage(plugin.getMessage("cinematic-location-tp")
                                 .replace("{character}", character.name().toLowerCase()));
                         PaperLib.teleportAsync(player, cinematicLoc.get());
+                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                     } else {
                         // the location is not present
                         player.sendMessage(plugin.getMessage("cinematic-location-none")

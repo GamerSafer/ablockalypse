@@ -20,6 +20,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -140,6 +141,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                     Optional<Location> spawnPoint = locationManager.getNextSpawnPoint();
                     if (spawnPoint.isPresent()) {
                         PaperLib.teleportAsync(player, spawnPoint.get());
+                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                     } else {
                         // there isn't any configured spawn
                         getLogger().severe("Unable to teleport the player " + data.getPlayerUuid() + " to a spawn point. Please configure them!");

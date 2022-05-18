@@ -9,22 +9,22 @@ import java.util.Arrays;
 public enum Character {
 
         /* TODO remove
-TODO Nurse - Raises effectiveness of bandages/ first aid kits
+TODO Nurse - Raises effectiveness of bandages/ first aid kits - hook into ItemsAdder
 Farmer - Can repair armour
-TODO Sprinter - Can sprint faster
+TODO Sprinter - Can sprint faster - flat increase while walking and running
 Construction Worker - Reduces damage taken
 Police Officer - Does more weapon damage
-TODO Shop Owner - Items cost less
+TODO Shop Owner - Items cost less - not needed
 Mechanic - Can repair weapons
 Chef - Raises effectiveness of all foods
-TODO Dog Walker - Can tame/ starts with wolf (can re-tame wolves if they lose theirs)
+TODO Dog Walker - Can tame/ starts with wolf (can re-tame wolves if they lose theirs) - give wolfs when spawn the first time. if the wolf dies, can tame another one. onlyl 1 at a time
 Warehouse Worker (Spy?) - Has Nightvision
-TODO Thief - Name is hidden at all times (only visible within 5 block radius)
-TODO Gambler (Youtuber?) - increase of luck on mob drops
-TODO I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
+TODO Thief - Name (both character name and username) is hidden at all times (only visible within 5 block radius)
+TODO Gambler (Youtuber?) - increase of luck on mob drops - loottable, when a gambler kills an entity there is a chance to get something
+I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
 Free Runner - No fall damage
 Baller - Jump Boost
-Survivalist - Hunger and TODO Thirst decreases slower
+Survivalist - Hunger and TODO Thirst decreases slower - hook into ItemsAdder
  */
 
 
@@ -43,7 +43,8 @@ Survivalist - Hunger and TODO Thirst decreases slower
     IT_CONSULTANT,
     FREE_RUNNER,
     BALLER,
-    SURVIVALIST;
+    SURVIVALIST,
+    ;
 
     private int menuIndex = -1;
     private String displayName;

@@ -8,7 +8,10 @@ import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.ExactMatchConversationCanceller;
@@ -81,9 +84,17 @@ public class MenuListener implements Listener {
                             Optional<Location> cinematicLocOpt = locationManager.getCinematicLoc(clickedCharacter);
                             if (cinematicLocOpt.isPresent()) {
                                 PaperLib.teleportAsync(player, cinematicLocOpt.get());
+                                player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                             } else {
                                 plugin.getLogger().warning("Unable to teleport " + player.getName() + " to the " + clickedCharacter.name() + " cinematic location since it's not set.");
                             }
+
+                            // show titles
+                            Component mainTitle = Component.text(clickedCharacter.getDisplayName());
+                            Component subtitle = Component.text(clickedCharacter.getDescription());
+
+                            Title title = Title.title(mainTitle, subtitle);
+                            player.showTitle(title);
 
                             // wait X seconds and start onboarding conversation. during the conversation, the chat will be disabled for the player
                             int delay = plugin.getConfig().getInt("onboarding.cinematic-delay-seconds");
@@ -100,7 +111,7 @@ public class MenuListener implements Listener {
                                         // teleport the player back to the hospital
                                         //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
                                         PaperLib.teleportAsync(player, locationManager.getNextHospitalLoc().get());
-
+                                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                                         // send feedback message
                                         conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
                                     }
@@ -108,6 +119,8 @@ public class MenuListener implements Listener {
                                 player.sendMessage(plugin.getMessage("onboarding-prompt-cancel"));
 
                                 player.beginConversation(conversation);
+                                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+
                             }, delay * 20L);
                         });
             }

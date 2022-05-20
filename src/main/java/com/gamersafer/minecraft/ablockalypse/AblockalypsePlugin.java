@@ -13,6 +13,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
+import com.gamersafer.minecraft.ablockalypse.papi.AblockalypsePAPIExpansion;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
@@ -81,6 +82,11 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
+
+        // register PAPI expansion
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new AblockalypsePAPIExpansion(storyStorage).register();
+        }
     }
 
     @Override

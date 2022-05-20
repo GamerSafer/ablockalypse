@@ -25,8 +25,6 @@ I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
 Free Runner - No fall damage
 Baller - Jump Boost
 Survivalist - Hunger and TODO Thirst decreases slower - hook into ItemsAdder
-
-papi placeholders
  */
 
 

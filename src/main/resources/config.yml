@@ -168,7 +168,6 @@ message:
   cinematic-location-tp: "&aTeleporting to the cinematic location for the character {character}..."
   cinematic-location-none: "&cThe cinematic location of the character {character} is not set"
   character-selector-already: "&cYou have already selected a character. You'll be able to change it once you die."
-  onboarding-prompt-cancel: "&cType 'CANCEL' to exit."
   onboarding-prompt-cancelled: "&cThe character selection process has been cancelled"
   onboarding-prompt-confirm: "&aAre you sure you want to be a {character}&a? Write yes or no"
   onboarding-prompt-name: "&aWhat's your character's name? &7(3-20 chars long, no special chars)"

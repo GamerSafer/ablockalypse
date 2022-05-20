@@ -109,20 +109,27 @@ public class MenuListener implements Listener {
                                     conversation.getContext().setSessionData(SESSION_DATA_KEY, new OnboardingSessionData(player.getUniqueId(), clickedCharacter));
                                     conversation.setLocalEchoEnabled(true);
 
-                                    conversation.getCancellers().add(new ExactMatchConversationCanceller("CANCEL"));
+                                    conversation.getCancellers().add(new ExactMatchConversationCanceller("no"));
                                     conversation.addConversationAbandonedListener(conversationCancellerEvent -> {
                                         if (conversationCancellerEvent.getCanceller() instanceof ExactMatchConversationCanceller) {
                                             Player conversationCancellerPlayer = ((Player) conversationCancellerEvent.getContext().getForWhom());
 
                                             // teleport the player back to the hospital
                                             //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
-                                            PaperLib.teleportAsync(player, locationManager.getNextHospitalLoc().get());
-                                            player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-                                            // send feedback message
-                                            conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
+                                            PaperLib.teleportAsync(player, locationManager.getNextSpawnPoint().get())
+                                                    .thenAccept(ignore -> {
+                                                        plugin.sync(() -> {
+                                                            player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+
+                                                            // send feedback message
+                                                            conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
+
+                                                            // reopen characters menu
+                                                            CharacterSelectionMenu.open(player);
+                                                        });
+                                                    });
                                         }
                                     });
-                                    player.sendMessage(plugin.getMessage("onboarding-prompt-cancel"));
 
                                     player.beginConversation(conversation);
                                     player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);

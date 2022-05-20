@@ -4,6 +4,7 @@ import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -29,6 +30,7 @@ public class CharacterSelectionMenu {
         if (instance == null) {
             instance = new CharacterSelectionMenu();
         }
+        player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
         player.openInventory(instance.getInventory());
     }
 

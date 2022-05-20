@@ -125,6 +125,7 @@ public class PastStoriesMenu implements InventoryHolder {
 
         ItemMeta itemMeta = item.getItemMeta();
 
+        itemMeta.setDisplayName(story.characterName());
         itemMeta.setLore(lore);
 
         item.setItemMeta(itemMeta);

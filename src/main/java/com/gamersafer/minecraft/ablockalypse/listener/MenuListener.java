@@ -210,6 +210,10 @@ public class MenuListener implements Listener {
 
         @Override
         public @NotNull String getPromptText(@NotNull ConversationContext context) {
+            // the condition should always be true
+            if (context.getForWhom() instanceof Player player) {
+                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+            }
             return AblockalypsePlugin.getInstance().getMessage("onboarding-prompt-name");
         }
     }

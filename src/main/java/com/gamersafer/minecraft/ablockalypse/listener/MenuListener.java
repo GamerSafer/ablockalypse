@@ -90,6 +90,7 @@ public class MenuListener implements Listener {
                             }
 
                             // show titles
+                            // todo make sure colors are parsed correctly and that the duration is long enough
                             Component mainTitle = Component.text(clickedCharacter.getDisplayName());
                             Component subtitle = Component.text(clickedCharacter.getDescription());
 

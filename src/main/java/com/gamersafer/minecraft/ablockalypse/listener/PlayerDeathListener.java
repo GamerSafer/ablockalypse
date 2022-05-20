@@ -1,9 +1,15 @@
 package com.gamersafer.minecraft.ablockalypse.listener;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
+import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -34,12 +40,28 @@ public class PlayerDeathListener implements Listener {
             } else {
                 // when player dies, lose inventory, claims, character, and experience + create new character. Respawn at hospital
                 player.getInventory().clear();
+                event.getDrops().clear();
                 player.setExp(0);
+                event.setShouldDropExperience(false);
                 player.getActivePotionEffects().stream().map(PotionEffect::getType).forEach(player::removePotionEffect);
+                player.setWalkSpeed(0.2f); // set default walking speed. it's changed for sprinters
 
                 // end the story
                 storyStorage.endStory(player.getUniqueId()).thenRun(() -> plugin.getLogger().info("The player "
                         + player.getUniqueId() + " just completed a story as a " + story.get().character().name()));
+
+                // try to remove tamed wolf
+                if (story.get().character() == Character.DOG_WALKER) {
+                    // only dog walkers can tame mobs and they can have max 1 wolf
+                    for (World world : Bukkit.getWorlds()) {
+                        for (Entity wolfEntity : world.getEntitiesByClasses(Wolf.class)) {
+                            if (((Tameable) wolfEntity).isTamed() && player.getUniqueId().equals(((Tameable) wolfEntity).getOwner().getUniqueId())) {
+                                wolfEntity.remove();
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 // todo integrate with the claims plugin and remove all claims
             }

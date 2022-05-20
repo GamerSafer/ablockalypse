@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageByEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
+import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTargetLivingEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
@@ -72,6 +73,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         // register listeners
         getServer().getPluginManager().registerEvents(new EntityDamageByEntityListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
+        getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityTargetLivingEntityListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
@@ -155,6 +157,13 @@ public class AblockalypsePlugin extends JavaPlugin {
                     };
                     if (potionEffectType != null) {
                         player.addPotionEffect(new PotionEffect(potionEffectType, 1, Integer.MAX_VALUE));
+                    }
+
+                    // change speed for sprinter
+                    if (story.character() == Character.SPRINTER) {
+                        // todo test whether it changes when sprinting
+                        // todo test whether we have to manually reset it on death
+                        player.setWalkSpeed(0.8f);
                     }
 
                     // send feedback message

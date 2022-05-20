@@ -10,6 +10,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.EntityTargetLivingEntityLi
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
@@ -81,6 +82,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
 
         // register PAPI expansion
@@ -182,7 +184,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                 // back to the main thread
                 sync(() -> {
                     // try to teleport the player to the next spawn location
-                    Optional<Location> spawnPoint = locationManager.getNextSpawnPoint();
+                    Optional<Location> spawnPoint = locationManager.getNextHospitalLoc();
                     if (spawnPoint.isPresent()) {
                         PaperLib.teleportAsync(player, spawnPoint.get());
                         player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);

@@ -78,7 +78,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
                     storyStorage.getPlaytime(player.getUniqueId()).thenAccept(playtime -> {
                         // create and open the menu
-                        plugin.getServer().getScheduler().runTask(plugin, () -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
+                        plugin.sync(() -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
                     });
                 });
 
@@ -98,7 +98,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                                 .findFirst();
                     } catch (Exception ignore) {
                     }
-                } else if (args[0].toLowerCase().startsWith("tploc-hospital:") && hasPermission(sender, Permission.CMD_SPAWNPOINT_TP)) {
+                } else if (args[0].toLowerCase().startsWith("tploc-spawn:") && hasPermission(sender, Permission.CMD_SPAWNPOINT_TP)) {
                     messagePrefix = "spawn-tp";
 
                     // try to parse the location
@@ -144,7 +144,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
                     storyStorage.getPlaytime(targetUuid).thenAccept(playtime -> {
                         // create and open the menu
-                        plugin.getServer().getScheduler().runTask(plugin, () -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
+                        plugin.sync(() -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
                     });
                 });
                 return true;
@@ -300,11 +300,9 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         return switch (args.length) {
             case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint");
             case 2 -> {
-                if (args[0].equalsIgnoreCase("hospital")) {
-                    yield List.of("set", "tp");
-                } else if (args[0].equalsIgnoreCase("stories")) {
+                if (args[0].equalsIgnoreCase("stories")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
-                } else if (args[0].equalsIgnoreCase("spawnpoint")) {
+                } else if (args[0].equalsIgnoreCase("spawnpoint") || args[0].equalsIgnoreCase("hospital")) {
                     yield List.of("list", "add", "remove");
                 } else if (args[0].equalsIgnoreCase("cinematic")) {
                     yield Arrays.stream(Character.values())

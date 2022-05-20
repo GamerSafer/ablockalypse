@@ -31,6 +31,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class AblockalypsePlugin extends JavaPlugin {
@@ -116,6 +118,40 @@ public class AblockalypsePlugin extends JavaPlugin {
                 .collect(Collectors.toList());
     }
 
+    public CompletableFuture<Void> sync(Runnable r) {
+        if (!getServer().isPrimaryThread()) {
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            getServer().getScheduler().runTaskLater(this, () -> {
+                try {
+                    r.run();
+                    future.complete(null);
+                } catch (Throwable t) {
+                    future.completeExceptionally(t);
+                }
+            }, 0);
+            return future;
+        } else {
+            r.run();
+            return CompletableFuture.completedFuture(null);
+        }
+    }
+
+    public <T> CompletableFuture<T> sync(Supplier<T> r) {
+        if (!getServer().isPrimaryThread()) {
+            CompletableFuture<T> future = new CompletableFuture<>();
+            getServer().getScheduler().runTaskLater(this, () -> {
+                try {
+                    future.complete(r.get());
+                } catch (Throwable t) {
+                    future.completeExceptionally(t);
+                }
+            }, 0);
+            return future;
+        } else {
+            return CompletableFuture.completedFuture(r.get());
+        }
+    }
+
     // todo move to StoryManager
     public void startNewStory(OnboardingSessionData data) {
         // make sure we have all the data to start a new story
@@ -138,7 +174,7 @@ public class AblockalypsePlugin extends JavaPlugin {
             // start new story
             storyStorage.startNewStory(data).thenAccept(story -> {
                 // back to the main thread
-                getServer().getScheduler().runTask(this, () -> {
+                sync(() -> {
                     // try to teleport the player to the next spawn location
                     Optional<Location> spawnPoint = locationManager.getNextSpawnPoint();
                     if (spawnPoint.isPresent()) {

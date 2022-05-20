@@ -10,6 +10,7 @@ import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.conversations.Conversation;
@@ -73,56 +74,61 @@ public class MenuListener implements Listener {
                 // the player clicked a character. make sure he doesn't have an active story
                 storyStorage.getActiveStory(player.getUniqueId())
                         .thenAccept(story -> {
-                            if (story.isPresent()) {
-                                // this should never happen to regular players
-                                // only staff members are able to open the menu even if they have already started a story
-                                player.sendMessage(plugin.getMessage("character-selector-already"));
-                                return;
-                            }
+                            // make sure we're on the primary thread
+                            plugin.sync(() -> {
+                                if (story.isPresent()) {
+                                    // this should never happen to regular players
+                                    // only staff members are able to open the menu even if they have already started a story
+                                    player.sendMessage(plugin.getMessage("character-selector-already"));
+                                    return;
+                                }
 
-                            // teleport the player to the character-specific showroom
-                            Optional<Location> cinematicLocOpt = locationManager.getCinematicLoc(clickedCharacter);
-                            if (cinematicLocOpt.isPresent()) {
-                                PaperLib.teleportAsync(player, cinematicLocOpt.get());
-                                player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-                            } else {
-                                plugin.getLogger().warning("Unable to teleport " + player.getName() + " to the " + clickedCharacter.name() + " cinematic location since it's not set.");
-                            }
+                                // teleport the player to the character-specific showroom
+                                Optional<Location> cinematicLocOpt = locationManager.getCinematicLoc(clickedCharacter);
+                                if (cinematicLocOpt.isPresent()) {
+                                    PaperLib.teleportAsync(player, cinematicLocOpt.get());
+                                    player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+                                } else {
+                                    plugin.getLogger().warning("Unable to teleport " + player.getName() + " to the " + clickedCharacter.name() + " cinematic location since it's not set.");
+                                }
 
-                            // show titles
-                            // todo make sure colors are parsed correctly and that the duration is long enough
-                            Component mainTitle = Component.text(clickedCharacter.getDisplayName());
-                            Component subtitle = Component.text(clickedCharacter.getDescription());
+                                // show titles
+                                Component mainTitle = Component.text(clickedCharacter.getDisplayName());
+                                Component subtitle = Component.text(clickedCharacter.getDescription());
 
-                            Title title = Title.title(mainTitle, subtitle);
-                            player.showTitle(title);
+                                Title title = Title.title(mainTitle, subtitle);
+                                player.showTitle(title);
 
-                            // wait X seconds and start onboarding conversation. during the conversation, the chat will be disabled for the player
-                            int delay = plugin.getConfig().getInt("onboarding.cinematic-delay-seconds");
-                            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                                Conversation conversation = new Conversation(plugin, player, new ConfirmCharacterSelectionPrompt());
-                                conversation.getContext().setSessionData(SESSION_DATA_KEY, new OnboardingSessionData(player.getUniqueId(), clickedCharacter));
-                                conversation.setLocalEchoEnabled(true);
+                                // send character description description in chat
+                                player.sendMessage(clickedCharacter.getDisplayName() + ChatColor.GRAY + ": " + clickedCharacter.getDescription());
 
-                                conversation.getCancellers().add(new ExactMatchConversationCanceller("CANCEL"));
-                                conversation.addConversationAbandonedListener(conversationCancellerEvent -> {
-                                    if (conversationCancellerEvent.getCanceller() instanceof ExactMatchConversationCanceller) {
-                                        Player conversationCancellerPlayer = ((Player) conversationCancellerEvent.getContext().getForWhom());
+                                // wait X seconds and start onboarding conversation. during the conversation, the chat will be disabled for the player
+                                int delay = plugin.getConfig().getInt("onboarding.cinematic-delay-seconds");
+                                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                                    Conversation conversation = new Conversation(plugin, player, new ConfirmCharacterSelectionPrompt());
+                                    conversation.getContext().setSessionData(SESSION_DATA_KEY, new OnboardingSessionData(player.getUniqueId(), clickedCharacter));
+                                    conversation.setLocalEchoEnabled(true);
 
-                                        // teleport the player back to the hospital
-                                        //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
-                                        PaperLib.teleportAsync(player, locationManager.getNextHospitalLoc().get());
-                                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-                                        // send feedback message
-                                        conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
-                                    }
-                                });
-                                player.sendMessage(plugin.getMessage("onboarding-prompt-cancel"));
+                                    conversation.getCancellers().add(new ExactMatchConversationCanceller("CANCEL"));
+                                    conversation.addConversationAbandonedListener(conversationCancellerEvent -> {
+                                        if (conversationCancellerEvent.getCanceller() instanceof ExactMatchConversationCanceller) {
+                                            Player conversationCancellerPlayer = ((Player) conversationCancellerEvent.getContext().getForWhom());
 
-                                player.beginConversation(conversation);
-                                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+                                            // teleport the player back to the hospital
+                                            //noinspection OptionalGetWithoutIsPresent at this point we can assume it's present
+                                            PaperLib.teleportAsync(player, locationManager.getNextHospitalLoc().get());
+                                            player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+                                            // send feedback message
+                                            conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
+                                        }
+                                    });
+                                    player.sendMessage(plugin.getMessage("onboarding-prompt-cancel"));
 
-                            }, delay * 20L);
+                                    player.beginConversation(conversation);
+                                    player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+
+                                }, delay * 20L);
+                            });
                         });
             }
         } else if (event.getInventory().getHolder() instanceof PastStoriesMenu pastStoriesMenu) {

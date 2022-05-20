@@ -91,7 +91,7 @@ papi placeholders
             String skullTexture = AblockalypsePlugin.getInstance().getConfig().getString(getConfigPath() + ".menu.texture");
             menuItem = ItemUtil.createPlayerHead(skullTexture, 1, getDisplayName(), getDescription());
         }
-        return menuItem;
+        return menuItem.clone();
     }
 
     private String getConfigPath() {

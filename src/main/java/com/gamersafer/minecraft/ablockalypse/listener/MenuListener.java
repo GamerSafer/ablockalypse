@@ -171,7 +171,7 @@ public class MenuListener implements Listener {
 
     private static class NameInputPrompt extends ValidatingPrompt {
 
-        private static final Pattern PATTERN = Pattern.compile("^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z\\d._]+(?<![_.])$", Pattern.CASE_INSENSITIVE);
+        private static final Pattern PATTERN = Pattern.compile("^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z\\d._]+(?<![_.])$", Pattern.CASE_INSENSITIVE);
 
         @Override
         protected boolean isInputValid(@NotNull ConversationContext context, @NotNull String input) {

@@ -171,7 +171,7 @@ message:
   onboarding-prompt-cancel: "&cType 'CANCEL' to exit."
   onboarding-prompt-cancelled: "&cThe character selection process has been cancelled"
   onboarding-prompt-confirm: "&aAre you sure you want to be a {character}&a? Write yes or no"
-  onboarding-prompt-name: "&aWhat's your character's name? &7(8-20 chars long, no special chars)"
+  onboarding-prompt-name: "&aWhat's your character's name? &7(3-20 chars long, no special chars)"
   onboarding-prompt-creating: "&eCreating your character..."
   onboarding-prompt-started: "&a{character_name} welcome!"
   stories-target-invalid: "&cUnable to find the player {name}"

@@ -3,6 +3,8 @@ package com.gamersafer.minecraft.ablockalypse.menu;
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -125,7 +127,7 @@ public class PastStoriesMenu implements InventoryHolder {
 
         ItemMeta itemMeta = item.getItemMeta();
 
-        itemMeta.setDisplayName(story.characterName());
+        itemMeta.displayName(Component.text(story.characterName(), NamedTextColor.GREEN));
         itemMeta.setLore(lore);
 
         item.setItemMeta(itemMeta);

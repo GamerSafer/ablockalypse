@@ -190,7 +190,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                         player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                     } else {
                         // there isn't any configured spawn
-                        getLogger().severe("Unable to teleport the player " + data.getPlayerUuid() + " to a spawn point. Please configure them!");
+                        getLogger().severe("Unable to teleport the player " + data.getPlayerUuid() + " to the hospital. Please configure the l!");
                     }
 
                     // give permanent potion effects

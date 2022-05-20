@@ -83,10 +83,10 @@ public class LocationManager {
      * @return the next hospital spawn point or an empty optional if there isn't any spawn point set
      */
     public Optional<Location> getNextHospitalLoc() {
-        if (spawnPoints.isEmpty()) {
+        if (hospitalPoints.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(spawnPoints.get(++lastHospitalPointIndex % spawnPoints.size()));
+        return Optional.of(hospitalPoints.get(++lastHospitalPointIndex % hospitalPoints.size()));
     }
 
     public boolean addHospitalLoc(Location location) {

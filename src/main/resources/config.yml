@@ -38,12 +38,6 @@ character:
     menu:
       index: 14
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
-  shop_owner:
-    display-name: "&aShop Owner"
-    description: "&7Items cost less"
-    menu:
-      index: 15
-      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   mechanic:
     display-name: "&aMechanic"
     description: "&7Can repair weapons"

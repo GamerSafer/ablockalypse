@@ -14,7 +14,6 @@ Farmer - Can repair armour
 Sprinter - Can sprint faster - flat increase while walking and running
 Construction Worker - Reduces damage taken
 Police Officer - Does more weapon damage
-TODO Shop Owner - Items cost less - not needed
 Mechanic - Can repair weapons
 Chef - Raises effectiveness of all foods
 Dog Walker - Can tame/ starts with wolf (can re-tame wolves if they lose theirs) - give wolfs when spawn the first time. if the wolf dies, can tame another one. onlyl 1 at a time
@@ -33,7 +32,6 @@ Survivalist - Hunger and TODO Thirst decreases slower - hook into ItemsAdder
     SPRINTER,
     CONSTRUCTION_WORKER,
     POLICE_OFFICER,
-    SHOP_OWNER,
     MECHANIC,
     CHEF,
     DOG_WALKER,

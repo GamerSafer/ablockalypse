@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class PastStoriesMenu implements InventoryHolder {
 
@@ -116,14 +115,28 @@ public class PastStoriesMenu implements InventoryHolder {
 
         String survivalTime = FormatUtil.format(story.survivalTime());
         String startDate = FormatUtil.format(story.startTime());
-        String endDate = Optional.ofNullable(story.endTime()).map(FormatUtil::format).orElse("Active");
 
-        List<String> lore = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getStringList("menu.past-stories.items.story-entry.lore"))
-                .stream()
-                .map(s -> s.replace("{survivaltime}", survivalTime)
-                        .replace("{startDate}", startDate)
-                        .replace("{endDate}", endDate))
-                .toList();
+        List<String> lore;
+        if (story.isActive()) {
+            lore = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getStringList("menu.past-stories.items.story-entry-active.lore"))
+                    .stream()
+                    .map(s -> s.replace("{survivaltime}", survivalTime)
+                            .replace("{startDate}", startDate)
+                    ).toList();
+        } else {
+            lore = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getStringList("menu.past-stories.items.story-entry-past.lore"))
+                    .stream()
+                    .map(s -> {
+                                assert story.deathCause() != null && story.endTime() != null && story.deathLocation() != null;
+
+                                return s.replace("{survivaltime}", survivalTime)
+                                        .replace("{startDate}", startDate)
+                                        .replace("{endDate}", FormatUtil.format(story.endTime()))
+                                        .replace("{deathCause}", FormatUtil.capitalize(story.deathCause().name()))
+                                        .replace("{deathLocation}", FormatUtil.format(story.deathLocation()));
+                            }
+                    ).toList();
+        }
 
         ItemMeta itemMeta = item.getItemMeta();
 

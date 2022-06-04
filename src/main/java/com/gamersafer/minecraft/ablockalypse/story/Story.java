@@ -1,6 +1,8 @@
 package com.gamersafer.minecraft.ablockalypse.story;
 
 import com.gamersafer.minecraft.ablockalypse.Character;
+import org.bukkit.Location;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -9,7 +11,8 @@ import java.time.temporal.Temporal;
 import java.util.UUID;
 
 public record Story(int id, UUID playerUuid, Character character, String characterName, LocalDateTime startTime,
-                    @Nullable LocalDateTime endTime) {
+                    @Nullable LocalDateTime endTime, @Nullable EntityDamageEvent.DamageCause deathCause,
+                    @Nullable Location deathLocation) {
 
 
     public boolean isActive() {

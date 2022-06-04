@@ -122,12 +122,19 @@ menu:
         lore:
           - ""
           - "&7Playtime: {playtime}"
-      story-entry:
+      story-entry-active:
+        lore:
+          - ""
+          - "&7Start date: {startDate}"
+          - "&7Survival time: {survivaltime}"
+      story-entry-past:
         lore:
           - ""
           - "&7Start date: {startDate}"
           - "&7End date: {endDate}"
           - "&7Survival time: {survivaltime}"
+          - "&7Death cause: {deathCause}"
+          - "&7Death location: {deathLocation}"
 onboarding:
   cinematic-delay-seconds: 3
 

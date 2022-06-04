@@ -2,6 +2,7 @@ package com.gamersafer.minecraft.ablockalypse.util;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.time.Duration;
@@ -33,12 +34,21 @@ public final class FormatUtil {
         return DurationFormatUtils.formatDuration(duration.toMillis(), durationFormat, false);
     }
 
+    public static String format(Location location) {
+        return location.getWorld().getName() + " x=" + location.getBlockX() + " y=" + location.getBlockY() + " z=" + location.getBlockZ();
+    }
+
     public static String color(String str) {
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 
     public static List<String> color(List<String> str) {
         return str.stream().map(FormatUtil::color).collect(Collectors.toList());
+    }
+
+    public static String capitalize(String str) {
+        str = str.toLowerCase();
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
 }

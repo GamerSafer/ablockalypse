@@ -4,6 +4,8 @@ import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import org.bukkit.Location;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -56,8 +58,8 @@ public class StoryCache implements StoryStorage {
     }
 
     @Override
-    public CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime) {
-        return base.endStory(playerUuid, endTime).thenRun(() -> {
+    public CompletableFuture<Void> endStory(UUID playerUuid, EntityDamageEvent.DamageCause deathCause, Location deathLocation, LocalDateTime endTime) {
+        return base.endStory(playerUuid, deathCause, deathLocation, endTime).thenRun(() -> {
 
             // invalidate cache
             cacheActive.synchronous().invalidate(playerUuid);

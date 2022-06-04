@@ -4,6 +4,8 @@ import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
 import com.google.common.base.Preconditions;
+import org.bukkit.Location;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -55,18 +57,20 @@ public interface StoryStorage {
      */
     CompletableFuture<Story> startNewStory(UUID playerUuid, Character character, String characterName, LocalDateTime startTime);
 
-    default CompletableFuture<Void> endStory(UUID playerUuid) {
-        return this.endStory(playerUuid, LocalDateTime.now());
+    default CompletableFuture<Void> endStory(UUID playerUuid, EntityDamageEvent.DamageCause deathCause, Location deathLocation) {
+        return this.endStory(playerUuid, deathCause, deathLocation, LocalDateTime.now());
     }
 
     /**
      * Ends the active story of the given player.
      *
-     * @param playerUuid the UUID of the player whose active story to end
-     * @param endTime    the story end time
+     * @param playerUuid    the UUID of the player whose active story to end
+     * @param deathCause    the cause of death
+     * @param deathLocation the location where the characted died
+     * @param endTime       the story end time
      * @return a CompletableFuture that will complete once the story has been completed
      */
-    CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime);
+    CompletableFuture<Void> endStory(UUID playerUuid, EntityDamageEvent.DamageCause deathCause, Location deathLocation, LocalDateTime endTime);
 
     /**
      * Gets the playtime of the given player.

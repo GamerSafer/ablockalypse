@@ -3,6 +3,10 @@ package com.gamersafer.minecraft.ablockalypse.database;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -43,6 +47,11 @@ public class StoryDAO implements StoryStorage {
                 "  characterName varchar(20) NOT NULL," +
                 "  startTime     TIMESTAMP NOT NULL DEFAULT 0," +
                 "  endTime       TIMESTAMP NULL DEFAULT NULL," +
+                "  deathCause    varchar(48) NULL DEFAULT NULL," +
+                "  deathLocWorld varchar(48) NULL DEFAULT NULL," +
+                "  deathLocX     DOUBLE NULL DEFAULT NULL," +
+                "  deathLocY     DOUBLE NULL DEFAULT NULL," +
+                "  deathLocZ     DOUBLE NULL DEFAULT NULL," +
                 "  PRIMARY KEY (`id`)" +
                 ")ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
@@ -72,6 +81,8 @@ public class StoryDAO implements StoryStorage {
                                 Character.valueOf(resultSet.getString("characterType")),
                                 resultSet.getString("characterName"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
+                                null,
+                                null,
                                 null);
                     }
                 }
@@ -94,13 +105,26 @@ public class StoryDAO implements StoryStorage {
                 statement.setString(1, playerUuid.toString().replace("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
+                        LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
+                                .map(Timestamp::toLocalDateTime).orElse(null);
+
+                        EntityDamageEvent.DamageCause deathCause = null;
+                        Location deathLocation = null;
+                        if (endTime != null) {
+                            deathCause = EntityDamageEvent.DamageCause.valueOf(resultSet.getString("deathCause"));
+                            World deathLocationWorld = Bukkit.getWorld(resultSet.getString("deathLocWorld"));
+                            deathLocation = new Location(deathLocationWorld, resultSet.getDouble("deathLocX"),
+                                    resultSet.getDouble("deathLocY"), resultSet.getDouble("deathLocZ"));
+                        }
+
                         Story story = new Story(resultSet.getInt("id"),
                                 playerUuid,
                                 Character.valueOf(resultSet.getString("characterType")),
                                 resultSet.getString("characterName"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
-                                Optional.ofNullable(resultSet.getTimestamp("endTime"))
-                                        .map(Timestamp::toLocalDateTime).orElse(null));
+                                endTime,
+                                deathCause,
+                                deathLocation);
                         stories.add(story);
                     }
                 }
@@ -133,7 +157,7 @@ public class StoryDAO implements StoryStorage {
                     }
 
                     int id = keys.getInt(1);
-                    return new Story(id, playerUuid, character, characterName, startTime, null);
+                    return new Story(id, playerUuid, character, characterName, startTime, null, null, null);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -145,12 +169,17 @@ public class StoryDAO implements StoryStorage {
     }
 
     @Override
-    public CompletableFuture<Void> endStory(UUID playerUuid, LocalDateTime endTime) {
+    public CompletableFuture<Void> endStory(UUID playerUuid, EntityDamageEvent.DamageCause deathCause, Location deathLocation, LocalDateTime endTime) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET endTime = ? WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET endTime = ?, deathCause = ?, deathLocWorld = ?, deathLocX = ?, deathLocY = ?, deathLocZ = ? WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
 
                 statement.setTimestamp(1, Timestamp.valueOf(endTime));
-                statement.setString(2, playerUuid.toString().replace("-", ""));
+                statement.setString(2, deathCause.name());
+                statement.setString(3, deathLocation.getWorld().getName());
+                statement.setDouble(4, deathLocation.getX());
+                statement.setDouble(5, deathLocation.getY());
+                statement.setDouble(6, deathLocation.getZ());
+                statement.setString(7, playerUuid.toString().replace("-", ""));
 
                 int affectedRow = statement.executeUpdate();
                 if (affectedRow != 1) {

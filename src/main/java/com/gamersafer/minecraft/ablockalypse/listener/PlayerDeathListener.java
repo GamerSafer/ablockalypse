@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -12,9 +13,12 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
+
+import java.util.Objects;
 
 public class PlayerDeathListener implements Listener {
 
@@ -47,7 +51,9 @@ public class PlayerDeathListener implements Listener {
                 player.setWalkSpeed(0.2f); // set default walking speed. it's changed for sprinters
 
                 // end the story
-                storyStorage.endStory(player.getUniqueId()).thenRun(() -> plugin.getLogger().info("The player "
+                EntityDamageEvent.DamageCause deathCause = Objects.requireNonNull(player.getLastDamageCause()).getCause();
+                Location deathLocation = player.getLocation();
+                storyStorage.endStory(player.getUniqueId(), deathCause, deathLocation).thenRun(() -> plugin.getLogger().info("The player "
                         + player.getUniqueId() + " just completed a story as a " + story.get().character().name()));
 
                 // try to remove tamed wolf

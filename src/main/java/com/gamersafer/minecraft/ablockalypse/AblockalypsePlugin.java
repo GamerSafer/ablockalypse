@@ -200,7 +200,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                         default -> null;
                     };
                     if (potionEffectType != null) {
-                        player.addPotionEffect(new PotionEffect(potionEffectType, 1, Integer.MAX_VALUE));
+                        player.addPotionEffect(new PotionEffect(potionEffectType, Integer.MAX_VALUE, 1));
                     }
 
                     // change speed for sprinter

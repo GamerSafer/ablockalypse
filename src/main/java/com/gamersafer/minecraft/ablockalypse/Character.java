@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 public enum Character {
 
-        /* TODO remove
-TODO Nurse - Raises effectiveness of bandages/ first aid kits - hook into ItemsAdder
+/* Skills:
+Nurse - Raises effectiveness of bandages/ first aid kits - hook into ItemsAdder
 Farmer - Can repair armour
 Sprinter - Can sprint faster - flat increase while walking and running
 Construction Worker - Reduces damage taken
@@ -23,7 +23,7 @@ TODO Gambler (Youtuber?) - increase of luck on mob drops - loottable, when a gam
 I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
 Free Runner - No fall damage
 Baller - Jump Boost
-Survivalist - Hunger and TODO Thirst decreases slower - hook into ItemsAdder
+Survivalist - Hunger decreases slower and Thirst increases faster (water items are more effective)
  */
 
 

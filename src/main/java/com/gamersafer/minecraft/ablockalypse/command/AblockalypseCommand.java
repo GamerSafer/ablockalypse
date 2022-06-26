@@ -6,15 +6,19 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
+import dev.lone.itemsadder.api.FontImages.PlayerHudsHolderWrapper;
+import dev.lone.itemsadder.api.FontImages.PlayerQuantityHudWrapper;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +53,60 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1 && args[0].equalsIgnoreCase("reload") && hasPermission(sender, Permission.CMD_RELOAD)) {
             plugin.reload();
             plugin.sendMessage(sender, "config-reloaded");
+            return true;
+        } else if (args.length == 4 && args[0].equalsIgnoreCase("itemsadder") && (sender instanceof ConsoleCommandSender)) {
+            // /ablockalypse itemsadder <player> <action> <value>
+            // command for internal use only. items adder doesn't call any event when a custom item is used. as a workaround
+            // the item will dispatch this command adn we'll be able to listen to it here
+
+            // make sure the player is online
+            Player player = Bukkit.getPlayer(args[1]);
+            if (player == null) {
+                sender.sendMessage("Unable to get player " + args[1] + ". Ignoring the itemsadder action he was trying to do.");
+                return false;
+            }
+
+            float value;
+            try {
+                value = Float.parseFloat(args[3]);
+            } catch (NumberFormatException exception) {
+                sender.sendMessage("Unable to parse float value " + args[3] + ". Ignoring the itemsadder action.");
+                return false;
+            }
+
+            String action = args[2].toLowerCase();
+            if (action.equals("heal")) {
+                // Nurse - Raises effectiveness of bandages/ first aid kits  (action = heal)
+                storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                    if (story.isPresent() && story.get().character() == Character.NURSE) {
+                        plugin.sync(() -> {
+                            //noinspection ConstantConditions
+                            double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+                            player.setHealth(Math.max(player.getHealth() + (value * 0.3f), maxHealth));
+                        });
+                    }
+                });
+            } else if (action.equals("thirst_increase")) {
+                // Survivalist - (Hunger decreases slower and) Thirst increases faster (water items are more effective)
+                storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                    if (story.isPresent() && story.get().character() == Character.SURVIVALIST) {
+                        plugin.sync(() -> {
+                            PlayerHudsHolderWrapper huds = new PlayerHudsHolderWrapper(player);
+                            PlayerQuantityHudWrapper thirstHud = new PlayerQuantityHudWrapper(huds, "ablockalypse:thirst_bar");
+                            if (thirstHud.exists()) {
+                                thirstHud.setFloatValue(Math.max(thirstHud.getFloatValue() + (value * 0.3f), 10f));
+                            } else {
+                                // todo if the player is riding or is underwater the hud is not presnet.
+                                //  this message may be sent too often. test
+                                sender.sendMessage("Unable to increase the thirst bar of the survivalist " + player.getName() + ". He doesn't have a thirst bar.");
+                            }
+                        });
+                    }
+                });
+            } else {
+                throw new IllegalArgumentException("Unknown action " + action);
+            }
+
             return true;
         }
 

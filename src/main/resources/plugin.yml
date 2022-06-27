@@ -3,7 +3,7 @@ version: ${version}
 main: com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin
 api-version: 1.18
 authors: [ GamerSafer ]
-softdepend: [ PlaceholderAPI ]
+softdepend: [ PlaceholderAPI, ProtocolLib, TagAPI ] # FIXME remove TagAPI once shaded
 
 commands:
   ablockalypse:

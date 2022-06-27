@@ -63,7 +63,7 @@ public class MenuListener implements Listener {
     private void onInventoryClick(InventoryClickEvent event) {
 
         // character selection menu
-        if (CharacterSelectionMenu.isEquals(event.getInventory())) {
+        if (event.getInventory().getHolder() instanceof CharacterSelectionMenu characterSelectionMenu) {
             event.setCancelled(true);
             Character clickedCharacter = slotToCharacter.get(event.getRawSlot());
 
@@ -100,7 +100,8 @@ public class MenuListener implements Listener {
                                 player.showTitle(title);
 
                                 // send character description description in chat
-                                player.sendMessage(clickedCharacter.getDisplayName() + ChatColor.GRAY + ": " + clickedCharacter.getDescription());
+                                String descriptionJoined = String.join(" ", clickedCharacter.getDescription());
+                                player.sendMessage(clickedCharacter.getDisplayName() + ChatColor.GRAY + ": " + descriptionJoined);
 
                                 // wait X seconds and start onboarding conversation. during the conversation, the chat will be disabled for the player
                                 int delay = plugin.getConfig().getInt("onboarding.cinematic-delay-seconds");
@@ -125,7 +126,7 @@ public class MenuListener implements Listener {
                                                             conversationCancellerPlayer.sendMessage(plugin.getMessage("onboarding-prompt-cancelled"));
 
                                                             // reopen characters menu
-                                                            CharacterSelectionMenu.open(player);
+                                                            characterSelectionMenu.open();
                                                         });
                                                     });
                                         }

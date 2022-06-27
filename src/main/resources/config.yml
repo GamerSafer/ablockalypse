@@ -10,7 +10,8 @@ mysql:
 character:
   nurse:
     display-name: "&aNurse"
-    description: "&7Raises effectiveness of bandages/ first aid kits"
+    description:
+      - "&7Raises effectiveness of bandages/ first aid kits"
     menu:
       index: 10
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
@@ -117,6 +118,9 @@ menu:
   character-selection:
     title: "&cSelect a character"
     size: 45
+    no-permission:
+      - ""
+      - "&cYou can't select this character"
   past-stories:
     title: "&c{player}'s stories (page {page}/{pageTot})"
     items:

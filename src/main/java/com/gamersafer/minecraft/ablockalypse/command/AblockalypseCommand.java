@@ -123,7 +123,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
                 // display the character selection menu. this subcommand is supposed to be used only by staff members for debug purposes
-                CharacterSelectionMenu.open(player);
+                new CharacterSelectionMenu(player).open();
                 return true;
             } else if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OWN)) {
 

@@ -7,45 +7,56 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
-public class CharacterSelectionMenu {
+import java.util.List;
 
-    private static CharacterSelectionMenu instance;
+public class CharacterSelectionMenu implements InventoryHolder {
+
     private final Inventory inventory;
+    private final Player player;
 
-    public CharacterSelectionMenu() {
+    public CharacterSelectionMenu(Player player) {
+        this.player = player;
+
         String title = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getString("menu.character-selection.title"));
         int size = AblockalypsePlugin.getInstance().getConfig().getInt("menu.character-selection.size");
 
-        this.inventory = Bukkit.createInventory(null, size, title);
+        this.inventory = Bukkit.createInventory(this, size, title);
 
         insertItems();
     }
 
-    public static void reload() {
-        instance = null;
-    }
-
-    public static void open(Player player) {
-        if (instance == null) {
-            instance = new CharacterSelectionMenu();
-        }
+    public void open() {
         player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
-        player.openInventory(instance.getInventory());
-    }
-
-    public static boolean isEquals(Inventory inventory) {
-        return instance != null && inventory.equals(instance.getInventory());
+        player.openInventory(getInventory());
     }
 
     private void insertItems() {
         for (Character character : Character.values()) {
-            inventory.setItem(character.getMenuIndex(), character.getMenuItem());
+            ItemStack icon = character.getMenuItem();
+
+            if (!player.hasPermission("ablockalypse.canselect." + character.name().toLowerCase())) {
+                ItemMeta iconMeta = icon.getItemMeta();
+
+                List<String> lore = iconMeta.getLore();
+                List<String> toAdd = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getStringList("menu.character-selection.no-permission"));
+                //noinspection ConstantConditions
+                lore.addAll(toAdd);
+
+                iconMeta.setLore(lore);
+                icon.setItemMeta(iconMeta);
+            }
+
+            inventory.setItem(character.getMenuIndex(), icon);
         }
     }
 
-    private Inventory getInventory() {
+    @Override
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
-
 }

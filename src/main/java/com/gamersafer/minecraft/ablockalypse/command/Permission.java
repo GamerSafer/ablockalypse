@@ -21,7 +21,7 @@ enum Permission {
     private final String permission;
 
     Permission() {
-        this.permission = "ablockalypse." + name().toLowerCase().replace('_', ' ');
+        this.permission = "ablockalypse." + name().toLowerCase().replace('_', '.');
     }
 
     @Override

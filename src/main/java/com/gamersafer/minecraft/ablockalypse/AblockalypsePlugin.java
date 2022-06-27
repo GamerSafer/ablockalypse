@@ -13,7 +13,6 @@ import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
-import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.papi.AblockalypsePAPIExpansion;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
@@ -103,7 +102,6 @@ public class AblockalypsePlugin extends JavaPlugin {
         reloadConfig();
         FormatUtil.reload(getConfig());
         Character.reload();
-        CharacterSelectionMenu.reload();
         MenuListener.reload();
     }
 

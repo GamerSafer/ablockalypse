@@ -205,9 +205,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
                     // change speed for sprinter
                     if (story.character() == Character.SPRINTER) {
-                        // todo test whether it changes when sprinting
-                        // todo test whether we have to manually reset it on death
-                        player.setWalkSpeed(0.5f);
+                        player.setWalkSpeed(0.4f);
                     }
 
                     // send feedback message

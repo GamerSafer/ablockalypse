@@ -16,87 +16,101 @@ character:
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   farmer:
     display-name: "&aFarmer"
-    description: "&7Can repair armour"
+    description:
+      - "&7Can repair armour"
     menu:
       index: 11
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   sprinter:
     display-name: "&aSprinter"
-    description: "&7Can sprint faster"
+    description:
+      - "&7Can sprint faster"
     menu:
       index: 12
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   construction_worker:
     display-name: "&aConstruction Worker"
-    description: "&7Reduces damage taken"
+    description:
+      - "&7Reduces damage taken"
     menu:
       index: 13
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   police_officer:
     display-name: "&aPolice Officer"
-    description: "&7Does more weapon damage"
+    description:
+      - "&7Does more weapon damage"
     menu:
       index: 14
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   mechanic:
     display-name: "&aMechanic"
-    description: "&7Can repair weapons"
+    description:
+      - "&7Can repair weapons"
     menu:
-      index: 16
+      index: 15
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   chef:
     display-name: "&aChef"
-    description: "&7Raises effectiveness of all foods"
+    description:
+      - "&7Raises effectiveness of all foods"
     menu:
-      index: 19
+      index: 16
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   dog_walker:
     display-name: "&aDog Walker"
-    description: "&7Can tame/ starts with wolf (can re-tame wolves if they lose theirs)"
+    description:
+      - "&7Can tame/ starts with wolf (can re-tame wolves if they lose theirs)"
     menu:
-      index: 20
+      index: 19
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   warehouse_worker:
     display-name: "&aWarehouse Worker (Spy?)"
-    description: "&7Has Nightvision"
+    description:
+      - "&7Has Nightvision"
     menu:
-      index: 21
+      index: 20
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   thief:
     display-name: "&aThief"
-    description: "&7Name is hidden at all times (only visible within 5 block radius)"
+    description:
+      - "&7Name is hidden at all times (only visible within 5 block radius)"
     menu:
-      index: 22
+      index: 21
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   gambler:
     display-name: "&aGambler (Youtuber?)"
-    description: "&7Increase of luck on mob drops"
+    description:
+      - "&7Increase of luck on mob drops"
     menu:
-      index: 23
+      index: 22
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   it_consultant:
     display-name: "&aI.T Consultant"
-    description: "&7Quiet (zombies can only hear them if within 5 block radius)"
+    description:
+      - "&7Quiet (zombies can only hear them if within 5 block radius)"
     menu:
-      index: 24
+      index: 23
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   free_runner:
     display-name: "&aFree Runner"
-    description: "&7No fall damage"
+    description:
+      - "&7No fall damage"
     menu:
-      index: 25
+      index: 24
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   baller:
     display-name: "&aBaller"
-    description: "&7Jump Boost"
+    description:
+      - "&7Jump Boost"
     menu:
-      index: 30
+      index: 25
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
   survivalist:
     display-name: "&aSurvivalist"
-    description: "&7Hunger and Thirst decreases slower"
+    description:
+      - "&7Hunger and Thirst decreases slower"
     menu:
-      index: 32
+      index: 31
       texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDIyNDZjOGFiZTdmMzczMmNlZjc1ODM3OTM1M2EyODgxNWE5YzM3MDdiMzIxMjk1NzMxZTIyMTVhYmFmNmZhZiJ9fX0="
 
 menu:

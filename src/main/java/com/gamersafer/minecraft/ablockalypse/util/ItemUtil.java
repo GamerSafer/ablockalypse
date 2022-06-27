@@ -8,8 +8,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -56,7 +56,7 @@ public final class ItemUtil {
         // prevent initialization
     }
 
-    public static ItemStack createPlayerHead(String textureUrl, int amount, String displayName, String... lore) {
+    public static ItemStack createPlayerHead(String textureUrl, int amount, String displayName, List<String> lore) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD, amount);
 
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
@@ -73,7 +73,7 @@ public final class ItemUtil {
 
         ItemMeta meta = head.getItemMeta();
         meta.setDisplayName(displayName);
-        if (lore != null) meta.setLore(Arrays.asList(lore));
+        if (lore != null) meta.setLore(lore);
         head.setItemMeta(meta);
         return head;
     }

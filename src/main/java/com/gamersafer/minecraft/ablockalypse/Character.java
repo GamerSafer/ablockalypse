@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.List;
 
 public enum Character {
 
@@ -46,7 +47,7 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
 
     private int menuIndex = -1;
     private String displayName;
-    private String description;
+    private List<String> description;
 
     private ItemStack menuItem;
 
@@ -75,9 +76,9 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
         return displayName;
     }
 
-    public String getDescription() {
+    public List<String> getDescription() {
         if (description == null) {
-            description = getColoredConfigString(getConfigPath() + ".description");
+            description = getColoredConfigStringList(getConfigPath() + ".description");
         }
         return description;
     }
@@ -96,6 +97,11 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
 
     private String getColoredConfigString(String path) {
         String str = AblockalypsePlugin.getInstance().getConfig().getString(path);
+        return FormatUtil.color(str);
+    }
+
+    private List<String> getColoredConfigStringList(String path) {
+        List<String> str = AblockalypsePlugin.getInstance().getConfig().getStringList(path);
         return FormatUtil.color(str);
     }
 

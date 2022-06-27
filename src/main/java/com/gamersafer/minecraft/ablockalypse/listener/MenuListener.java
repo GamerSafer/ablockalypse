@@ -92,9 +92,9 @@ public class MenuListener implements Listener {
                                     plugin.getLogger().warning("Unable to teleport " + player.getName() + " to the " + clickedCharacter.name() + " cinematic location since it's not set.");
                                 }
 
-                                // show titles
+                                // show titles. we can assume the description contains at least 1 line
                                 Component mainTitle = Component.text(clickedCharacter.getDisplayName());
-                                Component subtitle = Component.text(clickedCharacter.getDescription());
+                                Component subtitle = Component.text(clickedCharacter.getDescription().get(0));
 
                                 Title title = Title.title(mainTitle, subtitle);
                                 player.showTitle(title);

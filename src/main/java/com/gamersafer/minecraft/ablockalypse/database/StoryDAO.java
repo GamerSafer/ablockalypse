@@ -101,7 +101,7 @@ public class StoryDAO implements StoryStorage {
         return CompletableFuture.supplyAsync(() -> {
             List<Story> stories = new ArrayList<>();
 
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime, endTime FROM story WHERE playerUuid = UNHEX(?) ORDER BY id DESC;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT * FROM story WHERE playerUuid = UNHEX(?) ORDER BY id DESC;")) {
                 statement.setString(1, playerUuid.toString().replace("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {

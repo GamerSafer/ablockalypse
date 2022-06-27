@@ -206,6 +206,12 @@ public class AblockalypsePlugin extends JavaPlugin {
                         player.setWalkSpeed(0.4f);
                     }
 
+                    // dispatch story-start commands
+                    story.character().getCommandsOnStoryStart().stream()
+                            .map(cmd -> cmd.replace("{name}", player.getName())
+                                    .replace("{uuid}", player.getUniqueId().toString()))
+                            .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
+
                     // send feedback message
                     player.sendMessage(getMessage("onboarding-prompt-started")
                             .replace("{character_name}", data.getName()));

@@ -47,7 +47,7 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
 
     private int menuIndex = -1;
     private String displayName;
-    private List<String> description;
+    private List<String> description, commandsOnStoryStart, commandsOnStoryEnd;
 
     private ItemStack menuItem;
 
@@ -59,6 +59,8 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
         menuIndex = -1;
         displayName = null;
         description = null;
+        commandsOnStoryStart = null;
+        commandsOnStoryEnd = null;
         menuItem = null;
     }
 
@@ -81,6 +83,20 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
             description = getColoredConfigStringList(getConfigPath() + ".description");
         }
         return description;
+    }
+
+    public List<String> getCommandsOnStoryStart() {
+        if (commandsOnStoryStart == null) {
+            commandsOnStoryStart = AblockalypsePlugin.getInstance().getConfig().getStringList(getConfigPath() + ".run-commands.story-start");
+        }
+        return commandsOnStoryStart;
+    }
+
+    public List<String> getCommandsOnStoryEnd() {
+        if (commandsOnStoryEnd == null) {
+            commandsOnStoryEnd = AblockalypsePlugin.getInstance().getConfig().getStringList(getConfigPath() + ".run-commands.story-end");
+        }
+        return commandsOnStoryEnd;
     }
 
     public ItemStack getMenuItem() {

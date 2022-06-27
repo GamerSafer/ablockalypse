@@ -56,6 +56,12 @@ public class PlayerDeathListener implements Listener {
                 storyStorage.endStory(player.getUniqueId(), deathCause, deathLocation).thenRun(() -> plugin.getLogger().info("The player "
                         + player.getUniqueId() + " just completed a story as a " + story.get().character().name()));
 
+                // dispatch story-end commands
+                story.get().character().getCommandsOnStoryEnd().stream()
+                        .map(cmd -> cmd.replace("{name}", player.getName())
+                                .replace("{uuid}", player.getUniqueId().toString()))
+                        .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
+
                 // try to remove tamed wolf
                 if (story.get().character() == Character.DOG_WALKER) {
                     // only dog walkers can tame mobs and they can have max 1 wolf

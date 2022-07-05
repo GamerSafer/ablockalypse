@@ -177,13 +177,13 @@ public class AblockalypsePlugin extends JavaPlugin {
         // make sure the player is online
         Player player = Bukkit.getPlayer(data.getPlayerUuid());
         if (player == null) {
-            throw new IllegalStateException("Unable to start a new story for the player " + data.getPlayerUuid() + ". He is offline.");
+            throw new IllegalStateException("Unable to start a new story for the player " + data.getPlayerUuid() + ". They are offline.");
         }
 
         // make sure there player doesn't already have an active story
         storyStorage.getActiveStory(player.getUniqueId()).thenAccept(activeStory -> {
             if (activeStory.isPresent()) {
-                throw new IllegalStateException("Unable to start a new story for " + data.getPlayerUuid() + ". He already has an active story!");
+                throw new IllegalStateException("Unable to start a new story for " + data.getPlayerUuid() + ". They already have an active story!");
             }
 
             // start new story

@@ -45,7 +45,7 @@ public class PlayerDeathListener implements Listener {
         storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
             if (story.isEmpty()) {
                 // this shouldn't happen
-                plugin.getLogger().warning("The player " + player.getName() + "/" + player.getUniqueId() + " died while he didn't have an active story");
+                plugin.getLogger().warning("The player " + player.getName() + "/" + player.getUniqueId() + " died while they didn't have an active story");
             } else {
                 // when player dies, lose inventory, claims, character, and experience + create new character. Respawn at hospital
                 player.getInventory().clear();

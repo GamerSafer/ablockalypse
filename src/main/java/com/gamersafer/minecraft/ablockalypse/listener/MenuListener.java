@@ -71,7 +71,7 @@ public class MenuListener implements Listener {
                 Player player = (Player) event.getWhoClicked();
                 player.closeInventory();
 
-                // the player clicked a character. make sure he doesn't have an active story
+                // the player clicked a character. make sure they don't have an active story
                 storyStorage.getActiveStory(player.getUniqueId())
                         .thenAccept(story -> {
                             // make sure we're on the primary thread

@@ -46,8 +46,8 @@ public class CharacterNametagManager {
                 tag.addTagLine(CHARACTER_NAME_LINE_PRIORITY).setGetName(pl -> activeStory.characterName());
                 tag.updateTag();
             } else if (tag.getTagLines().size() > 1) {
-                // the player has no active story and his previous character name is still displayed.
-                // remove the character name from above his head
+                // the player has no active story and their previous character name is still displayed.
+                // remove the character name from above their head
                 tag.removeTag();
                 DEFAULT_TAG.apply(player).giveTag();
             }

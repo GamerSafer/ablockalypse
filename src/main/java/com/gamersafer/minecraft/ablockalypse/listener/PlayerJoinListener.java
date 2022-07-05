@@ -30,12 +30,12 @@ public class PlayerJoinListener implements Listener {
     private void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        // teleport the player to the spawnpoint if he doesn't have an active story
+        // teleport the player to the spawnpoint if they don't have an active story
         storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
             if (story.isEmpty()) {
                 // we can assume the spawnpoint is present
                 //noinspection OptionalGetWithoutIsPresent
-                plugin.sync(() -> PaperLib.teleportAsync(player, locationManager.getNextHospitalLoc().get()));
+                plugin.sync(() -> PaperLib.teleportAsync(player, locationManager.getNextSpawnPoint().get()));
             }
 
             // update nametag

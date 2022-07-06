@@ -212,7 +212,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
                     // change speed for sprinter
                     if (story.character() == Character.SPRINTER) {
-                        player.setWalkSpeed(0.4f);
+                        player.setWalkSpeed(0.3f);
                     }
 
                     // dispatch story-start commands

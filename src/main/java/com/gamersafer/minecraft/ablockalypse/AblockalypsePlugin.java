@@ -43,7 +43,6 @@ public class AblockalypsePlugin extends JavaPlugin {
     private HikariDataSource dataSource;
     private StoryStorage storyStorage;
     private LocationManager locationManager;
-    private CharacterNametagManager nametagManager;
 
     public static AblockalypsePlugin getInstance() {
         return instance;
@@ -52,8 +51,6 @@ public class AblockalypsePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
-//        TagAPI.onEnable(this);
 
         saveDefaultConfig();
         FormatUtil.reload(getConfig());
@@ -72,8 +69,6 @@ public class AblockalypsePlugin extends JavaPlugin {
         this.storyStorage = new StoryCache(new StoryDAO(dataSource));
         this.locationManager = new LocationManager();
 
-        this.nametagManager = new CharacterNametagManager(this, storyStorage);
-
         // register commands
         //noinspection ConstantConditions
         getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager));
@@ -85,8 +80,8 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityTargetLivingEntityListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager, nametagManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager, nametagManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
 
         // register PAPI expansion
@@ -99,7 +94,6 @@ public class AblockalypsePlugin extends JavaPlugin {
     public void onDisable() {
         storyStorage.shutdown();
         locationManager.shutdown();
-//        TagAPI.onDisable();
 
         dataSource.close();
     }
@@ -218,8 +212,6 @@ public class AblockalypsePlugin extends JavaPlugin {
                                     .replace("{uuid}", player.getUniqueId().toString()))
                             .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
 
-                    // update nametag
-                    nametagManager.updateTag(player, story);
 
                     // send feedback message
                     player.sendMessage(getMessage("onboarding-prompt-started")

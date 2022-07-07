@@ -3,7 +3,7 @@ version: ${version}
 main: com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin
 api-version: 1.18
 authors: [ GamerSafer ]
-softdepend: [ PlaceholderAPI, ProtocolLib, TagAPI ]
+softdepend: [ PlaceholderAPI, ProtocolLib ]
 
 commands:
   ablockalypse:

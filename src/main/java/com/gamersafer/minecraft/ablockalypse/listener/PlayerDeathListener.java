@@ -2,7 +2,6 @@ package com.gamersafer.minecraft.ablockalypse.listener;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
-import com.gamersafer.minecraft.ablockalypse.CharacterNametagManager;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import org.bukkit.Bukkit;
@@ -26,15 +25,12 @@ public class PlayerDeathListener implements Listener {
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
-    private final CharacterNametagManager nametagManager;
 
 
-    public PlayerDeathListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager,
-                               CharacterNametagManager nametagManager) {
+    public PlayerDeathListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
-        this.nametagManager = nametagManager;
     }
 
     @SuppressWarnings("unused")
@@ -66,9 +62,6 @@ public class PlayerDeathListener implements Listener {
                         .map(cmd -> cmd.replace("{name}", player.getName())
                                 .replace("{uuid}", player.getUniqueId().toString()))
                         .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
-
-                // update nametag
-                nametagManager.updateTag(player, null);
 
                 // try to remove tamed wolf
                 if (story.get().character() == Character.DOG_WALKER) {

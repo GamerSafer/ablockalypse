@@ -20,11 +20,10 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.1")
     compileOnly("com.github.LoneDev6:api-itemsadder:3.2.0c-beta6")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
-    compileOnly("com.lkeehl:tagapi:1.1.1") // FIXME shade once the dev deploys the latest version
+    compileOnly("com.lkeehl:tagapi:1.2.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.papermc:paperlib:1.0.7")
-//    implementation("com.lkeehl:tagapi:1.1.3") // FIXME waiting on the dev to deploy the latest version
 }
 
 tasks {

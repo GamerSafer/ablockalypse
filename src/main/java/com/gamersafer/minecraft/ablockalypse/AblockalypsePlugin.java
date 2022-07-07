@@ -53,7 +53,6 @@ public class AblockalypsePlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        // FIXME uncomment once shaded
 //        TagAPI.onEnable(this);
 
         saveDefaultConfig();
@@ -100,8 +99,6 @@ public class AblockalypsePlugin extends JavaPlugin {
     public void onDisable() {
         storyStorage.shutdown();
         locationManager.shutdown();
-
-        // FIXME uncomment once shaded
 //        TagAPI.onDisable();
 
         dataSource.close();

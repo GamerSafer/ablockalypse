@@ -62,7 +62,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             // make sure the player is online
             Player player = Bukkit.getPlayer(args[1]);
             if (player == null) {
-                sender.sendMessage("Unable to get player " + args[1] + ". Ignoring the itemsadder action he was trying to do.");
+                sender.sendMessage("Unable to get player " + args[1] + ". Ignoring the itemsadder action they were trying to do.");
                 return false;
             }
 
@@ -98,7 +98,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             } else {
                                 // todo if the player is riding or is underwater the hud is not presnet.
                                 //  this message may be sent too often. test
-                                sender.sendMessage("Unable to increase the thirst bar of the survivalist " + player.getName() + ". He doesn't have a thirst bar.");
+                                sender.sendMessage("Unable to increase the thirst bar of the survivalist " + player.getName() + ". They don't have a thirst bar.");
                             }
                         });
                     }

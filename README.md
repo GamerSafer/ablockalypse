@@ -27,6 +27,6 @@
 | Placeholder                 | Description                                                            |
 |-----------------------------|------------------------------------------------------------------------|
 | %ablockalypse_character%    | The name of the character of the active story                          |
-| %ablockalypse_displayname%  | The name the player choose for his current character                   |
-| %ablockalypse_survivaltime% | How long the player survived with his current character                |
+| %ablockalypse_displayname%  | The name the player choose for their current character                   |
+| %ablockalypse_survivaltime% | How long the player survived with their current character                |
 | %ablockalypse_playtime%     | The sum of the survival times of all the stories started by the player |

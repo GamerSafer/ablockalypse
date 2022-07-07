@@ -40,7 +40,7 @@ public class EntityTameListener implements Listener {
             for (World world : Bukkit.getWorlds()) {
                 for (Entity wolfEntity : world.getEntitiesByClasses(Wolf.class)) {
                     if (((Tameable) wolfEntity).isTamed() && player.getUniqueId().equals(((Tameable) wolfEntity).getOwner().getUniqueId())) {
-                        // the player already has a tamed wolf. we can assume he is a Dog Walker.
+                        // the player already has a tamed wolf. we can assume they are a Dog Walker.
                         // cancel the event since they can have only 1 tamed wolf at a time
                         event.setCancelled(true);
                         plugin.sendMessage(player, "tame-wolf-already");
@@ -51,7 +51,7 @@ public class EntityTameListener implements Listener {
 
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                 if (story.isEmpty() || story.get().character() != Character.DOG_WALKER) {
-                    // the player is not a dog walker, he can't tame wolves
+                    // the player is not a dog walker, they can't tame wolves
                     event.setCancelled(true);
                     plugin.sendMessage(player, "tame-wolf-only-dogwalker");
                 }

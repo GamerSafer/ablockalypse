@@ -20,7 +20,7 @@ public interface StoryStorage {
      * Tries to get active story of a player. See {@link Story#isActive()}.
      *
      * @param playerUuid the UUID of the player
-     * @return his active story or an empty optional if he doesn't have a selected character
+     * @return their active story or an empty optional if they don't have a selected character
      */
     CompletableFuture<Optional<Story>> getActiveStory(UUID playerUuid);
 
@@ -77,7 +77,7 @@ public interface StoryStorage {
      * The playtime is the sum of the survival time of all the stories started by a player. See {@link Story#survivalTime()}
      *
      * @param playerUuid the UUID of the player
-     * @return his playtime
+     * @return their playtime
      */
     CompletableFuture<Duration> getPlaytime(UUID playerUuid);
 

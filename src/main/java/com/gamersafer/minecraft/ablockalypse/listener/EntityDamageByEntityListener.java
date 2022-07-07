@@ -26,7 +26,7 @@ public class EntityDamageByEntityListener implements Listener {
                 // Police Officer - Does more weapon damage
                 if (story.isPresent() && story.get().character() == Character.POLICE_OFFICER) {
                     ItemStack usedItem = player.getInventory().getItemInMainHand();
-                    // make sure he used a weapon
+                    // make sure they used a weapon
                     if (ItemUtil.WEAPONS.contains(usedItem.getType())) {
                         double finalDamage = event.getFinalDamage() * 1.3d;
                         event.setDamage(finalDamage);

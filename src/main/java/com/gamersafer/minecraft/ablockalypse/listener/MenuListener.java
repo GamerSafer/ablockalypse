@@ -83,6 +83,12 @@ public class MenuListener implements Listener {
                                     return;
                                 }
 
+                                // make sure the player has the permission to select this character
+                                if (!player.hasPermission("ablockalypse.canselect." + clickedCharacter.name().toLowerCase())) {
+                                    player.sendMessage(plugin.getMessage("character-selector-no-permission"));
+                                    return;
+                                }
+
                                 // teleport the player to the character-specific showroom
                                 Optional<Location> cinematicLocOpt = locationManager.getCinematicLoc(clickedCharacter);
                                 if (cinematicLocOpt.isPresent()) {

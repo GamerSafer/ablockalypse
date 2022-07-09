@@ -35,9 +35,6 @@ public class CharacterNametagManager {
             if (activeStory != null) {
                 // the player has an active story. display character name above head
                 tag.addTagLine(9).setGetName(pl -> activeStory.characterName());
-            } else {
-                // the player has no active story and their previous character name is still displayed.
-                // remove the character name from above their head
             }
             tag.giveTag();
         });

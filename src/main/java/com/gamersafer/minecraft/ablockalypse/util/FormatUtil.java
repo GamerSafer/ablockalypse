@@ -30,6 +30,10 @@ public final class FormatUtil {
         return date.format(dateTimeFormatter);
     }
 
+    public static String format(int seconds) {
+        return format(Duration.ofSeconds(seconds));
+    }
+
     public static String format(Duration duration) {
         return DurationFormatUtils.formatDuration(duration.toMillis(), durationFormat, false);
     }

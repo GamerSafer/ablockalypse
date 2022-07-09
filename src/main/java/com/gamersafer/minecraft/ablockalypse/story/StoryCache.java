@@ -73,12 +73,20 @@ public class StoryCache implements StoryStorage {
     @Override
     public CompletableFuture<Duration> getPlaytime(UUID playerUuid) {
         return cacheAll.get(playerUuid).thenApply(stories -> stories.stream()
-                .map(Story::survivalTime)
-                .reduce(Duration::plus)
-                .orElse(Duration.ZERO)
-        ).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return Duration.ZERO;
+                        .mapToInt(Story::survivalTime)
+                        .sum()
+                ).thenApply(Duration::ofSeconds)
+                .exceptionally(throwable -> {
+                    throwable.printStackTrace();
+                    return Duration.ZERO;
+                });
+    }
+
+    @Override
+    public CompletableFuture<Void> updateSurvivalTime(Story story) {
+        return base.updateSurvivalTime(story).thenRun(() -> {
+            cacheActive.synchronous().invalidate(story.playerUuid());
+            cacheAll.synchronous().invalidate(story.playerUuid());
         });
     }
 

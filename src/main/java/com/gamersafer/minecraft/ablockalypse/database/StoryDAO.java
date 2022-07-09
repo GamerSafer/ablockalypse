@@ -46,6 +46,7 @@ public class StoryDAO implements StoryStorage {
                 "  characterType varchar(48) NOT NULL," +
                 "  characterName varchar(20) NOT NULL," +
                 "  startTime     TIMESTAMP NOT NULL DEFAULT 0," +
+                "  survivalTime  INT UNSIGNED NOT NULL DEFAULT 0," +
                 "  endTime       TIMESTAMP NULL DEFAULT NULL," +
                 "  deathCause    varchar(48) NULL DEFAULT NULL," +
                 "  deathLocWorld varchar(48) NULL DEFAULT NULL," +
@@ -72,7 +73,7 @@ public class StoryDAO implements StoryStorage {
         return CompletableFuture.supplyAsync(() -> {
             Story result = null;
 
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime FROM story WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime, survivalTime FROM story WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
                 statement.setString(1, playerUuid.toString().replace("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -82,6 +83,8 @@ public class StoryDAO implements StoryStorage {
                                 resultSet.getString("characterName"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
                                 null,
+                                LocalDateTime.now(),
+                                resultSet.getInt("survivalTime"),
                                 null,
                                 null);
                     }
@@ -108,6 +111,8 @@ public class StoryDAO implements StoryStorage {
                         LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
                                 .map(Timestamp::toLocalDateTime).orElse(null);
 
+                        LocalDateTime sessionStartTime = endTime == null ? LocalDateTime.now() : null;
+
                         EntityDamageEvent.DamageCause deathCause = null;
                         Location deathLocation = null;
                         if (endTime != null) {
@@ -123,6 +128,8 @@ public class StoryDAO implements StoryStorage {
                                 resultSet.getString("characterName"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
                                 endTime,
+                                sessionStartTime,
+                                resultSet.getInt("survivalTime"),
                                 deathCause,
                                 deathLocation);
                         stories.add(story);
@@ -157,7 +164,7 @@ public class StoryDAO implements StoryStorage {
                     }
 
                     int id = keys.getInt(1);
-                    return new Story(id, playerUuid, character, characterName, startTime, null, null, null);
+                    return new Story(id, playerUuid, character, characterName, startTime, null, LocalDateTime.now(), 0, null, null);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -197,10 +204,35 @@ public class StoryDAO implements StoryStorage {
     @Override
     public CompletableFuture<Duration> getPlaytime(UUID playerUuid) {
         return getAllStories(playerUuid).thenApply(stories -> stories.stream()
-                .map(Story::survivalTime)
-                .reduce(Duration::plus)
-                .orElse(Duration.ZERO)
-        );
+                .mapToInt(Story::survivalTime)
+                .sum()
+        ).thenApply(Duration::ofSeconds);
+    }
+
+    @Override
+    public CompletableFuture<Void> updateSurvivalTime(Story story) {
+        // return if there isn't anything to update
+        if (story.sessionStartTime() == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET survivalTime = ? WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+
+                statement.setInt(1, story.survivalTime());
+                statement.setString(2, story.playerUuid().toString().replace("-", ""));
+
+                int affectedRow = statement.executeUpdate();
+                if (affectedRow != 1) {
+                    throw new RuntimeException("Couldn't update the survival time of " + story.playerUuid());
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Override

@@ -81,6 +81,14 @@ public interface StoryStorage {
      */
     CompletableFuture<Duration> getPlaytime(UUID playerUuid);
 
+    /**
+     * Updates the survival time stored in the database. See {@link Story#survivalTime()}.
+     *
+     * @param story the story to save
+     * @return a CompletableFuture that will complete once the update has been completed
+     */
+    CompletableFuture<Void> updateSurvivalTime(Story story);
+
     void shutdown();
 
 }

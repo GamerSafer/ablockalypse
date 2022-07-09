@@ -11,6 +11,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerQuitListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.papi.AblockalypsePAPIExpansion;
@@ -82,6 +83,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
 
         // register PAPI expansion

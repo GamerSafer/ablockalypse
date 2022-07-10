@@ -16,11 +16,8 @@ public class PlayerQuitListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     private void onPlayerQuit(PlayerQuitEvent event) {
-        // try to get the active story
-        storyStorage.getActiveStory(event.getPlayer().getUniqueId()).thenAccept(story -> {
-            // update the survival time in the database if present
-            story.ifPresent(storyStorage::updateSurvivalTime);
-        });
+        // try to update the survival time in the database
+        storyStorage.updateSurvivalTime(event.getPlayer().getUniqueId());
     }
 
 }

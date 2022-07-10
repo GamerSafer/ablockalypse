@@ -99,6 +99,11 @@ public class AblockalypsePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // flush updated survival times to the database
+        getServer().getOnlinePlayers().stream()
+                .map(Player::getUniqueId)
+                .forEach(storyStorage::updateSurvivalTime);
+
         storyStorage.shutdown();
         locationManager.shutdown();
 //        TagAPI.onDisable();

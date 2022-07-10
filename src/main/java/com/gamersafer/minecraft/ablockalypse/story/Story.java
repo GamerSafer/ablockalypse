@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 import java.util.UUID;
 
 public record Story(int id, UUID playerUuid, Character character, String characterName, LocalDateTime startTime,
@@ -29,6 +30,19 @@ public record Story(int id, UUID playerUuid, Character character, String charact
         }
         int sessionSurvivalTime = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) - sessionStartTime().toEpochSecond(ZoneOffset.UTC));
         return this.survivalTime + sessionSurvivalTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Story story = (Story) o;
+        return id == story.id && playerUuid.equals(story.playerUuid) && character == story.character && characterName.equals(story.characterName) && startTime.equals(story.startTime) && Objects.equals(endTime, story.endTime) && deathCause == story.deathCause && Objects.equals(deathLocation, story.deathLocation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, playerUuid, character, characterName, startTime, endTime, deathCause, deathLocation);
     }
 
 }

@@ -217,10 +217,11 @@ public class StoryDAO implements StoryStorage {
         }
 
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET survivalTime = ? WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET survivalTime = ? WHERE playerUuid = UNHEX(?) AND id = ? LIMIT 1;")) {
 
                 statement.setInt(1, story.survivalTime());
                 statement.setString(2, story.playerUuid().toString().replace("-", ""));
+                statement.setInt(3, story.id());
 
                 int affectedRow = statement.executeUpdate();
                 if (affectedRow != 1) {

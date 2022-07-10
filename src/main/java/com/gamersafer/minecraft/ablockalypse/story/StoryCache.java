@@ -35,7 +35,21 @@ public class StoryCache implements StoryStorage {
 
     @Override
     public CompletableFuture<List<Story>> getAllStories(UUID playerUuid) {
-        return cacheAll.get(playerUuid);
+        return cacheAll.get(playerUuid).thenCompose(stories -> {
+            CompletableFuture<Optional<Story>> activeStoryFuture = cacheActive.getIfPresent(playerUuid);
+            if (activeStoryFuture == null) {
+                return CompletableFuture.completedFuture(stories);
+            } else {
+                return activeStoryFuture.thenApply(activeStory -> {
+                    if (activeStory.isPresent()) {
+                        // replace with the active story containing the updated session start time
+                        stories.removeIf(story -> story.id() == activeStory.get().id());
+                        stories.add(activeStory.get());
+                    }
+                    return stories;
+                });
+            }
+        });
     }
 
     @Override
@@ -59,7 +73,7 @@ public class StoryCache implements StoryStorage {
 
     @Override
     public CompletableFuture<Void> endStory(UUID playerUuid, EntityDamageEvent.DamageCause deathCause, Location deathLocation, LocalDateTime endTime) {
-        return base.endStory(playerUuid, deathCause, deathLocation, endTime).thenRun(() -> {
+        return updateSurvivalTime(playerUuid).thenRun(() -> base.endStory(playerUuid, deathCause, deathLocation, endTime).thenRun(() -> {
 
             // invalidate cache
             cacheActive.synchronous().invalidate(playerUuid);
@@ -67,7 +81,7 @@ public class StoryCache implements StoryStorage {
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
-        });
+        }));
     }
 
     @Override

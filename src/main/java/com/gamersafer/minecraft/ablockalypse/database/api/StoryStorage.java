@@ -82,6 +82,20 @@ public interface StoryStorage {
     CompletableFuture<Duration> getPlaytime(UUID playerUuid);
 
     /**
+     * Attempts to update the survival time stored in the database.
+     *
+     * @param playerUuid the UUID of the player
+     * @return a CompletableFuture that will complete once the update has been completed or if the given
+     * player doesn't have an active story
+     */
+    default CompletableFuture<Void> updateSurvivalTime(UUID playerUuid) {
+        return getActiveStory(playerUuid).thenAccept(story -> {
+            // update the survival time in the database if present
+            story.ifPresent(this::updateSurvivalTime);
+        });
+    }
+
+    /**
      * Updates the survival time stored in the database. See {@link Story#survivalTime()}.
      *
      * @param story the story to save

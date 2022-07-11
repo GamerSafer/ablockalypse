@@ -202,7 +202,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
                     storyStorage.getPlaytime(targetUuid).thenAccept(playtime -> {
                         // create and open the menu
-                        plugin.sync(() -> new PastStoriesMenu(stories, player.getName(), playtime).open(player));
+                        plugin.sync(() -> new PastStoriesMenu(stories, targetName, playtime).open(player));
                     });
                 });
                 return true;

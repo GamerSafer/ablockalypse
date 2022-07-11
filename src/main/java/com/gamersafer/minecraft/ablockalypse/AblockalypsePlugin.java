@@ -5,12 +5,13 @@ import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
-import com.gamersafer.minecraft.ablockalypse.listener.EntityTargetLivingEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerQuitListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerToggleSneakListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerToggleSprintListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.papi.AblockalypsePAPIExpansion;
@@ -78,12 +79,13 @@ public class AblockalypsePlugin extends JavaPlugin {
         // register listeners
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
-        getServer().getPluginManager().registerEvents(new EntityTargetLivingEntityListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage), this);
+        getServer().getPluginManager().registerEvents(new PlayerToggleSneakListener(storyStorage), this);
+        getServer().getPluginManager().registerEvents(new PlayerToggleSprintListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
 
         // register PAPI expansion
@@ -214,11 +216,6 @@ public class AblockalypsePlugin extends JavaPlugin {
                     if (story.character() == Character.DOG_WALKER) {
                         Wolf wolf = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
                         wolf.setOwner(player);
-                    }
-
-                    // change speed for sprinter
-                    if (story.character() == Character.SPRINTER) {
-                        player.setWalkSpeed(0.3f);
                     }
 
                     // dispatch story-start commands

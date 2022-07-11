@@ -12,7 +12,7 @@ public enum Character {
 /* Skills:
 Nurse - Raises effectiveness of bandages/ first aid kits - hook into ItemsAdder
 Farmer - Can repair armour
-Sprinter - Can sprint faster - flat increase while walking and running
+Sprinter - Can sprint faster (regular speed when walking and sneaking)
 Construction Worker - Reduces damage taken (has resistance 1)
 Police Officer - Has strength 1
 Mechanic - Can repair weapons
@@ -21,7 +21,7 @@ Dog Walker - Can tame/ starts with 1 wolf (can re-tame wolves if they lose their
 Warehouse Worker (Spy?) - Has Nightvision
 TODO Thief - Name (both character name and username) is hidden at all times (only visible within 5 block radius)
 TODO Gambler (Youtuber?) - increase of luck on mob drops - loottable, when a gambler kills an entity there is a chance to get something
-I.T Consultant - Quiet (zombies can only hear them if within 5 block radius)
+I.T Consultant - Moves faster while sneaking
 Free Runner - No fall damage
 Baller - Jump Boost
 Survivalist - Hunger decreases slower and Thirst increases faster (water items are more effective)

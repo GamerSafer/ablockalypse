@@ -19,17 +19,11 @@ public class EntityDamageListener implements Listener {
     @EventHandler
     private void onEntityDamage(EntityDamageEvent event) {
 
-        if (event.getEntity() instanceof Player player) {
+        if (event.getEntity() instanceof Player player && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
-                if (story.isPresent()) {
-
-                    if (event.getCause() == EntityDamageEvent.DamageCause.FALL && story.get().character() == Character.FREE_RUNNER) {
-                        // disable fall damage for the free runner backstory
-                        event.setCancelled(true);
-                    } else if (story.get().character() == Character.CONSTRUCTION_WORKER) {
-                        // reduce damage taken by construction worker
-                        event.setDamage(event.getDamage() / 2);
-                    }
+                if (story.isPresent() && story.get().character() == Character.FREE_RUNNER) {
+                    // disable fall damage for the free runner backstory
+                    event.setCancelled(true);
                 }
             });
         }

@@ -3,7 +3,6 @@ package com.gamersafer.minecraft.ablockalypse;
 import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
-import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageByEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTargetLivingEntityListener;
@@ -75,7 +74,6 @@ public class AblockalypsePlugin extends JavaPlugin {
         getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager));
 
         // register listeners
-        getServer().getPluginManager().registerEvents(new EntityDamageByEntityListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityTargetLivingEntityListener(storyStorage), this);
@@ -200,6 +198,8 @@ public class AblockalypsePlugin extends JavaPlugin {
 
                     // give permanent potion effects
                     PotionEffectType potionEffectType = switch (story.character()) {
+                        case CONSTRUCTION_WORKER -> PotionEffectType.DAMAGE_RESISTANCE;
+                        case POLICE_OFFICER -> PotionEffectType.INCREASE_DAMAGE;
                         case WAREHOUSE_WORKER -> PotionEffectType.NIGHT_VISION;
                         case BALLER -> PotionEffectType.JUMP;
                         default -> null;

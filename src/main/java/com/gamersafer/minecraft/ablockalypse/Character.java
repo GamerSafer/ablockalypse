@@ -13,8 +13,8 @@ public enum Character {
 Nurse - Raises effectiveness of bandages/ first aid kits - hook into ItemsAdder
 Farmer - Can repair armour
 Sprinter - Can sprint faster - flat increase while walking and running
-Construction Worker - Reduces damage taken
-Police Officer - Does more weapon damage
+Construction Worker - Reduces damage taken (has resistance 1)
+Police Officer - Has strength 1
 Mechanic - Can repair weapons
 Chef - Raises effectiveness of all foods
 Dog Walker - Can tame/ starts with wolf (can re-tame wolves if they lose theirs) - give wolfs when spawn the first time. if the wolf dies, can tame another one. onlyl 1 at a time

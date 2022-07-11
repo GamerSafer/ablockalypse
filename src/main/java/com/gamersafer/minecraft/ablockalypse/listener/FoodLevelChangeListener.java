@@ -7,7 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class FoodLevelChangeListener implements Listener {
 
     private final StoryStorage storyStorage;
@@ -32,7 +31,7 @@ public class FoodLevelChangeListener implements Listener {
                         // Chef - Raises effectiveness of all foods
                         int foodLevelIncrease = event.getFoodLevel() - player.getFoodLevel();
                         if (foodLevelIncrease > 0) {
-                            int newFoodLevel = Math.min(20, Math.round(event.getFoodLevel() + foodLevelIncrease * 1.3f));
+                            int newFoodLevel = Math.min(20, Math.round(event.getFoodLevel() + 2));
                             event.setFoodLevel(newFoodLevel);
                         }
                     }

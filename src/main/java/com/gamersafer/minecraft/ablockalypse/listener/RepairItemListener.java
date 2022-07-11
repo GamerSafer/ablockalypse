@@ -4,21 +4,63 @@ import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 
-@SuppressWarnings("ClassCanBeRecord")
-public class PrepareAnvilListener implements Listener {
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+public class RepairItemListener implements Listener {
 
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
 
-    public PrepareAnvilListener(AblockalypsePlugin plugin, StoryStorage storyStorage) {
+    public RepairItemListener(AblockalypsePlugin plugin, StoryStorage storyStorage) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
+    }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    private void onItemRepair(PrepareItemCraftEvent event) {
+        Player player = (Player) event.getInventory().getViewers().get(0);
+
+        System.out.println("CustomPreCraftEvent player=" + player);
+        System.out.println("their name " + player.getName());
+
+        List<Material> materials = Arrays.stream(event.getInventory().getContents())
+                .filter(Objects::nonNull)
+                .map(ItemStack::getType)
+                .toList();
+
+        boolean containsArmor = materials.stream().anyMatch(ItemUtil.ARMOR::contains);
+        boolean containsWeapon = materials.stream().anyMatch(ItemUtil.WEAPONS::contains);
+
+        if (containsArmor) {
+            // check whether the player is a farmer. that's the only character allowed to repair armor
+            storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                if (story.isEmpty() || story.get().character() != Character.FARMER) {
+                    // cancel the event and send feedback message
+                    event.getInventory().setResult(null);
+                    plugin.sendMessage(player, "anvil-armor-no");
+                }
+            });
+        } else if (containsWeapon) {
+            // check whether the player is a mechanic. that's the only character allowed to repair weapons
+            storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                if (story.isEmpty() || story.get().character() != Character.MECHANIC) {
+                    // cancel the event and send feedback message
+                    event.getInventory().setResult(null);
+                    plugin.sendMessage(player, "anvil-weapon-no");
+                }
+            });
+        }
     }
 
     @SuppressWarnings("unused")

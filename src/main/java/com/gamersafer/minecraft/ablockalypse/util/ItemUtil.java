@@ -16,40 +16,40 @@ import java.util.UUID;
 public final class ItemUtil {
 
     public static final Set<Material> WEAPONS = EnumSet.of(
+            Material.TRIDENT,
+            Material.WOODEN_AXE,
             Material.WOODEN_SWORD,
-            Material.STONE_SWORD,
-            Material.GOLDEN_SWORD,
-            Material.IRON_SWORD,
             Material.DIAMOND_SWORD,
-            Material.NETHERITE_SWORD
-            // TODO add more weapons (?)
+            Material.DIAMOND_AXE,
+            Material.BOW,
+            Material.CROSSBOW,
+            Material.IRON_AXE,
+            Material.IRON_SWORD
     );
 
     public static final Set<Material> ARMOR = EnumSet.of(
-            Material.LEATHER_HELMET,
-            Material.CHAINMAIL_HELMET,
-            Material.GOLDEN_HELMET,
-            Material.IRON_HELMET,
-            Material.DIAMOND_HELMET,
-            Material.NETHERITE_HELMET,
-            Material.LEATHER_CHESTPLATE,
-            Material.CHAINMAIL_CHESTPLATE,
-            Material.GOLDEN_CHESTPLATE,
-            Material.IRON_CHESTPLATE,
-            Material.DIAMOND_CHESTPLATE,
-            Material.NETHERITE_CHESTPLATE,
-            Material.LEATHER_LEGGINGS,
-            Material.CHAINMAIL_LEGGINGS,
-            Material.GOLDEN_LEGGINGS,
-            Material.IRON_LEGGINGS,
-            Material.DIAMOND_LEGGINGS,
-            Material.NETHERITE_LEGGINGS,
-            Material.LEATHER_BOOTS,
             Material.CHAINMAIL_BOOTS,
-            Material.GOLDEN_BOOTS,
+            Material.CHAINMAIL_LEGGINGS,
+            Material.CHAINMAIL_CHESTPLATE,
+            Material.CHAINMAIL_HELMET,
             Material.IRON_BOOTS,
+            Material.IRON_LEGGINGS,
+            Material.IRON_CHESTPLATE,
+            Material.IRON_HELMET,
+            Material.LEATHER_BOOTS,
+            Material.LEATHER_LEGGINGS,
+            Material.LEATHER_CHESTPLATE,
+            Material.LEATHER_HELMET,
             Material.DIAMOND_BOOTS,
-            Material.NETHERITE_BOOTS
+            Material.DIAMOND_LEGGINGS,
+            Material.DIAMOND_CHESTPLATE,
+            Material.DIAMOND_HELMET,
+            Material.TURTLE_HELMET,
+            Material.SHIELD,
+            Material.GOLDEN_BOOTS,
+            Material.GOLDEN_LEGGINGS,
+            Material.GOLDEN_CHESTPLATE,
+            Material.GOLDEN_HELMET
     );
 
     private ItemUtil() {

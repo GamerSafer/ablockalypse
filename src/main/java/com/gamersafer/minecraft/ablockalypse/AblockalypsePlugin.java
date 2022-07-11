@@ -12,7 +12,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerQuitListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerToggleSneakListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerToggleSprintListener;
-import com.gamersafer.minecraft.ablockalypse.listener.PrepareAnvilListener;
+import com.gamersafer.minecraft.ablockalypse.listener.RepairItemListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.papi.AblockalypsePAPIExpansion;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
@@ -91,7 +91,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerToggleSneakListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerToggleSprintListener(storyStorage), this);
-        getServer().getPluginManager().registerEvents(new PrepareAnvilListener(this, storyStorage), this);
+        getServer().getPluginManager().registerEvents(new RepairItemListener(this, storyStorage), this);
 
         // register PAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {

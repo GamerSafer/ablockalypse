@@ -82,7 +82,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         plugin.sync(() -> {
                             //noinspection ConstantConditions
                             double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                            player.setHealth(Math.max(player.getHealth() + 2, maxHealth));
+                            player.setHealth(Math.min(player.getHealth() + 2, maxHealth));
                         });
                     }
                 });
@@ -94,7 +94,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             PlayerHudsHolderWrapper huds = new PlayerHudsHolderWrapper(player);
                             PlayerQuantityHudWrapper thirstHud = new PlayerQuantityHudWrapper(huds, "ablockalypse:thirst_bar");
                             if (thirstHud.exists()) {
-                                thirstHud.setFloatValue(Math.max(thirstHud.getFloatValue() + 2, 10f));
+                                thirstHud.setFloatValue(Math.min(thirstHud.getFloatValue() + 2, 10f));
                             } else {
                                 // todo if the player is riding or is underwater the hud is not presnet.
                                 //  this message may be sent too often. test

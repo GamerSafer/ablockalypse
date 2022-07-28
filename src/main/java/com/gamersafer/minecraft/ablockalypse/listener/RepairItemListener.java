@@ -30,10 +30,6 @@ public class RepairItemListener implements Listener {
     @EventHandler
     private void onItemRepair(PrepareItemCraftEvent event) {
         Player player = (Player) event.getInventory().getViewers().get(0);
-
-        System.out.println("CustomPreCraftEvent player=" + player);
-        System.out.println("their name " + player.getName());
-
         List<Material> materials = Arrays.stream(event.getInventory().getContents())
                 .filter(Objects::nonNull)
                 .map(ItemStack::getType)

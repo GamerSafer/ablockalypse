@@ -205,6 +205,12 @@ format:
   date-time: "yyyy-MM-dd HH:mm:ss"
   duration: "d 'days', mm 'minutes', ss 'seconds'"
 
+leaderboard:
+  # How often should the leaderboard be updated?
+  refresh-interval-seconds: 300
+  # How many stories should be included in the leaderboard?
+  max-entries: 10
+
 message:
   player-only: "&cThis command must be run by a player."
   no-permission: "&cYou don't have permissions"

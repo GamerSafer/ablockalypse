@@ -3,6 +3,7 @@ package com.gamersafer.minecraft.ablockalypse.database;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
+import com.gamersafer.minecraft.ablockalypse.util.UUIDUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -233,6 +234,54 @@ public class StoryDAO implements StoryStorage {
         }, executor).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Story> stories = new ArrayList<>();
+
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, HEX(playerUuid) AS uuid, characterType, characterName, startTime, endTime, survivalTime, deathCause, deathLocWorld, deathLocX, deathLocY, deathLocZ FROM story ORDER BY survivalTime DESC LIMIT ?;")) {
+                statement.setInt(1, count);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        //noinspection DuplicatedCode
+                        LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
+                                .map(Timestamp::toLocalDateTime).orElse(null);
+
+                        LocalDateTime sessionStartTime = endTime == null ? LocalDateTime.now() : null;
+
+                        EntityDamageEvent.DamageCause deathCause = null;
+                        Location deathLocation = null;
+                        if (endTime != null) {
+                            deathCause = EntityDamageEvent.DamageCause.valueOf(resultSet.getString("deathCause"));
+                            World deathLocationWorld = Bukkit.getWorld(resultSet.getString("deathLocWorld"));
+                            deathLocation = new Location(deathLocationWorld, resultSet.getDouble("deathLocX"),
+                                    resultSet.getDouble("deathLocY"), resultSet.getDouble("deathLocZ"));
+                        }
+
+                        //noinspection OptionalGetWithoutIsPresent we can assume the uuid is valid
+                        Story story = new Story(resultSet.getInt("id"),
+                                UUIDUtil.parseUUID(resultSet.getString("uuid")).get(),
+                                Character.valueOf(resultSet.getString("characterType")),
+                                resultSet.getString("characterName"),
+                                resultSet.getTimestamp("startTime").toLocalDateTime(),
+                                endTime,
+                                sessionStartTime,
+                                resultSet.getInt("survivalTime"),
+                                deathCause,
+                                deathLocation);
+                        stories.add(story);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return stories;
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Collections.emptyList();
         });
     }
 

@@ -103,6 +103,15 @@ public interface StoryStorage {
      */
     CompletableFuture<Void> updateSurvivalTime(Story story);
 
+    /**
+     * Gets the stories with the highest survival time.
+     * Do not directly access this method. Use {@link com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard} instead.
+     *
+     * @param count how many stories to load. This value should be provided in the config file.
+     * @return the ordered leaderboard
+     */
+    CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count);
+
     void shutdown();
 
 }

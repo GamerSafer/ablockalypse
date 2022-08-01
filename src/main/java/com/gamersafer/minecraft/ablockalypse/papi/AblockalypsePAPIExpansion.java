@@ -77,7 +77,7 @@ public class AblockalypsePAPIExpansion extends PlaceholderExpansion {
             }
 
             Optional<Story> storyEntry = survivalTimeLeaderboard.get(position - 1);
-            return switch (split[3]) {
+            value = switch (split[3]) {
                 case "name" -> storyEntry.map(Story::playerUuid)
                         .map(uuid -> Bukkit.getOfflinePlayer(uuid).getName()).orElse("None");
                 case "playtime" -> FormatUtil.format(storyEntry.map(Story::survivalTime).orElse(0));
@@ -86,6 +86,6 @@ public class AblockalypsePAPIExpansion extends PlaceholderExpansion {
             };
         }
 
-        return null;
+        return value;
     }
 }

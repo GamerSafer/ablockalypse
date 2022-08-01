@@ -48,8 +48,6 @@ public class PlayerDeathListener implements Listener {
                 plugin.getLogger().warning("The player " + player.getName() + "/" + player.getUniqueId() + " died while they didn't have an active story");
             } else {
                 // when player dies, lose inventory, claims, character, and experience + create new character. Respawn at hospital
-                player.getInventory().clear();
-                event.getDrops().clear();
                 player.setExp(0);
                 event.setShouldDropExperience(false);
                 player.getActivePotionEffects().stream().map(PotionEffect::getType).forEach(player::removePotionEffect);
@@ -85,6 +83,9 @@ public class PlayerDeathListener implements Listener {
 
                 // todo integrate with the claims plugin and remove all claims
             }
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
         });
     }
 

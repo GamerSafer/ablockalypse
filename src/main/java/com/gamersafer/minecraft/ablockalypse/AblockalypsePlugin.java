@@ -5,6 +5,7 @@ import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
+import com.gamersafer.minecraft.ablockalypse.listener.EntityInteractEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
@@ -81,6 +82,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         // register listeners
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
+        getServer().getPluginManager().registerEvents(new EntityInteractEntityListener(), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);

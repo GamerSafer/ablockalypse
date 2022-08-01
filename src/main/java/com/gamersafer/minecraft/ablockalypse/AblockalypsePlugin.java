@@ -3,6 +3,7 @@ package com.gamersafer.minecraft.ablockalypse;
 import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
+import com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
@@ -45,6 +46,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
     private HikariDataSource dataSource;
     private StoryStorage storyStorage;
+    private SurvivalTimeLeaderboard survivalTimeLeaderboard;
     private LocationManager locationManager;
 
     public static AblockalypsePlugin getInstance() {
@@ -71,6 +73,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         this.storyStorage = new StoryCache(new StoryDAO(dataSource));
         this.locationManager = new LocationManager();
+        this.survivalTimeLeaderboard = new SurvivalTimeLeaderboard(this, storyStorage);
 
         // register commands
         //noinspection ConstantConditions
@@ -90,7 +93,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         // register PAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new AblockalypsePAPIExpansion(storyStorage).register();
+            new AblockalypsePAPIExpansion(storyStorage, survivalTimeLeaderboard).register();
         }
     }
 
@@ -112,6 +115,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         FormatUtil.reload(getConfig());
         Character.reload();
         MenuListener.reload();
+        survivalTimeLeaderboard.reload();
     }
 
     public StoryStorage getStoryStorage() {
@@ -123,7 +127,6 @@ public class AblockalypsePlugin extends JavaPlugin {
     }
 
     public String getMessage(String messageId) {
-        //noinspection ConstantConditions
         return FormatUtil.color(getConfig().getString("message." + messageId));
     }
 
@@ -167,7 +170,6 @@ public class AblockalypsePlugin extends JavaPlugin {
         }
     }
 
-    // todo move to StoryManager
     public void startNewStory(OnboardingSessionData data) {
         // make sure we have all the data to start a new story
         if (!data.isComplete()) {

@@ -9,6 +9,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -101,6 +103,23 @@ public class StoryCache implements StoryStorage {
         return base.updateSurvivalTime(story).thenRun(() -> {
             cacheActive.synchronous().invalidate(story.playerUuid());
             cacheAll.synchronous().invalidate(story.playerUuid());
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count) {
+        return base.getTopSurvivalTimeStories(count).thenApply(stories -> {
+            List<Story> topSurvivalTimeStories = new ArrayList<>(stories);
+
+            cacheActive.synchronous().asMap().values().forEach(story -> {
+                if (story.isPresent()) {
+                    topSurvivalTimeStories.removeIf(s -> s.id() == story.get().id());
+                    topSurvivalTimeStories.add(story.get());
+                }
+            });
+
+            topSurvivalTimeStories.sort(Comparator.comparingInt(Story::survivalTime).reversed());
+            return topSurvivalTimeStories;
         });
     }
 

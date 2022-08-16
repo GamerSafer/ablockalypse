@@ -31,6 +31,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -218,7 +219,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
                     // give dog to dog walker
                     if (story.character() == Character.DOG_WALKER) {
-                        Wolf wolf = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF);
+                        Wolf wolf = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF, CreatureSpawnEvent.SpawnReason.CUSTOM);
                         wolf.setOwner(player);
                     }
 

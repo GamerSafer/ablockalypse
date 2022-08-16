@@ -1,6 +1,7 @@
 package com.gamersafer.minecraft.ablockalypse.story;
 
 import com.gamersafer.minecraft.ablockalypse.Character;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +26,7 @@ public record Story(int id, UUID playerUuid, Character character, String charact
      * @return the story duration
      */
     public int survivalTime() {
-        if (sessionStartTime() == null) {
+        if (sessionStartTime() == null || Bukkit.getPlayer(playerUuid) == null) {
             return this.survivalTime;
         }
         int sessionSurvivalTime = (int) (LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) - sessionStartTime().toEpochSecond(ZoneOffset.UTC));

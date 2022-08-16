@@ -66,13 +66,13 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 return false;
             }
 
-            float value;
-            try {
-                value = Float.parseFloat(args[3]);
-            } catch (NumberFormatException exception) {
-                sender.sendMessage("Unable to parse float value " + args[3] + ". Ignoring the itemsadder action.");
-                return false;
-            }
+//            float value;
+//            try {
+//                value = Float.parseFloat(args[3]);
+//            } catch (NumberFormatException exception) {
+//                sender.sendMessage("Unable to parse float value " + args[3] + ". Ignoring the itemsadder action.");
+//                return false;
+//            }
 
             String action = args[2].toLowerCase();
             if (action.equals("heal")) {

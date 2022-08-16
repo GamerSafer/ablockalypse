@@ -203,7 +203,8 @@ onboarding:
 
 format:
   date-time: "yyyy-MM-dd HH:mm:ss"
-  duration: "d 'days', mm 'minutes', ss 'seconds'"
+  # duration format docs: https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/time/DurationFormatUtils.html
+  duration: "d 'days', HH 'hours', mm 'minutes'"
 
 leaderboard:
   # How often should the leaderboard be updated?

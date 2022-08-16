@@ -102,6 +102,7 @@ public class StoryDAO implements StoryStorage {
 
     @Override
     public CompletableFuture<List<Story>> getAllStories(UUID playerUuid) {
+        boolean isOnline = Bukkit.getPlayer(playerUuid) != null;
         return CompletableFuture.supplyAsync(() -> {
             List<Story> stories = new ArrayList<>();
 
@@ -112,7 +113,7 @@ public class StoryDAO implements StoryStorage {
                         LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
                                 .map(Timestamp::toLocalDateTime).orElse(null);
 
-                        LocalDateTime sessionStartTime = endTime == null ? LocalDateTime.now() : null;
+                        LocalDateTime sessionStartTime = endTime == null && isOnline ? LocalDateTime.now() : null;;
 
                         EntityDamageEvent.DamageCause deathCause = null;
                         Location deathLocation = null;
@@ -250,8 +251,6 @@ public class StoryDAO implements StoryStorage {
                         LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
                                 .map(Timestamp::toLocalDateTime).orElse(null);
 
-                        LocalDateTime sessionStartTime = endTime == null ? LocalDateTime.now() : null;
-
                         EntityDamageEvent.DamageCause deathCause = null;
                         Location deathLocation = null;
                         if (endTime != null) {
@@ -268,7 +267,7 @@ public class StoryDAO implements StoryStorage {
                                 resultSet.getString("characterName"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
                                 endTime,
-                                sessionStartTime,
+                                null,
                                 resultSet.getInt("survivalTime"),
                                 deathCause,
                                 deathLocation);

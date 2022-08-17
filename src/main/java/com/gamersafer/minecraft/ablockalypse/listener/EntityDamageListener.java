@@ -23,7 +23,9 @@ public class EntityDamageListener implements Listener {
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                 if (story.isPresent() && story.get().character() == Character.FREE_RUNNER) {
                     // disable fall damage for the free runner backstory
-                    event.setCancelled(true);
+                    if (player.getFallDistance() < 12) {
+                        event.setCancelled(true);
+                    }
                 }
             });
         }

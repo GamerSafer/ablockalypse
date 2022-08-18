@@ -25,6 +25,8 @@ public class EntityDamageListener implements Listener {
                     // disable fall damage for the free runner backstory
                     if (player.getFallDistance() < 12) {
                         event.setCancelled(true);
+                    } else {
+                        event.setDamage(event.getDamage() * 0.33);
                     }
                 }
             });

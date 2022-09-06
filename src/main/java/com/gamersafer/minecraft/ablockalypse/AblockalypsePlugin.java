@@ -10,6 +10,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerItemConsumeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerQuitListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerToggleSneakListener;
@@ -93,6 +94,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager, nametagManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerItemConsumeListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager, nametagManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerToggleSneakListener(storyStorage), this);
@@ -212,16 +214,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                     }
 
                     // give permanent potion effects
-                    PotionEffectType potionEffectType = switch (story.character()) {
-                        case CONSTRUCTION_WORKER -> PotionEffectType.DAMAGE_RESISTANCE;
-                        case POLICE_OFFICER -> PotionEffectType.INCREASE_DAMAGE;
-                        case WAREHOUSE_WORKER -> PotionEffectType.NIGHT_VISION;
-                        case BALLER -> PotionEffectType.JUMP;
-                        default -> null;
-                    };
-                    if (potionEffectType != null) {
-                        player.addPotionEffect(new PotionEffect(potionEffectType, Integer.MAX_VALUE, 1));
-                    }
+                    giveCharacterPermanentPotionEffect(player, story.character());
 
                     // give dog to dog walker
                     if (story.character() == Character.DOG_WALKER) {
@@ -243,6 +236,28 @@ public class AblockalypsePlugin extends JavaPlugin {
                             .replace("{character_name}", data.getName()));
                 });
             }).thenRun(() -> getLogger().info("The player " + data.getPlayerUuid() + " just started a new story as a " + data.getCharacter().name()));
+        });
+    }
+
+    public void giveCharacterPermanentPotionEffect(Player player) {
+        //noinspection CodeBlock2Expr
+        storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+            story.ifPresent(value -> giveCharacterPermanentPotionEffect(player, value.character()));
+        });
+    }
+
+    public void giveCharacterPermanentPotionEffect(Player player, Character character) {
+        sync(() -> {
+            PotionEffectType potionEffectType = switch (character) {
+                case CONSTRUCTION_WORKER -> PotionEffectType.DAMAGE_RESISTANCE;
+                case POLICE_OFFICER -> PotionEffectType.INCREASE_DAMAGE;
+                case WAREHOUSE_WORKER -> PotionEffectType.NIGHT_VISION;
+                case BALLER -> PotionEffectType.JUMP;
+                default -> null;
+            };
+            if (potionEffectType != null) {
+                player.addPotionEffect(new PotionEffect(potionEffectType, Integer.MAX_VALUE, 1));
+            }
         });
     }
 

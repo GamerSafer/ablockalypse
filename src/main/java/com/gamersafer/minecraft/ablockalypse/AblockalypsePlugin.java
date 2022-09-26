@@ -4,6 +4,7 @@ import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard;
+import com.gamersafer.minecraft.ablockalypse.listener.ChunkUnloadListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityInteractEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
@@ -83,6 +84,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager));
 
         // register listeners
+        getServer().getPluginManager().registerEvents(new ChunkUnloadListener(), this);
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityInteractEntityListener(), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);

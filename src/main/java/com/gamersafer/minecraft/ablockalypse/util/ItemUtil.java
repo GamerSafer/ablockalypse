@@ -19,12 +19,15 @@ public final class ItemUtil {
             Material.TRIDENT,
             Material.WOODEN_AXE,
             Material.WOODEN_SWORD,
+            Material.WOODEN_PICKAXE, //Crossbow
             Material.DIAMOND_SWORD,
             Material.DIAMOND_AXE,
             Material.BOW,
             Material.CROSSBOW,
             Material.IRON_AXE,
-            Material.IRON_SWORD
+            Material.IRON_SWORD,
+            Material.IRON_HORSE_ARMOR, //Musket
+            Material.STICK //Lance
     );
 
     public static final Set<Material> ARMOR = EnumSet.of(

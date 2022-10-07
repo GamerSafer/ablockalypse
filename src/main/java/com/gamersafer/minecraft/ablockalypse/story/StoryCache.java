@@ -124,6 +124,41 @@ public class StoryCache implements StoryStorage {
     }
 
     @Override
+    public CompletableFuture<List<Story>> getTopSurvivalTimeStoriesByCharacter(Character character, int count) {
+        //noinspection DuplicatedCode
+        return base.getTopSurvivalTimeStoriesByCharacter(character, count).thenApply(stories -> {
+            List<Story> topSurvivalTimeStories = new ArrayList<>(stories);
+
+            cacheActive.synchronous().asMap().values().forEach(story -> {
+                if (story.isPresent()) {
+                    topSurvivalTimeStories.removeIf(s -> s.id() == story.get().id());
+                    topSurvivalTimeStories.add(story.get());
+                }
+            });
+
+            topSurvivalTimeStories.sort(Comparator.comparingInt(Story::survivalTime).reversed());
+            return topSurvivalTimeStories;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Optional<Story>> getTopSurvivalTimePersonal(UUID playerUuid) {
+        return getAllStories(playerUuid).thenApply(stories -> {
+            return stories.stream()
+                    .min(Comparator.comparingInt(Story::survivalTime)); // todo test the min
+        });
+    }
+
+    @Override
+    public CompletableFuture<Optional<Story>> getTopSurvivalTimePersonalByCharacter(Character character, UUID playerUuid) {
+        return getAllStories(playerUuid).thenApply(stories -> {
+            return stories.stream()
+                    .filter(story -> story.character() == character)
+                    .min(Comparator.comparingInt(Story::survivalTime)); // todo test the min
+        });
+    }
+
+    @Override
     public void shutdown() {
         base.shutdown();
     }

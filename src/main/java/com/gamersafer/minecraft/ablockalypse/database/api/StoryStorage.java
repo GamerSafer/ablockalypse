@@ -112,6 +112,34 @@ public interface StoryStorage {
      */
     CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count);
 
+    /**
+     * Gets the stories with the highest survival time played as the given character.
+     * Do not directly access this method. Use {@link com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard} instead.
+     *
+     * @param character the character to get the leaderboard for
+     * @param count     how many stories to load. This value should be provided in the config file.
+     * @return the ordered leaderboard
+     */
+    CompletableFuture<List<Story>> getTopSurvivalTimeStoriesByCharacter(Character character, int count);
+
+    /**
+     * Gets the story with the highest survival time played by the given player.
+     *
+     * @param playerUuid the of the player who is starting the story
+     * @return an optional containing the story with the highest survival time or a empty optional if the given
+     * player never started a story.
+     */
+    CompletableFuture<Optional<Story>> getTopSurvivalTimePersonal(UUID playerUuid);
+
+    /**
+     * Gets the story with the highest survival time played by the given player with the given character.
+     *
+     * @param playerUuid the of the player who is starting the story
+     * @return an optional containing the story with the highest survival time or a empty optional if the given
+     * player never started a story with the given character type.
+     */
+    CompletableFuture<Optional<Story>> getTopSurvivalTimePersonalByCharacter(Character character, UUID playerUuid);
+
     void shutdown();
 
 }

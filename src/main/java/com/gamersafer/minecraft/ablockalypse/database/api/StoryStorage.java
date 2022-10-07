@@ -112,6 +112,36 @@ public interface StoryStorage {
      */
     CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count);
 
+    /**
+     * Resets all active stories to their beginning.
+     *
+     * @return a CompletableFuture that will complete once the stories have been reset
+     */
+    CompletableFuture<Void> resetActiveStory();
+
+    /**
+     * Resets the active story of the given player, if any.
+     *
+     * @param playerUuid the player uuid
+     * @return a CompletableFuture that will complete once their active story has been reset
+     */
+    CompletableFuture<Void> resetActiveStory(UUID playerUuid);
+
+    /**
+     * Resets all stories, including active ones, deleting all data associated with them.
+     *
+     * @return a CompletableFuture that will complete once all stories have been reset
+     */
+    CompletableFuture<Void> resetAllStories();
+
+    /**
+     * Resets all stories started by the given player , including the active one, deleting all data associated with them.
+     *
+     * @param playerUuid the player uuid
+     * @return a CompletableFuture that will complete once all stories have been reset
+     */
+    CompletableFuture<Void> resetAllStories(UUID playerUuid);
+
     void shutdown();
 
 }

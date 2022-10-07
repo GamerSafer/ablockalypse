@@ -285,6 +285,71 @@ public class StoryDAO implements StoryStorage {
     }
 
     @Override
+    public CompletableFuture<Void> resetActiveStory() {
+        // todo reset level once merged
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET startTime = ?, survivalTime = 0 WHERE endTime IS NULL;")) {
+                statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> resetActiveStory(UUID playerUuid) {
+        // todo reset level once merged
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET startTime = ?, survivalTime = 0 WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+                statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setString(2, playerUuid.toString().replace("-", ""));
+
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> resetAllStories() {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("DELETE FROM story;")) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> resetAllStories(UUID playerUuid) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("DELETE FROM story WHERE playerUuid = UNHEX(?);")) {
+                statement.setString(1, playerUuid.toString().replace("-", ""));
+
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Override
     public void shutdown() {
         try {
             executor.shutdown();

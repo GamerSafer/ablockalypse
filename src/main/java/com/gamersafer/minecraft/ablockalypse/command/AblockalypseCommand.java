@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AblockalypseCommand implements CommandExecutor, TabCompleter {
@@ -107,6 +109,40 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 throw new IllegalArgumentException("Unknown action " + action);
             }
 
+            return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("reset") && hasPermission(sender, Permission.CMD_RESET)) {
+            boolean targetAll = args[1].equalsIgnoreCase("all");
+            OfflinePlayer targetPlayer = null;
+            if (!targetAll) {
+                targetPlayer = Bukkit.getOfflinePlayer(args[1]);
+                if (!targetPlayer.hasPlayedBefore()) {
+                    sender.sendMessage("Unable to find the player " + args[1]);
+                    return false;
+                }
+            }
+
+            CompletableFuture<Void> resetFuture = null;
+            if (args[2].equalsIgnoreCase("current")) {
+                if (targetAll) {
+                    resetFuture = storyStorage.resetActiveStory();
+                } else {
+                    resetFuture = storyStorage.resetActiveStory(targetPlayer.getUniqueId());
+                }
+            } else if (args[2].equalsIgnoreCase("history")) {
+                if (targetAll) {
+                    resetFuture = storyStorage.resetAllStories();
+                } else {
+                    resetFuture = storyStorage.resetAllStories(targetPlayer.getUniqueId());
+                }
+            } else {
+                sender.sendMessage("Invalid subcommand");
+                return false;
+            }
+
+            resetFuture.thenRun(() -> {
+                // todo reset character perks such as potion effects, dogs, etc...
+                sender.sendMessage("Reset completed!");
+            });
             return true;
         }
 

@@ -124,6 +124,38 @@ public class StoryCache implements StoryStorage {
     }
 
     @Override
+    public CompletableFuture<Void> resetActiveStory() {
+        return base.resetActiveStory().thenRun(() -> {
+            cacheActive.synchronous().invalidateAll();
+            cacheAll.synchronous().invalidateAll();
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> resetActiveStory(UUID playerUuid) {
+        return base.resetActiveStory(playerUuid).thenRun(() -> {
+            cacheActive.synchronous().invalidate(playerUuid);
+            cacheAll.synchronous().invalidate(playerUuid);
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> resetAllStories() {
+        return base.resetAllStories().thenRun(() -> {
+            cacheActive.synchronous().invalidateAll();
+            cacheAll.synchronous().invalidateAll();
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> resetAllStories(UUID playerUuid) {
+        return base.resetAllStories(playerUuid).thenRun(() -> {
+            cacheActive.synchronous().invalidate(playerUuid);
+            cacheAll.synchronous().invalidate(playerUuid);
+        });
+    }
+
+    @Override
     public void shutdown() {
         base.shutdown();
     }

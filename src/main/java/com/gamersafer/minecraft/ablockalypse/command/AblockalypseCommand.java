@@ -54,6 +54,34 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             plugin.reload();
             plugin.sendMessage(sender, "config-reloaded");
             return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("story")) {
+            // make sure the target player is online
+            Player player = Bukkit.getPlayer(args[1]);
+            if (player == null) {
+                sender.sendMessage("Unable to get player " + args[1] + ". Ignoring the itemsadder action they were trying to do.");
+                return false;
+            }
+
+            if (args[2].equalsIgnoreCase("nextlevel")) {
+                // try to increase the level of target's active story, if present
+                storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                    if (story.isPresent()) {
+                        // increase level and run commands
+                        plugin.sync(() -> {
+                            int newLevel = story.get().increaseLevel();
+                            storyStorage.updateLevel(story.get()).thenRun(() -> {
+                                story.get().character().getCommandsOnLevelUp(newLevel).stream()
+                                        .map(levelUpCmd -> levelUpCmd.replace("{name}", player.getName())
+                                                .replace("{uuid}", player.getUniqueId().toString()))
+                                        .forEach(levelUpCmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), levelUpCmd));
+                                sender.sendMessage("Active backstory level of player " + player.getName() + " set to " + newLevel);
+                            });
+                        });
+                    } else {
+                        sender.sendMessage("The player " + player.getName() + " doesn't have an active story");
+                    }
+                });
+            }
         } else if (args.length == 4 && args[0].equalsIgnoreCase("itemsadder") && (sender instanceof ConsoleCommandSender)) {
             // /ablockalypse itemsadder <player> <action> <value>
             // command for internal use only. items adder doesn't call any event when a custom item is used. as a workaround

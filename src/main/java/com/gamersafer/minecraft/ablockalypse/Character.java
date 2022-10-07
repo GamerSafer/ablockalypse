@@ -2,9 +2,12 @@ package com.gamersafer.minecraft.ablockalypse;
 
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
+import com.google.common.collect.Multimap;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public enum Character {
@@ -48,6 +51,7 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
     private int menuIndex = -1;
     private String displayName;
     private List<String> description, commandsOnStoryStart, commandsOnStoryEnd;
+    private Multimap<Integer, String> commandsOnLevelUp;
 
     private ItemStack menuItem;
 
@@ -61,6 +65,7 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
         description = null;
         commandsOnStoryStart = null;
         commandsOnStoryEnd = null;
+        commandsOnLevelUp = null;
         menuItem = null;
     }
 
@@ -97,6 +102,19 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
             commandsOnStoryEnd = AblockalypsePlugin.getInstance().getConfig().getStringList(getConfigPath() + ".run-commands.story-end");
         }
         return commandsOnStoryEnd;
+    }
+
+    public Collection<String> getCommandsOnLevelUp(int newLevel) {
+        if (commandsOnLevelUp == null) {
+            ConfigurationSection levelIncreaseConfigSection = AblockalypsePlugin.getInstance().getConfig().getConfigurationSection(getConfigPath() + ".run-commands.level-increase");
+            levelIncreaseConfigSection.getKeys(false)
+                    .stream()
+                    .map(Integer::valueOf)
+                    .forEach(level -> {
+                        commandsOnLevelUp.putAll(level, levelIncreaseConfigSection.getStringList(String.valueOf(level)));
+                    });
+        }
+        return commandsOnLevelUp.get(newLevel);
     }
 
     public ItemStack getMenuItem() {

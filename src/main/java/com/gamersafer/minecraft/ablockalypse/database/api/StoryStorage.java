@@ -37,6 +37,7 @@ public interface StoryStorage {
      *
      * @param onboardingSessionData the data of the story start
      * @return the newly created story
+     * @see #startNewStory(UUID, Character, String, LocalDateTime)
      */
     default CompletableFuture<Story> startNewStory(OnboardingSessionData onboardingSessionData) {
         Preconditions.checkArgument(onboardingSessionData.isComplete());
@@ -54,6 +55,7 @@ public interface StoryStorage {
      * @param characterName the display name of the character
      * @param startTime     the story start time
      * @return the newly created story
+     * @see #startNewStory(OnboardingSessionData)
      */
     CompletableFuture<Story> startNewStory(UUID playerUuid, Character character, String characterName, LocalDateTime startTime);
 
@@ -102,6 +104,29 @@ public interface StoryStorage {
      * @return a CompletableFuture that will complete once the update has been completed
      */
     CompletableFuture<Void> updateSurvivalTime(Story story);
+
+    /**
+     * Saves the level of the active story of the given player to the database.
+     *
+     * @param playerUuid the player uupd
+     * @return a CompletableFuture that will complete once the update has been completed
+     * @see #updateLevel(Story)
+     */
+    default CompletableFuture<Void> updateLevel(UUID playerUuid) {
+        return getActiveStory(playerUuid).thenAccept(story -> {
+            // update the level in the database if present
+            story.ifPresent(this::updateLevel);
+        });
+    }
+
+    /**
+     * Saves the level of the given story to the database.
+     *
+     * @param story the story to updated
+     * @return a CompletableFuture that will complete once the update has been completed
+     * @see #updateLevel(UUID)
+     */
+    CompletableFuture<Void> updateLevel(Story story);
 
     /**
      * Gets the stories with the highest survival time.

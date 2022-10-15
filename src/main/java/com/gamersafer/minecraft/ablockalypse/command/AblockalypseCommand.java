@@ -6,6 +6,12 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import dev.lone.itemsadder.api.FontImages.PlayerHudsHolderWrapper;
 import dev.lone.itemsadder.api.FontImages.PlayerQuantityHudWrapper;
 import io.papermc.lib.PaperLib;
@@ -15,6 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,6 +35,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,11 +48,13 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
+    private final SafehouseManager safehouseManager;
 
-    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
+    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager, SafehouseManager safehouseManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
+        this.safehouseManager = safehouseManager;
     }
 
     @Override
@@ -289,45 +299,150 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
             }
-        } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("cinematic")) {
-                // validate character type
-                Character character;
-                try {
-                    character = Character.valueOf(args[1].toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    player.sendMessage(plugin.getMessage("invalid-character-type")
-                            .replace("{input}", args[1])
-                            .replace("{valid}", Arrays.stream(Character.values())
-                                    .map(Character::name)
-                                    .map(String::toLowerCase)
-                                    .collect(Collectors.joining(", ")))
-                    );
-                    return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("cinematic")) {
+            // validate character type
+            Character character;
+            try {
+                character = Character.valueOf(args[1].toUpperCase());
+            } catch (IllegalArgumentException e) {
+                player.sendMessage(plugin.getMessage("invalid-character-type")
+                        .replace("{input}", args[1])
+                        .replace("{valid}", Arrays.stream(Character.values())
+                                .map(Character::name)
+                                .map(String::toLowerCase)
+                                .collect(Collectors.joining(", ")))
+                );
+                return true;
+            }
+
+            if (args[2].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_CINEMATIC_SET)) {
+
+                // set the location and send feedback message
+                locationManager.setCinematicLoc(character, player.getLocation());
+                player.sendMessage(plugin.getMessage("cinematic-location-set-success")
+                        .replace("{character}", character.name().toLowerCase()));
+
+                return true;
+            } else if (args[2].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_CINEMATIC_TP)) {
+
+                Optional<Location> cinematicLoc = locationManager.getCinematicLoc(character);
+                if (cinematicLoc.isPresent()) {
+                    // teleport the player
+                    player.sendMessage(plugin.getMessage("cinematic-location-tp")
+                            .replace("{character}", character.name().toLowerCase()));
+                    PaperLib.teleportAsync(player, cinematicLoc.get());
+                    player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+                } else {
+                    // the location is not present
+                    player.sendMessage(plugin.getMessage("cinematic-location-none")
+                            .replace("{character}", character.name().toLowerCase()));
+                }
+                return true;
+            }
+        } else if (args.length > 2 && args[0].equalsIgnoreCase("safehouse") && hasPermission(sender, Permission.CMD_SAFEHOUSE)) {
+            if (args.length == 3 && args[2].equalsIgnoreCase("create")) {
+                String regionName = args[1];
+
+                // make sure there isn't another safehouse in that region
+                if (safehouseManager.getSafehouseFromRegion(regionName).isPresent()) {
+                    player.sendMessage(plugin.getMessage("safehouse-create-invalid-exists")
+                            .replace("{name}", regionName));
+                    return false;
                 }
 
-                if (args[2].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_CINEMATIC_SET)) {
+                // try to get the region
+                RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
+                ProtectedRegion region = Objects.requireNonNull(regionManager).getRegion(regionName);
+                if (region == null) {
+                    player.sendMessage(plugin.getMessage("safehouse-create-invalid-region")
+                            .replace("{name}", regionName));
+                    return false;
+                }
 
-                    // set the location and send feedback message
-                    locationManager.setCinematicLoc(character, player.getLocation());
-                    player.sendMessage(plugin.getMessage("cinematic-location-set-success")
-                            .replace("{character}", character.name().toLowerCase()));
+                safehouseManager.createSafehouse(regionName).thenAccept(safehouse -> {
+                    player.sendMessage(plugin.getMessage("safehouse-create-success")
+                            .replace("{id}", Integer.toString(safehouse.getId())));
+
+                });
+                return true;
+            }
+
+            Optional<Safehouse> safehouseOpt;
+            try {
+                int safehouseID = Integer.parseInt(args[1]);
+                safehouseOpt = safehouseManager.getSafehouseFromID(safehouseID);
+            } catch (NumberFormatException ignore) {
+                safehouseOpt = safehouseManager.getSafehouseFromRegion(args[1]);
+            }
+
+            // make sure that safehouse exists
+            if (safehouseOpt.isEmpty()) {
+                player.sendMessage(plugin.getMessage("safehouse-cmd-invalid-id")
+                        .replace("{id-region}", args[1]));
+                return false;
+            }
+            Safehouse safehouse = safehouseOpt.get();
+
+            if (args.length == 3) {
+                if (args[2].equalsIgnoreCase("delete")) {
+
+                    player.sendMessage(plugin.getMessage("safehouse-deleted"));
+                    // todo should notify members if online?
+                    return true;
+                } else if (args[2].equalsIgnoreCase("teleport")) {
+                    if (safehouse.getSpawnLocation() == null) {
+                        player.sendMessage(plugin.getMessage("safehouse-spawn-not-set"));
+                        return false;
+                    }
+
+                    player.sendMessage(plugin.getMessage("safehouse-teleporting"));
+                    player.teleport(safehouse.getSpawnLocation());
+                    return true;
+                } else if (args[2].equalsIgnoreCase("setdoor")) {
+                    Block targetBlock = player.getTargetBlock(4);
+
+                    if (targetBlock == null || !targetBlock.getType().name().endsWith("_DOOR")) {
+                        player.sendMessage(plugin.getMessage("safehouse-door-set-invalid"));
+                        return false;
+                    }
+
+                    safehouse.setDoorLocation(targetBlock.getLocation());
+                    player.sendMessage(plugin.getMessage("safehouse-door-set"));
+                    return true;
+                } else if (args[2].equalsIgnoreCase("setspawn")) {
+                    Location spawnLocation = player.getLocation();
+
+                    if (!safehouseManager.isInsideSafehouse(safehouse, spawnLocation)) {
+                        player.sendMessage(plugin.getMessage("safehouse-spawn-set-invalid"));
+                        return false;
+                    }
+
+                    safehouse.setSpawnLocation(spawnLocation);
+                    player.sendMessage(plugin.getMessage("safehouse-spawn-set"));
+                    return true;
+                } else if (args[2].equalsIgnoreCase("setoutside")) {
+                    Location outsideLocation = player.getLocation();
+
+                    if (safehouseManager.isInsideSafehouse(safehouse, outsideLocation)) {
+                        player.sendMessage(plugin.getMessage("safehouse-outside-set-invalid"));
+                        return false;
+                    }
+
+                    safehouse.setOutsideLocation(outsideLocation);
+                    player.sendMessage(plugin.getMessage("safehouse-outside-set"));
+                    return true;
+                }
+            } else if (args.length == 5 && args[2].equalsIgnoreCase("member")) {
+                String targetPlayerName = args[4];
+
+                // todo ask more details to tim. is there a member limit? how many houses can players be member/owner of?
+                //  do players need to accept an invite?
+
+                if (args[3].equalsIgnoreCase("add")) {
 
                     return true;
-                } else if (args[2].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_CINEMATIC_TP)) {
+                } else if (args[3].equalsIgnoreCase("remove")) {
 
-                    Optional<Location> cinematicLoc = locationManager.getCinematicLoc(character);
-                    if (cinematicLoc.isPresent()) {
-                        // teleport the player
-                        player.sendMessage(plugin.getMessage("cinematic-location-tp")
-                                .replace("{character}", character.name().toLowerCase()));
-                        PaperLib.teleportAsync(player, cinematicLoc.get());
-                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-                    } else {
-                        // the location is not present
-                        player.sendMessage(plugin.getMessage("cinematic-location-none")
-                                .replace("{character}", character.name().toLowerCase()));
-                    }
                     return true;
                 }
             }

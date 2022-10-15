@@ -3,6 +3,8 @@ package com.gamersafer.minecraft.ablockalypse.papi;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import com.gamersafer.minecraft.ablockalypse.story.Story;
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -17,10 +19,12 @@ public class AblockalypsePAPIExpansion extends PlaceholderExpansion {
 
     private final StoryStorage storyStorage;
     private final SurvivalTimeLeaderboard survivalTimeLeaderboard;
+    private final SafehouseManager safehouseManager;
 
-    public AblockalypsePAPIExpansion(StoryStorage storyStorage, SurvivalTimeLeaderboard survivalTimeLeaderboard) {
+    public AblockalypsePAPIExpansion(StoryStorage storyStorage, SurvivalTimeLeaderboard survivalTimeLeaderboard, SafehouseManager safehouseManager) {
         this.storyStorage = storyStorage;
         this.survivalTimeLeaderboard = survivalTimeLeaderboard;
+        this.safehouseManager = safehouseManager;
     }
 
     @Override
@@ -61,6 +65,11 @@ public class AblockalypsePAPIExpansion extends PlaceholderExpansion {
             case "displayname" -> storyStorage.getActiveStory(player.getUniqueId()).join()
                     .map(Story::characterName)
                     .orElse("Player");
+
+            case "safehouse_door_lvl" -> safehouseManager.getSafehouseFromUuid(player.getUniqueId())
+                    .map(Safehouse::getDoorLevel)
+                    .map(String::valueOf)
+                    .orElse("0");
 
             default -> null;
         };

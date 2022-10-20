@@ -54,7 +54,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             plugin.reload();
             plugin.sendMessage(sender, "config-reloaded");
             return true;
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("story")) {
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("story") && hasPermission(sender, Permission.CMD_STORY)) {
             // make sure the target player is online
             Player player = Bukkit.getPlayer(args[1]);
             if (player == null) {

@@ -15,18 +15,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -146,6 +152,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             return true;
         } else if (args.length == 3 && args[0].equalsIgnoreCase("reset") && hasPermission(sender, Permission.CMD_RESET)) {
             boolean targetAll = args[1].equalsIgnoreCase("all");
+            boolean endAllStories = false;
             OfflinePlayer targetPlayer = null;
             if (!targetAll) {
                 targetPlayer = Bukkit.getOfflinePlayer(args[1]);
@@ -163,6 +170,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     resetFuture = storyStorage.resetActiveStory(targetPlayer.getUniqueId());
                 }
             } else if (args[2].equalsIgnoreCase("history")) {
+                endAllStories = true;
                 if (targetAll) {
                     resetFuture = storyStorage.resetAllStories();
                 } else {
@@ -173,9 +181,38 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 return false;
             }
 
+            OfflinePlayer finalTargetPlayer = targetPlayer;
+            boolean finalEndAllStories = endAllStories;
             resetFuture.thenRun(() -> {
-                // todo reset character perks such as potion effects, dogs, etc...
-                sender.sendMessage("Reset completed!");
+                if (finalEndAllStories) {
+                    plugin.sync(() -> {
+                        Collection<? extends OfflinePlayer> targetPlayers;
+                        if (targetAll) {
+                            targetPlayers = Bukkit.getOnlinePlayers();
+                        } else {
+                            targetPlayers = List.of(finalTargetPlayer);
+                        }
+                        // reset walking speed and potion effects
+                        targetPlayers.forEach(offlinePlayer -> {
+                            Player onlinePlayer = offlinePlayer.getPlayer();
+                            if (onlinePlayer != null) {
+                                onlinePlayer.setWalkSpeed(0.2f); // set default walking speed. it's changed for sprinters
+                                Arrays.stream(PotionEffectType.values()).forEach(onlinePlayer::removePotionEffect);
+                            }
+                        });
+                        // remove all tamed wolves
+                        List<UUID> targetPlayersUuids = targetPlayers.stream().map(OfflinePlayer::getUniqueId).toList();
+                        for (World world : Bukkit.getWorlds()) {
+                            for (Entity wolfEntity : world.getEntitiesByClasses(Wolf.class)) {
+                                //noinspection ConstantConditions
+                                if (((Tameable) wolfEntity).isTamed() && targetPlayersUuids.contains(((Tameable) wolfEntity).getOwner().getUniqueId())) {
+                                    wolfEntity.remove();
+                                }
+                            }
+                        }
+                        sender.sendMessage("Reset completed!");
+                    });
+                }
             });
             return true;
         }

@@ -69,13 +69,14 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         // increase level and run commands
                         plugin.sync(() -> {
                             int newLevel = story.get().increaseLevel();
-                            storyStorage.updateLevel(story.get()).thenRun(() -> {
-                                story.get().character().getCommandsOnLevelUp(newLevel).stream()
-                                        .map(levelUpCmd -> levelUpCmd.replace("{name}", player.getName())
-                                                .replace("{uuid}", player.getUniqueId().toString()))
-                                        .forEach(levelUpCmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), levelUpCmd));
+                            storyStorage.updateLevel(story.get()).thenRun(() -> plugin.sync(() -> {
+                                for (String levelUpCmd : story.get().character().getCommandsOnLevelUp(newLevel)) {
+                                    levelUpCmd = levelUpCmd.replace("{name}", player.getName())
+                                            .replace("{uuid}", player.getUniqueId().toString());
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), levelUpCmd);
+                                }
                                 sender.sendMessage("Active backstory level of player " + player.getName() + " set to " + newLevel);
-                            }).exceptionally(throwable -> {
+                            })).exceptionally(throwable -> {
                                 throwable.printStackTrace();
                                 return null;
                             });

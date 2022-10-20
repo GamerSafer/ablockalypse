@@ -2,7 +2,7 @@ package com.gamersafer.minecraft.ablockalypse;
 
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -107,7 +107,7 @@ Survivalist - Hunger decreases slower and Thirst increases faster (water items a
 
     public Collection<String> getCommandsOnLevelUp(int newLevel) {
         if (commandsOnLevelUp == null) {
-            commandsOnLevelUp = HashMultimap.create();
+            commandsOnLevelUp = LinkedListMultimap.create();
             ConfigurationSection levelIncreaseConfigSection = AblockalypsePlugin.getInstance().getConfig().getConfigurationSection(getConfigPath() + ".run-commands.level-increase");
             if (levelIncreaseConfigSection != null) {
                 levelIncreaseConfigSection.getKeys(false)

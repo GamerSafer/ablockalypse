@@ -4,7 +4,7 @@ CREATE TABLE story
     playerUuid    binary(16) NOT NULL,
     characterType varchar(48) NOT NULL,
     characterName varchar(20) NOT NULL,
-    currentLevel  INT UNSIGNED NOT NULL DEFAULT 0,
+    currentLevel  INT UNSIGNED NOT NULL DEFAULT 1,
     startTime     TIMESTAMP   NOT NULL DEFAULT 0, /* to prevent https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html */
     endTime       TIMESTAMP NULL DEFAULT NULL,
     survivalTime  INT UNSIGNED NOT NULL DEFAULT 0,
@@ -18,4 +18,4 @@ CREATE TABLE story
 
 /*TODO execute on production*/
 ALTER TABLE story
-    ADD COLUMN currentLevel INT UNSIGNED NOT NULL DEFAULT 0 AFTER characterName;
+    ADD COLUMN currentLevel INT UNSIGNED NOT NULL DEFAULT 1 AFTER characterName;

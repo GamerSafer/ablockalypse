@@ -46,7 +46,7 @@ public class StoryDAO implements StoryStorage {
                 "  playerUuid    binary(16) NOT NULL," +
                 "  characterType varchar(48) NOT NULL," +
                 "  characterName varchar(20) NOT NULL," +
-                "  currentLevel  INT UNSIGNED NOT NULL DEFAULT 0," +
+                "  currentLevel  INT UNSIGNED NOT NULL DEFAULT 1," +
                 "  startTime     TIMESTAMP NOT NULL DEFAULT 0," +
                 "  survivalTime  INT UNSIGNED NOT NULL DEFAULT 0," +
                 "  endTime       TIMESTAMP NULL DEFAULT NULL," +
@@ -169,7 +169,7 @@ public class StoryDAO implements StoryStorage {
                     }
 
                     int id = keys.getInt(1);
-                    return new Story(id, playerUuid, character, characterName, 0, startTime, null, LocalDateTime.now(), 0, null, null);
+                    return new Story(id, playerUuid, character, characterName, 1, startTime, null, LocalDateTime.now(), 0, null, null);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);

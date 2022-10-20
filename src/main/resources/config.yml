@@ -194,12 +194,14 @@ menu:
           - ""
           - "&7Start date: {startDate}"
           - "&7Survival time: {survivaltime}"
+          - "&7Level: {level}"
       story-entry-past:
         lore:
           - ""
           - "&7Start date: {startDate}"
           - "&7End date: {endDate}"
           - "&7Survival time: {survivaltime}"
+          - "&7Level: {level}"
           - "&7Death cause: {deathCause}"
           - "&7Death location: {deathLocation}"
 onboarding:

@@ -122,6 +122,7 @@ public class PastStoriesMenu implements InventoryHolder {
                     .stream()
                     .map(s -> s.replace("{survivaltime}", survivalTime)
                             .replace("{startDate}", startDate)
+                            .replace("{level}", Integer.toString(story.level()))
                     ).toList();
         } else {
             lore = FormatUtil.color(AblockalypsePlugin.getInstance().getConfig().getStringList("menu.past-stories.items.story-entry-past.lore"))
@@ -131,6 +132,7 @@ public class PastStoriesMenu implements InventoryHolder {
 
                                 return s.replace("{survivaltime}", survivalTime)
                                         .replace("{startDate}", startDate)
+                                        .replace("{level}", Integer.toString(story.level()))
                                         .replace("{endDate}", FormatUtil.format(story.endTime()))
                                         .replace("{deathCause}", FormatUtil.capitalize(story.deathCause().name()))
                                         .replace("{deathLocation}", FormatUtil.format(story.deathLocation()));

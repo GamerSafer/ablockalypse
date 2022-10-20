@@ -312,9 +312,8 @@ public class StoryDAO implements StoryStorage {
 
     @Override
     public CompletableFuture<Void> resetActiveStory() {
-        // todo reset level once merged
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET startTime = ?, survivalTime = 0 WHERE endTime IS NULL;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET startTime = ?, survivalTime = 0, currentLevel = 1 WHERE endTime IS NULL;")) {
                 statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
 
                 statement.executeUpdate();
@@ -329,9 +328,8 @@ public class StoryDAO implements StoryStorage {
 
     @Override
     public CompletableFuture<Void> resetActiveStory(UUID playerUuid) {
-        // todo reset level once merged
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET startTime = ?, survivalTime = 0 WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET startTime = ?, survivalTime = 0, currentLevel = 1 WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
                 statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                 statement.setString(2, playerUuid.toString().replace("-", ""));
 

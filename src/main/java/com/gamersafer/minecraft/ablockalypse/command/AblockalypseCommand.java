@@ -75,12 +75,16 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                                                 .replace("{uuid}", player.getUniqueId().toString()))
                                         .forEach(levelUpCmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), levelUpCmd));
                                 sender.sendMessage("Active backstory level of player " + player.getName() + " set to " + newLevel);
+                            }).exceptionally(throwable -> {
+                                throwable.printStackTrace();
+                                return null;
                             });
                         });
                     } else {
                         sender.sendMessage("The player " + player.getName() + " doesn't have an active story");
                     }
                 });
+                return true;
             }
         } else if (args.length == 4 && args[0].equalsIgnoreCase("itemsadder") && (sender instanceof ConsoleCommandSender)) {
             // /ablockalypse itemsadder <player> <action> <value>
@@ -384,9 +388,9 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint");
+            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "story");
             case 2 -> {
-                if (args[0].equalsIgnoreCase("stories")) {
+                if (args[0].equalsIgnoreCase("stories") || args[0].equalsIgnoreCase("story")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
                 } else if (args[0].equalsIgnoreCase("spawnpoint") || args[0].equalsIgnoreCase("hospital")) {
                     yield List.of("list", "add", "remove");
@@ -401,6 +405,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             case 3 -> {
                 if (args[0].equalsIgnoreCase("cinematic")) {
                     yield List.of("set", "tp");
+                } else if (args[0].equalsIgnoreCase("story")) {
+                    yield List.of("nextlevel");
                 }
                 yield Collections.emptyList();
             }

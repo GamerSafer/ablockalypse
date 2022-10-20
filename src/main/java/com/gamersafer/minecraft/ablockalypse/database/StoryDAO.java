@@ -46,6 +46,7 @@ public class StoryDAO implements StoryStorage {
                 "  playerUuid    binary(16) NOT NULL," +
                 "  characterType varchar(48) NOT NULL," +
                 "  characterName varchar(20) NOT NULL," +
+                "  currentLevel  INT UNSIGNED NOT NULL DEFAULT 1," +
                 "  startTime     TIMESTAMP NOT NULL DEFAULT 0," +
                 "  survivalTime  INT UNSIGNED NOT NULL DEFAULT 0," +
                 "  endTime       TIMESTAMP NULL DEFAULT NULL," +
@@ -74,7 +75,7 @@ public class StoryDAO implements StoryStorage {
         return CompletableFuture.supplyAsync(() -> {
             Story result = null;
 
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime, survivalTime FROM story WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, currentLevel, startTime, survivalTime FROM story WHERE playerUuid = UNHEX(?) AND endTime IS NULL LIMIT 1;")) {
                 statement.setString(1, playerUuid.toString().replace("-", ""));
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -82,6 +83,7 @@ public class StoryDAO implements StoryStorage {
                                 playerUuid,
                                 Character.valueOf(resultSet.getString("characterType")),
                                 resultSet.getString("characterName"),
+                                resultSet.getInt("currentLevel"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
                                 null,
                                 LocalDateTime.now(),
@@ -128,6 +130,7 @@ public class StoryDAO implements StoryStorage {
                                 playerUuid,
                                 Character.valueOf(resultSet.getString("characterType")),
                                 resultSet.getString("characterName"),
+                                resultSet.getInt("currentLevel"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
                                 endTime,
                                 sessionStartTime,
@@ -166,7 +169,7 @@ public class StoryDAO implements StoryStorage {
                     }
 
                     int id = keys.getInt(1);
-                    return new Story(id, playerUuid, character, characterName, startTime, null, LocalDateTime.now(), 0, null, null);
+                    return new Story(id, playerUuid, character, characterName, 1, startTime, null, LocalDateTime.now(), 0, null, null);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -239,11 +242,33 @@ public class StoryDAO implements StoryStorage {
     }
 
     @Override
+    public CompletableFuture<Void> updateLevel(Story story) {
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE story SET currentLevel = ? WHERE playerUuid = UNHEX(?) AND id = ? LIMIT 1;")) {
+
+                statement.setInt(1, story.level());
+                statement.setString(2, story.playerUuid().toString().replace("-", ""));
+                statement.setInt(3, story.id());
+
+                int affectedRow = statement.executeUpdate();
+                if (affectedRow != 1) {
+                    throw new RuntimeException("Couldn't update the level of " + story.playerUuid());
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+    }
+
+    @Override
     public CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count) {
         return CompletableFuture.supplyAsync(() -> {
             List<Story> stories = new ArrayList<>();
 
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, HEX(playerUuid) AS uuid, characterType, characterName, startTime, endTime, survivalTime, deathCause, deathLocWorld, deathLocX, deathLocY, deathLocZ FROM story ORDER BY survivalTime DESC LIMIT ?;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, HEX(playerUuid) AS uuid, characterType, characterName, currentLevel, startTime, endTime, survivalTime, deathCause, deathLocWorld, deathLocX, deathLocY, deathLocZ FROM story ORDER BY survivalTime DESC LIMIT ?;")) {
                 statement.setInt(1, count);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
@@ -265,6 +290,7 @@ public class StoryDAO implements StoryStorage {
                                 UUIDUtil.parseUUID(resultSet.getString("uuid")).get(),
                                 Character.valueOf(resultSet.getString("characterType")),
                                 resultSet.getString("characterName"),
+                                resultSet.getInt("currentLevel"),
                                 resultSet.getTimestamp("startTime").toLocalDateTime(),
                                 endTime,
                                 null,

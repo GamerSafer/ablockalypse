@@ -8,6 +8,7 @@
 | ablockalypse.cmd.backstory         | Access to _/ablockalypse backstory_. Select a character                                    |
 | ablockalypse.cmd.stories.own       | Access to _/ablockalypse stories_ to see own past stories                                  |
 | ablockalypse.cmd.stories.others    | Access to _/ablockalypse stories <player>_ to see the stories made by other players        |
+| ablockalypse.cmd.story             | Access to _/ablockalypse story_ subcommands                                                |
 | ablockalypse.cmd.hospital.list     | Access to _/ablockalypse hospital list_ to display all hospital locations                  |
 | ablockalypse.cmd.hospital.add      | Access to _/ablockalypse hospital add_ to add a hospital location                          |
 | ablockalypse.cmd.hospital.tp       | Ability to teleport to hospital locations by click on them in the list                     |
@@ -29,6 +30,7 @@
 | %ablockalypse_displayname%                             | The name the player choose for their current character                                                             |
 | %ablockalypse_survivaltime%                            | How long the player survived with their current character                                                          |
 | %ablockalypse_playtime%                                | The sum of the survival times of all the stories started by the player                                             |
+| %ablockalypse_level%                                   | The level of the current character                                                                                 |
 | %ablockalypse_ptop_survivaltime_playtime%              | Formatted longest survival time achieved by the player                                                             |
 | %ablockalypse_ptop_survivaltime_character%             | Display name of the character used by the player in their longest survival time                                    |
 | %ablockalypse_ptop_survivaltime_CHARATER_playtime%     | Formatted longest survival time achieved by the player with the given character                                    |

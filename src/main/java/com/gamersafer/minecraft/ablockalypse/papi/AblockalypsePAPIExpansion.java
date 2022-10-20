@@ -65,6 +65,11 @@ public class AblockalypsePAPIExpansion extends PlaceholderExpansion {
                     .map(Story::characterName)
                     .orElse("Player");
 
+            case "level" -> storyStorage.getActiveStory(player.getUniqueId()).join()
+                    .map(Story::level)
+                    .map(String::valueOf)
+                    .orElse("0");
+
             default -> null;
         };
 

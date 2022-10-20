@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
@@ -154,7 +155,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 }
             }
 
-            CompletableFuture<Void> resetFuture = null;
+            CompletableFuture<Void> resetFuture;
             if (args[2].equalsIgnoreCase("current")) {
                 if (targetAll) {
                     resetFuture = storyStorage.resetActiveStory();
@@ -425,7 +426,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "story");
+            case 0, 1 ->
+                    List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "story", "reset");
             case 2 -> {
                 if (args[0].equalsIgnoreCase("stories") || args[0].equalsIgnoreCase("story")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
@@ -436,6 +438,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(Character::name)
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
+                } else if (args[0].equalsIgnoreCase("reset")) {
+                    yield Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), Stream.of("all")).toList();
                 }
                 yield Collections.emptyList();
             }
@@ -444,6 +448,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     yield List.of("set", "tp");
                 } else if (args[0].equalsIgnoreCase("story")) {
                     yield List.of("nextlevel");
+                } else if (args[0].equalsIgnoreCase("reset")) {
+                    yield List.of("current", "history");
                 }
                 yield Collections.emptyList();
             }

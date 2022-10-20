@@ -15,7 +15,3 @@ CREATE TABLE story
     deathLocZ     DOUBLE NULL DEFAULT NULL,
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*TODO execute on production*/
-ALTER TABLE story
-    ADD COLUMN currentLevel INT UNSIGNED NOT NULL DEFAULT 1 AFTER characterName;

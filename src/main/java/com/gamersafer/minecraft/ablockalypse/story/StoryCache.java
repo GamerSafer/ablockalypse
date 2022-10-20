@@ -109,7 +109,6 @@ public class StoryCache implements StoryStorage {
     @Override
     public CompletableFuture<Void> updateLevel(Story story) {
         return base.updateLevel(story).thenRun(() -> {
-            // todo story is no longer immutable, do we really need this? test
             cacheActive.synchronous().invalidate(story.playerUuid());
             cacheAll.synchronous().invalidate(story.playerUuid());
         });

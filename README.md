@@ -8,6 +8,7 @@
 | ablockalypse.cmd.backstory         | Access to _/ablockalypse backstory_. Select a character                                    |
 | ablockalypse.cmd.stories.own       | Access to _/ablockalypse stories_ to see own past stories                                  |
 | ablockalypse.cmd.stories.others    | Access to _/ablockalypse stories <player>_ to see the stories made by other players        |
+| ablockalypse.cmd.story             | Access to _/ablockalypse story_ subcommands                                                |
 | ablockalypse.cmd.hospital.list     | Access to _/ablockalypse hospital list_ to display all hospital locations                  |
 | ablockalypse.cmd.hospital.add      | Access to _/ablockalypse hospital add_ to add a hospital location                          |
 | ablockalypse.cmd.hospital.tp       | Ability to teleport to hospital locations by click on them in the list                     |
@@ -31,6 +32,7 @@
 | %ablockalypse_displayname%                     | The name the player choose for their current character                                      |
 | %ablockalypse_survivaltime%                    | How long the player survived with their current character                                   |
 | %ablockalypse_playtime%                        | The sum of the survival times of all the stories started by the player                      |
+| %ablockalypse_level%                           | The level of the current character                                                          |
 | %ablockalypse_alltop_survivaltime_X_name%      | Name of the player at the X position on the top survival time leaderboard (X is a number)   |
 | %ablockalypse_alltop_survivaltime_X_playtime%  | Formatted survival time of the story at the X position on the top survival time leaderboard |
 | %ablockalypse_alltop_survivaltime_X_character% | Display name of the story character at the X position on the top survival time leaderboard  |

@@ -19,6 +19,10 @@ character:
       # {uuid} -> player's uuid
       story-start: [ ]
       story-end: [ ]
+      level-increase:
+        2: [ ]
+        3: [ ]
+        4: [ ]
   farmer:
     display-name: "&aFarmer"
     description:
@@ -190,12 +194,14 @@ menu:
           - ""
           - "&7Start date: {startDate}"
           - "&7Survival time: {survivaltime}"
+          - "&7Level: {level}"
       story-entry-past:
         lore:
           - ""
           - "&7Start date: {startDate}"
           - "&7End date: {endDate}"
           - "&7Survival time: {survivaltime}"
+          - "&7Level: {level}"
           - "&7Death cause: {deathCause}"
           - "&7Death location: {deathLocation}"
 onboarding:
@@ -318,6 +324,7 @@ message:
     - " &c/ablockalypse spawnpoint list - &7Display all spawn locations"
     - " &c/ablockalypse spawnpoint add - &7Mark a location as a spawn"
     - " &c/ablockalypse spawnpoint remove - &7Remove a location from the spawn list"
+    - " &c/ablockalypse story <user> nextlevel - &7Increase the level of the player's active story"
     - " &c/ablockalypse safehouse <region> create  - &7Create a new safehouse at the specified worldguard region"
     - " &c/ablockalypse safehouse <region|id> delete - &7Delete a safehouse"
     - " &c/ablockalypse safehouse <region|id> teleport - &7Teleport to the house spawn"

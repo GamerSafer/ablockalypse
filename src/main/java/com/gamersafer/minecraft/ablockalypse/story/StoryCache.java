@@ -107,6 +107,14 @@ public class StoryCache implements StoryStorage {
     }
 
     @Override
+    public CompletableFuture<Void> updateLevel(Story story) {
+        return base.updateLevel(story).thenRun(() -> {
+            cacheActive.synchronous().invalidate(story.playerUuid());
+            cacheAll.synchronous().invalidate(story.playerUuid());
+        });
+    }
+
+    @Override
     public CompletableFuture<List<Story>> getTopSurvivalTimeStories(int count) {
         return base.getTopSurvivalTimeStories(count).thenApply(stories -> {
             List<Story> topSurvivalTimeStories = new ArrayList<>(stories);

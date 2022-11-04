@@ -64,6 +64,39 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             plugin.reload();
             plugin.sendMessage(sender, "config-reloaded");
             return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("story") && hasPermission(sender, Permission.CMD_STORY)) {
+            // make sure the target player is online
+            Player player = Bukkit.getPlayer(args[1]);
+            if (player == null) {
+                sender.sendMessage("Unable to get player " + args[1] + ". Ignoring the itemsadder action they were trying to do.");
+                return false;
+            }
+
+            if (args[2].equalsIgnoreCase("nextlevel")) {
+                // try to increase the level of target's active story, if present
+                storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
+                    if (story.isPresent()) {
+                        // increase level and run commands
+                        plugin.sync(() -> {
+                            int newLevel = story.get().increaseLevel();
+                            storyStorage.updateLevel(story.get()).thenRun(() -> plugin.sync(() -> {
+                                for (String levelUpCmd : story.get().character().getCommandsOnLevelUp(newLevel)) {
+                                    levelUpCmd = levelUpCmd.replace("{name}", player.getName())
+                                            .replace("{uuid}", player.getUniqueId().toString());
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), levelUpCmd);
+                                }
+                                sender.sendMessage("Active backstory level of player " + player.getName() + " set to " + newLevel);
+                            })).exceptionally(throwable -> {
+                                throwable.printStackTrace();
+                                return null;
+                            });
+                        });
+                    } else {
+                        sender.sendMessage("The player " + player.getName() + " doesn't have an active story");
+                    }
+                });
+                return true;
+            }
         } else if (args.length == 4 && args[0].equalsIgnoreCase("itemsadder") && (sender instanceof ConsoleCommandSender)) {
             // /ablockalypse itemsadder <player> <action> <value>
             // command for internal use only. items adder doesn't call any event when a custom item is used. as a workaround
@@ -469,9 +502,9 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "safehouse");
+            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "safehouse", "story");
             case 2 -> {
-                if (args[0].equalsIgnoreCase("stories")) {
+                if (args[0].equalsIgnoreCase("stories") || args[0].equalsIgnoreCase("story")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
                 } else if (args[0].equalsIgnoreCase("spawnpoint") || args[0].equalsIgnoreCase("hospital")) {
                     yield List.of("list", "add", "remove");
@@ -488,6 +521,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             case 3 -> {
                 if (args[0].equalsIgnoreCase("cinematic")) {
                     yield List.of("set", "tp");
+                } else if (args[0].equalsIgnoreCase("story")) {
+                    yield List.of("nextlevel");
                 } else if (args[0].equalsIgnoreCase("safehouse")) {
                     yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel");
                 }

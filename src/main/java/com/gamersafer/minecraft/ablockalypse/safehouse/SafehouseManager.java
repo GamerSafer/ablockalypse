@@ -4,6 +4,7 @@ import com.alessiodp.parties.api.Parties;
 import com.alessiodp.parties.api.interfaces.PartiesAPI;
 import com.alessiodp.parties.api.interfaces.Party;
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
+import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.SafehouseStorage;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
@@ -221,8 +222,18 @@ public class SafehouseManager {
      * @return the duration in seconds
      */
     public int getBreakInDuration(Player player, Safehouse safehouse) {
-        // todo reduce for some backstories
-        return safehouse.getDoorLevel() * 5; // todo ask tim the duration, currently every level adds 5 seconds
+        int result =  safehouse.getDoorLevel() * 5; // todo ask tim the duration
+
+        // we can assume that when this method is called, the active story exists and is in the cache
+        //noinspection OptionalGetWithoutIsPresent
+        Character playerCharacter = plugin.getStoryStorage().getActiveStory(player.getUniqueId()).join()
+                .get().character();
+
+        // todo uncomment when we'll have a LOCKSMITH character
+        if (playerCharacter == Character.THIEF /*|| playerCharacter == Character.LOCKSMITH*/) {
+            result *= 0.75;
+        }
+        return result;
     }
 
     /**
@@ -233,8 +244,7 @@ public class SafehouseManager {
      * @return the duration in seconds
      */
     public int getClaimingDuration(Player player, Safehouse safehouse) {
-        // todo reduce for some backstories ?
-        return safehouse.getDoorLevel() * 5; // todo ask tim the duration, currently every level adds 5 seconds
+        return safehouse.getDoorLevel() * 5; // todo ask tim the duration
     }
 
     /**

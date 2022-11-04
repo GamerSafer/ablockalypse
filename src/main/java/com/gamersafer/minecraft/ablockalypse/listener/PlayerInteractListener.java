@@ -87,7 +87,7 @@ public class PlayerInteractListener implements Listener {
                     if (safehouseManager.isKey(item)) {
                         // after a house is raided, only the previous owner and the player who raided it can claim it
                         if (safehouse.canClaim(player.getUniqueId())) {
-                            int claimingDurationSeconds = safehouseManager.getBreakInDuration(player, safehouse);
+                            int claimingDurationSeconds = safehouseManager.getClaimingDuration(player, safehouse);
 
                             // check if the player who is trying to claim this house already owns one house
                             if (warnedOwners.getOrDefault(player.getUniqueId(), -1) != safehouse.getId()

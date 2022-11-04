@@ -64,7 +64,6 @@ public class SafehouseDAO implements SafehouseStorage {
     public CompletableFuture<Safehouse> createSafehouse(Safehouse safehouse) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection conn = dataSource.getConnection();
-                 // todo add on duplicate key stuff or do we handle it in the create command ?
                  PreparedStatement statement = conn.prepareStatement("INSERT INTO safehouse (regionName, doorLocation, spawnLocation, outsideLocation) VALUES (?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
                 statement.setString(1, safehouse.getRegionName());

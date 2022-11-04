@@ -127,8 +127,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         storyStorage.shutdown();
         safehouseStorage.shutdown();
         locationManager.shutdown();
-
-        System.out.println("on disable 1"); // todo remove
+        safehouseManager.shutdown();
 
         dataSource.close();
     }
@@ -139,6 +138,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         Character.reload();
         MenuListener.reload();
         survivalTimeLeaderboard.reload();
+        safehouseManager.reload();
     }
 
     public StoryStorage getStoryStorage() {

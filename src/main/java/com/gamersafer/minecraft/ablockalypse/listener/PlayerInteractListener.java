@@ -163,7 +163,7 @@ public class PlayerInteractListener implements Listener {
                         }
 
                         // make sure at this time of the day break-ins are allowed
-                        if (!safehouseManager.canBreakIn(player, safehouse)) {
+                        if (!safehouseManager.areRaidsEnabled()) {
                             player.sendMessage(plugin.getMessage("break-in-not-time"));
                             return;
                         }

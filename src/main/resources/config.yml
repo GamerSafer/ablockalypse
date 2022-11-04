@@ -215,6 +215,17 @@ leaderboard:
 # The name of the world where all safehouses are
 safehouse-world: "world"
 
+# Specify at what time(s) players can raid safehouses
+safehouse-raid-windows:
+  # please make sure they don't overlap
+  1:
+    start: "10:15:00"
+    end: "10:45:00"
+  2:
+    start: "23:15:00"
+    end: "23:45:00"
+  # you can add as many seconds as you need
+
 message:
   player-only: "&cThis command must be run by a player."
   no-permission: "&cYou don't have permissions"

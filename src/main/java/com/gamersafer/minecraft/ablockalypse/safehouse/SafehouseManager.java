@@ -18,11 +18,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -30,19 +33,64 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class SafehouseManager {
 
     private final World safehouseWorld;
     private final SafehouseStorage safehouseStorage;
     private final RegionManager regionManager;
-    private AblockalypsePlugin plugin;
+    private final AblockalypsePlugin plugin;
+    private ScheduledExecutorService raidTimeScheduler;
+
+    private boolean raidEnabled;
+
 
     public SafehouseManager(AblockalypsePlugin plugin, SafehouseStorage safehouseStorage, World safehouseWorld) {
         this.plugin = plugin;
         this.safehouseStorage = safehouseStorage;
         this.safehouseWorld = safehouseWorld;
         this.regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(safehouseWorld));
+        this.raidTimeScheduler = Executors.newScheduledThreadPool(1);
+
+        reload();
+    }
+
+    public void reload() {
+        raidEnabled = false;
+
+        if (raidTimeScheduler != null) {
+            // todo make sure all scheduled tasks are cancelled
+            raidTimeScheduler.shutdownNow();
+        }
+        raidTimeScheduler = Executors.newScheduledThreadPool(1);
+
+        ConfigurationSection raidWindowsSection = plugin.getConfig().getConfigurationSection("safehouse-raid-windows");
+        for (String key : Objects.requireNonNull(raidWindowsSection).getKeys(false)) {
+            LocalTime start = LocalTime.parse(Objects.requireNonNull(raidWindowsSection.getString(key + ".start")));
+            LocalTime end = LocalTime.parse(Objects.requireNonNull(raidWindowsSection.getString(key + ".end")));
+            LocalTime now = LocalTime.now();
+
+            if (now.isAfter(start)) {
+                if (now.isBefore(end)) {
+                    raidEnabled = true;
+                }
+            } else {
+                long delay = ChronoUnit.MILLIS.between(now, start);
+                raidTimeScheduler.schedule(() -> {
+                    raidEnabled = true;
+                }, delay, TimeUnit.MILLISECONDS);
+            }
+
+            if (now.isBefore(end)) {
+                long delay = ChronoUnit.MILLIS.between(now, end);
+                raidTimeScheduler.schedule(() -> {
+                    raidEnabled = false;
+                }, delay, TimeUnit.MILLISECONDS);
+            }
+        }
     }
 
     public CompletableFuture<Safehouse> createSafehouse(String regionName) {
@@ -206,12 +254,13 @@ public class SafehouseManager {
                 .toList();
     }
 
-    public boolean canBreakIn(Player player, Safehouse safehouse) {
-        // todo add scheduled raid times in the config
-        //  make sure the owner is online
-
-
-        return true;
+    /**
+     * Checks whether raids are enabled at the current time.
+     *
+     * @return {@code true} if raid are enabled, {@code false} otherwise
+     */
+    public boolean areRaidsEnabled() {
+        return raidEnabled;
     }
 
     /**
@@ -222,7 +271,7 @@ public class SafehouseManager {
      * @return the duration in seconds
      */
     public int getBreakInDuration(Player player, Safehouse safehouse) {
-        int result =  safehouse.getDoorLevel() * 5; // todo ask tim the duration
+        int result = safehouse.getDoorLevel() * 5; // todo ask tim the duration
 
         // we can assume that when this method is called, the active story exists and is in the cache
         //noinspection OptionalGetWithoutIsPresent
@@ -277,7 +326,12 @@ public class SafehouseManager {
         return item.getType() == Material.STICK; // for testing
     }
 
-
-    // todo handle break-ins and claiming
+    public void shutdown() {
+        try {
+            raidTimeScheduler.shutdown();
+            raidTimeScheduler.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (Exception ignored) {
+        }
+    }
 
 }

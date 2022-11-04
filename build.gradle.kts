@@ -13,6 +13,7 @@ repositories {
     maven("https://jitpack.io/")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://maven.enginehub.org/repo/")
+    maven("https://repo.alessiodp.com/releases/")
 }
 
 dependencies {
@@ -22,6 +23,7 @@ dependencies {
     compileOnly("com.github.LoneDev6:api-itemsadder:3.2.0c-beta6")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7-SNAPSHOT")
+    compileOnly("com.alessiodp.parties:parties-api:3.2.6") // docs: https://alessiodp.com/docs/parties/hookintoparties
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.papermc:paperlib:1.0.7")

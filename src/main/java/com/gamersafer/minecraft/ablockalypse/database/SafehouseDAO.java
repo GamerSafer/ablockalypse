@@ -2,9 +2,9 @@ package com.gamersafer.minecraft.ablockalypse.database;
 
 import com.gamersafer.minecraft.ablockalypse.database.api.SafehouseStorage;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
-import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseMemberRole;
 import com.gamersafer.minecraft.ablockalypse.util.UUIDUtil;
 import com.google.common.io.BaseEncoding;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import javax.sql.DataSource;
@@ -14,9 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -37,15 +35,22 @@ public class SafehouseDAO implements SafehouseStorage {
     }
 
     private void createTables() {
-        // todo copy queries
-        String tableSafehouseQuery = "";
-        String tableSafehouseMemberQuery = "";
-
+        String tableSafehouseQuery = """
+                CREATE TABLE IF NOT EXISTS safehouse
+                (
+                    id              int(11) NOT NULL AUTO_INCREMENT,
+                    regionName      varchar(48) NOT NULL UNIQUE,
+                    ownerUuid       binary(16),
+                    doorLevel       INT UNSIGNED NOT NULL DEFAULT 1,
+                    doorLocation    varchar(48),
+                    spawnLocation   varchar(48),
+                    outsideLocation varchar(48),
+                    PRIMARY KEY (`id`)
+                );
+                """;
         CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement safehouseStatement = conn.prepareStatement(tableSafehouseQuery);
-                 PreparedStatement memberStatement = conn.prepareStatement(tableSafehouseMemberQuery)) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement safehouseStatement = conn.prepareStatement(tableSafehouseQuery)) {
                 safehouseStatement.executeUpdate();
-                memberStatement.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -59,8 +64,8 @@ public class SafehouseDAO implements SafehouseStorage {
     public CompletableFuture<Safehouse> createSafehouse(Safehouse safehouse) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection conn = dataSource.getConnection();
-                 // todo add on duplicate key stuff
-                 PreparedStatement statement = conn.prepareStatement("INSERT INTO safehosue (regionName, doorLocation, spawnLocation, outsideLocation) VALUES (?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
+                 // todo add on duplicate key stuff or do we handle it in the create command ?
+                 PreparedStatement statement = conn.prepareStatement("INSERT INTO safehouse (regionName, doorLocation, spawnLocation, outsideLocation) VALUES (?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
                 statement.setString(1, safehouse.getRegionName());
                 statement.setString(2, serializeLocation(safehouse.getDoorLocation()));
@@ -106,53 +111,35 @@ public class SafehouseDAO implements SafehouseStorage {
     @Override
     public CompletableFuture<Set<Safehouse>> getAllSafehouses() {
         return CompletableFuture.supplyAsync(() -> {
-            Map<Integer, Safehouse> safehouses = new HashMap<>();
+            Set<Safehouse> safehouses = new HashSet<>();
 
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT * FROM safehouse S LEFT JOIN safehouse_members M ON S.id = M.safehouseId;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT * FROM safehouse;")) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        int id = resultSet.getInt("id");
-
-                        Safehouse safehouse;
-                        if (safehouses.containsKey(id)) {
-                            safehouse = safehouses.get(id);
-                        } else {
-                            safehouse = new Safehouse(
-                                    id,
-                                    resultSet.getString("regionName"),
-                                    resultSet.getInt("doorLevel"),
-                                    parseLocation(resultSet.getString("doorLocation")),
-                                    parseLocation(resultSet.getString("spawnLocation")),
-                                    parseLocation(resultSet.getString("outsideLocation")),
-                                    null,
-                                    new HashSet<>()
-                            );
-                            safehouses.put(id, safehouse);
-                        }
-
-                        byte[] playerUuidBytes = resultSet.getBytes("playerUuid");
+                        UUID ownerUuid = null;
+                        byte[] playerUuidBytes = resultSet.getBytes("ownerUuid");
                         if (playerUuidBytes != null) {
                             String uuidStr = BaseEncoding.base16().encode(playerUuidBytes);
-                            UUID playerUuid = UUIDUtil.parseUUID(uuidStr).orElseThrow();
-                            SafehouseMemberRole role = SafehouseMemberRole.valueOf(resultSet.getString("role"));
-
-                            if (role == SafehouseMemberRole.OWNER) {
-                                safehouse.setOwner(playerUuid);
-                            } else if (role == SafehouseMemberRole.MEMBER) {
-                                safehouse.getMembers().add(playerUuid);
-                            } else {
-                                throw new IllegalArgumentException();
-                            }
+                            ownerUuid = UUIDUtil.parseUUID(uuidStr).orElseThrow();
                         }
+
+                        Safehouse safehouse = new Safehouse(
+                                resultSet.getInt("id"),
+                                resultSet.getString("regionName"),
+                                resultSet.getInt("doorLevel"),
+                                parseLocation(resultSet.getString("doorLocation")),
+                                parseLocation(resultSet.getString("spawnLocation")),
+                                parseLocation(resultSet.getString("outsideLocation")),
+                                ownerUuid
+                        );
+
+                        safehouses.add(safehouse);
                     }
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            // variable needed by the compiler
-            //noinspection UnnecessaryLocalVariable
-            Set<Safehouse> safehousesSet = new HashSet<>(safehouses.values());
-            return safehousesSet;
+            return safehouses;
         }, executor).exceptionally(throwable -> {
             throwable.printStackTrace();
             return Collections.emptySet();
@@ -160,69 +147,69 @@ public class SafehouseDAO implements SafehouseStorage {
     }
 
     @Override
-    public CompletableFuture<Boolean> addSafehousePlayer(UUID playerUuid, int safehouseId, SafehouseMemberRole role) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("INSERT INTO safehouse_member (playerUuid, safehouseId, role) VALUES (UNHEX(?), ?, ?);")) {
-
-                statement.setString(1, playerUuid.toString().replace("-", ""));
-                statement.setInt(2, safehouseId);
-                statement.setString(3, role.name());
-
-                return statement.executeUpdate() == 1;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }, executor).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return false;
-        });
-    }
-
-    @Override
-    public CompletableFuture<Boolean> removeSafehousePlayer(UUID playerUuid, int safehouseId) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("DELETE FROM safehouse_member WHERE playerUuid = UNHEX(?) AND safehouseId = ?;")) {
-                statement.setString(1, playerUuid.toString().replace("-", ""));
-                statement.setInt(2, safehouseId);
-
-                return statement.executeUpdate() == 1;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }, executor).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return false;
-        });
-    }
-
-    @Override
     public CompletableFuture<Void> updateSafehouses(Set<Safehouse> safehouses) {
-        // todo batch update
-        return null;
+        return CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE safehouse SET ownerUuid = UNHEX(?), doorLevel = ?, doorLocation = ?, spawnLocation = ?, outsideLocation = ? WHERE id = ?;")) {
+                for (Safehouse safehouse : safehouses) {
+                    String uuidStr = null;
+                    if (safehouse.getOwner() != null) {
+                        uuidStr = safehouse.getOwner().toString().replace("-", "");
+                    }
+                    statement.setString(1, uuidStr);
+                    statement.setInt(2, safehouse.getDoorLevel());
+                    statement.setString(3, serializeLocation(safehouse.getDoorLocation()));
+                    statement.setString(4, serializeLocation(safehouse.getSpawnLocation()));
+                    statement.setString(5, serializeLocation(safehouse.getOutsideLocation()));
+                    statement.setInt(6, safehouse.getId());
+
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Override
     public void shutdown() {
         try {
             executor.shutdown();
-            executor.awaitTermination(10, TimeUnit.SECONDS);
+            int attempt = 0;
+            while (!executor.awaitTermination(10, TimeUnit.SECONDS) && ++attempt < 5) {
+                System.out.println("Waiting for the SafehouseDAO to terminate...");
+            }
         } catch (Exception ignored) {
         }
     }
 
     private String serializeLocation(Location location) {
         if (location == null) {
-            return "";
+            return null;
         }
-        // todo implement
-        return "";
+        return location.getWorld().getName() + " " + truncateDouble(location.getX()) + " " + truncateDouble(location.getY())
+                + " " + truncateDouble(location.getZ()) + " " + truncateDouble(location.getYaw()) + " " + truncateDouble(location.getPitch());
     }
 
     private Location parseLocation(String locationStr) {
         if (locationStr == null || locationStr.isEmpty()) {
             return null;
         }
-        // todo implement
-        return null;
+        String[] split = locationStr.split(" ");
+        return new Location(Bukkit.getWorld(split[0]),
+                Double.parseDouble(split[1]),
+                Double.parseDouble(split[2]),
+                Double.parseDouble(split[3]),
+                Float.parseFloat(split[4]),
+                Float.parseFloat(split[5])
+        );
     }
+
+    private double truncateDouble(double value) {
+        return Math.floor(value * 100) / 100;
+    }
+
 }

@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class SafehouseCache implements SafehouseStorage {
@@ -26,7 +25,7 @@ public class SafehouseCache implements SafehouseStorage {
         Bukkit.getScheduler().runTaskTimer(AblockalypsePlugin.getInstance(), () -> {
             AblockalypsePlugin.getInstance().getLogger().info("Saving safehouses to the database...");
             updateSafehouses(safehouses);
-        }, 20 * 60 * 30, 20 * 60 * 30);
+        }, 20 * 60 * 60, 20 * 60 * 60); // 60 min
     }
 
     @Override
@@ -57,18 +56,6 @@ public class SafehouseCache implements SafehouseStorage {
     }
 
     @Override
-    public CompletableFuture<Boolean> addSafehousePlayer(UUID playerUuid, int safehouseId, SafehouseMemberRole role) {
-        // todo implement
-        return null;
-    }
-
-    @Override
-    public CompletableFuture<Boolean> removeSafehousePlayer(UUID playerUuid, int safehouseId) {
-        // todo implement
-        return null;
-    }
-
-    @Override
     public CompletableFuture<Void> updateSafehouses(Set<Safehouse> safehouses) {
         return base.updateSafehouses(safehouses);
     }
@@ -76,7 +63,7 @@ public class SafehouseCache implements SafehouseStorage {
     @Override
     public void shutdown() {
         // save all safehouses to the DB
-        updateSafehouses(safehouses).thenRun(base::shutdown);
+        updateSafehouses(safehouses).thenRun(base::shutdown).join();
     }
 
 }

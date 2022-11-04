@@ -385,9 +385,15 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
             if (args.length == 3) {
                 if (args[2].equalsIgnoreCase("delete")) {
+                    // try to delete the safehouse
+                    safehouseManager.deleteSafehouse(safehouse).thenRun(() -> {
+                        player.sendMessage(plugin.getMessage("safehouse-deleted"));
 
-                    player.sendMessage(plugin.getMessage("safehouse-deleted"));
-                    // todo should notify members if online?
+                        safehouse.getOwnerPlayer().ifPresent(owner -> {
+                            // notify owner
+                            owner.sendMessage(plugin.getMessage("safehouse-deleted-owner"));
+                        });
+                    });
                     return true;
                 } else if (args[2].equalsIgnoreCase("teleport")) {
                     if (safehouse.getSpawnLocation() == null) {
@@ -395,7 +401,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         return false;
                     }
 
-                    player.sendMessage(plugin.getMessage("safehouse-teleporting"));
+                    player.sendMessage(plugin.getMessage("safehouse-spawn-teleporting"));
                     player.teleport(safehouse.getSpawnLocation());
                     return true;
                 } else if (args[2].equalsIgnoreCase("setdoor")) {
@@ -431,18 +437,10 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     safehouse.setOutsideLocation(outsideLocation);
                     player.sendMessage(plugin.getMessage("safehouse-outside-set"));
                     return true;
-                }
-            } else if (args.length == 5 && args[2].equalsIgnoreCase("member")) {
-                String targetPlayerName = args[4];
-
-                // todo ask more details to tim. is there a member limit? how many houses can players be member/owner of?
-                //  do players need to accept an invite?
-
-                if (args[3].equalsIgnoreCase("add")) {
-
-                    return true;
-                } else if (args[3].equalsIgnoreCase("remove")) {
-
+                } else if (args[2].equalsIgnoreCase("nextdoorlevel")) {
+                    int updatedLevel = safehouse.increaseDoorLevel();
+                    player.sendMessage(plugin.getMessage("safehouse-door-level-increased")
+                            .replace("{level}", Integer.toString(updatedLevel)));
                     return true;
                 }
             }
@@ -471,7 +469,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint");
+            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "safehouse");
             case 2 -> {
                 if (args[0].equalsIgnoreCase("stories")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
@@ -482,12 +480,16 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(Character::name)
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
+                } else if (args[0].equalsIgnoreCase("safehouse")) {
+                    yield safehouseManager.getSafehouseRegionNamesIds();
                 }
                 yield Collections.emptyList();
             }
             case 3 -> {
                 if (args[0].equalsIgnoreCase("cinematic")) {
                     yield List.of("set", "tp");
+                } else if (args[0].equalsIgnoreCase("safehouse")) {
+                    yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel");
                 }
                 yield Collections.emptyList();
             }

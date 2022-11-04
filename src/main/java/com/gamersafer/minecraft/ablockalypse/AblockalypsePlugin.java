@@ -12,6 +12,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.EntityInteractEntityListen
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerBuildListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerInteractListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerItemConsumeListener;
@@ -85,7 +86,7 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         this.storyStorage = new StoryCache(new StoryDAO(dataSource));
         this.safehouseStorage = new SafehouseCache(new SafehouseDAO(dataSource));
-        this.safehouseManager = new SafehouseManager(safehouseStorage, Bukkit.getWorld(Objects.requireNonNull(getConfig().getString("safehouse-world"))));
+        this.safehouseManager = new SafehouseManager(this, safehouseStorage, Bukkit.getWorld(Objects.requireNonNull(getConfig().getString("safehouse-world"))));
         this.locationManager = new LocationManager();
         this.survivalTimeLeaderboard = new SurvivalTimeLeaderboard(this, storyStorage);
 
@@ -100,8 +101,9 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerBuildListener(this, safehouseManager), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerInteractListener(safehouseManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerInteractListener(this, safehouseManager, storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerItemConsumeListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage), this);
@@ -123,7 +125,10 @@ public class AblockalypsePlugin extends JavaPlugin {
                 .forEach(storyStorage::updateSurvivalTime);
 
         storyStorage.shutdown();
+        safehouseStorage.shutdown();
         locationManager.shutdown();
+
+        System.out.println("on disable 1"); // todo remove
 
         dataSource.close();
     }

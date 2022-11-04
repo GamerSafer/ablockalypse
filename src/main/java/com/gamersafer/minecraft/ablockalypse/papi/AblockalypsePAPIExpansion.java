@@ -66,7 +66,7 @@ public class AblockalypsePAPIExpansion extends PlaceholderExpansion {
                     .map(Story::characterName)
                     .orElse("Player");
 
-            case "safehouse_door_lvl" -> safehouseManager.getSafehouseFromUuid(player.getUniqueId())
+            case "safehouse_door_lvl" -> safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId())
                     .map(Safehouse::getDoorLevel)
                     .map(String::valueOf)
                     .orElse("0");

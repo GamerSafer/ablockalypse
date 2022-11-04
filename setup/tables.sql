@@ -15,25 +15,15 @@ CREATE TABLE story
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-/*todo change locations data types*/
 CREATE TABLE safehouse
 (
     id              int(11) NOT NULL AUTO_INCREMENT,
-    regionName      varchar(48) NOT NULL,
-    doorLevel       INT UNSIGNED NOT NULL DEFAULT 0,
-    doorLocation    varchar(48) NOT NULL,
-    spawnLocation   varchar(48) NOT NULL,
-    outsideLocation varchar(48) NOT NULL,
-    PRIMARY KEY (`id`) /*todo consider using the WG region name as PK or at least make it unique*/
+    regionName      varchar(48) NOT NULL UNIQUE,
+    ownerUuid       binary(16),
+    doorLevel       INT UNSIGNED NOT NULL DEFAULT 1,
+    doorLocation    varchar(48),
+    spawnLocation   varchar(48),
+    outsideLocation varchar(48),
+    PRIMARY KEY (`id`)
 );
-
-CREATE TABLE safehouse_member
-(
-    playerUuid  binary(16) NOT NULL,
-    safehouseId int(11) NOT NULL,
-    role        varchar(48) NOT NULL,
-    PRIMARY KEY (`playerUuid`),
-    FOREIGN KEY (`safehouseId`) REFERENCES `safehouse` (`id`) ON DELETE CASCADE
-);
-
 

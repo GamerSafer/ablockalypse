@@ -13,24 +13,33 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
@@ -140,6 +149,71 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 throw new IllegalArgumentException("Unknown action " + action);
             }
 
+            return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("reset") && hasPermission(sender, Permission.CMD_RESET)) {
+            boolean targetAll = args[1].equalsIgnoreCase("all");
+            boolean endAllStories = false;
+            OfflinePlayer targetPlayer = null;
+            if (!targetAll) {
+                targetPlayer = Bukkit.getOfflinePlayer(args[1]);
+                if (!targetPlayer.hasPlayedBefore()) {
+                    sender.sendMessage("Unable to find the player " + args[1]);
+                    return false;
+                }
+            }
+
+            CompletableFuture<Void> resetFuture;
+            if (args[2].equalsIgnoreCase("current")) {
+                if (targetAll) {
+                    resetFuture = storyStorage.resetActiveStory();
+                } else {
+                    resetFuture = storyStorage.resetActiveStory(targetPlayer.getUniqueId());
+                }
+            } else if (args[2].equalsIgnoreCase("history")) {
+                endAllStories = true;
+                if (targetAll) {
+                    resetFuture = storyStorage.resetAllStories();
+                } else {
+                    resetFuture = storyStorage.resetAllStories(targetPlayer.getUniqueId());
+                }
+            } else {
+                sender.sendMessage("Invalid subcommand");
+                return false;
+            }
+
+            OfflinePlayer finalTargetPlayer = targetPlayer;
+            boolean finalEndAllStories = endAllStories;
+            resetFuture.thenRun(() -> {
+                if (finalEndAllStories) {
+                    plugin.sync(() -> {
+                        Collection<? extends OfflinePlayer> targetPlayers;
+                        if (targetAll) {
+                            targetPlayers = Bukkit.getOnlinePlayers();
+                        } else {
+                            targetPlayers = List.of(finalTargetPlayer);
+                        }
+                        // reset walking speed and potion effects
+                        targetPlayers.forEach(offlinePlayer -> {
+                            Player onlinePlayer = offlinePlayer.getPlayer();
+                            if (onlinePlayer != null) {
+                                onlinePlayer.setWalkSpeed(0.2f); // set default walking speed. it's changed for sprinters
+                                Arrays.stream(PotionEffectType.values()).forEach(onlinePlayer::removePotionEffect);
+                            }
+                        });
+                        // remove all tamed wolves
+                        List<UUID> targetPlayersUuids = targetPlayers.stream().map(OfflinePlayer::getUniqueId).toList();
+                        for (World world : Bukkit.getWorlds()) {
+                            for (Entity wolfEntity : world.getEntitiesByClasses(Wolf.class)) {
+                                //noinspection ConstantConditions
+                                if (((Tameable) wolfEntity).isTamed() && targetPlayersUuids.contains(((Tameable) wolfEntity).getOwner().getUniqueId())) {
+                                    wolfEntity.remove();
+                                }
+                            }
+                        }
+                        sender.sendMessage("Reset completed!");
+                    });
+                }
+            });
             return true;
         }
 
@@ -389,7 +463,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "story");
+            case 0, 1 ->
+                    List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "story", "reset");
             case 2 -> {
                 if (args[0].equalsIgnoreCase("stories") || args[0].equalsIgnoreCase("story")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
@@ -400,6 +475,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(Character::name)
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
+                } else if (args[0].equalsIgnoreCase("reset")) {
+                    yield Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), Stream.of("all")).toList();
                 }
                 yield Collections.emptyList();
             }
@@ -408,6 +485,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     yield List.of("set", "tp");
                 } else if (args[0].equalsIgnoreCase("story")) {
                     yield List.of("nextlevel");
+                } else if (args[0].equalsIgnoreCase("reset")) {
+                    yield List.of("current", "history");
                 }
                 yield Collections.emptyList();
             }

@@ -17,6 +17,7 @@ enum Permission {
     CMD_SPAWNPOINT_REMOVE,
     CMD_CINEMATIC_SET,
     CMD_CINEMATIC_TP,
+    CMD_RESET,
     ;
 
     private final String permission;

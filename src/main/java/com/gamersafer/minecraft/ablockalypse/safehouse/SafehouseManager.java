@@ -127,7 +127,7 @@ public class SafehouseManager {
             for (BlockVector3 blockVector : region.getBoundingBox()) {
                 Location bukkitLocation = BukkitAdapter.adapt(safehouseWorld, blockVector);
                 Block block = bukkitLocation.getBlock();
-                if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {
+                if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.BARRIER) {
                     block.setType(Material.AIR);
                 }
             }

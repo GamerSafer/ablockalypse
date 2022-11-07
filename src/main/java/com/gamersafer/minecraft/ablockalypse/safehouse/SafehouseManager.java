@@ -256,6 +256,7 @@ public class SafehouseManager {
 
     /**
      * Checks whether raids are enabled at the current time.
+     * Players can break into houses owned by online players regardless of whether raids are enabled.
      *
      * @return {@code true} if raid are enabled, {@code false} otherwise
      */

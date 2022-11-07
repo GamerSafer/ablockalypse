@@ -304,8 +304,7 @@ message:
   claim-done: "&aYou claimed the house! You are the new owner!"
   claim-done-lost: "&aSince you decided to claim this house, you lost your other house."
   break-in-not-needed: "&aYou can claim the house with a key, there's no need to break in!"
-  break-in-owner-offline: "&cYou can break in! The safehouse owner is offline"
-  break-in-not-time: "&cYou can break in only during specific time intervals!" # todo update message, add interval placeholders
+  break-in-disallow: "&cYou can't break in! You can break in only at specific day times or when owner is online"
   break-in-started: "&aRight click for {seconds} more seconds to break in!"
   break-in-during: "&aHold for {seconds} more seconds..."
   break-in-started-owner: "&c{character-name} is raiding your house!"

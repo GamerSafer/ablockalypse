@@ -151,15 +151,9 @@ public class PlayerInteractListener implements Listener {
                             return;
                         }
 
-                        // make sure the owner is online
-                        if (safehouse.getOwnerPlayer().isEmpty()) {
-                            player.sendMessage(plugin.getMessage("break-in-owner-offline"));
-                            return;
-                        }
-
-                        // make sure at this time of the day break-ins are allowed
-                        if (!safehouseManager.areRaidsEnabled()) {
-                            player.sendMessage(plugin.getMessage("break-in-not-time"));
+                        // make sure the owner is online or at this time of the day break-ins are allowed
+                        if (safehouse.getOwnerPlayer().isEmpty() && !safehouseManager.areRaidsEnabled()) {
+                            player.sendMessage(plugin.getMessage("break-in-disallow"));
                             return;
                         }
 

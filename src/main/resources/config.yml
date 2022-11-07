@@ -230,7 +230,7 @@ safehouse-raid-windows:
   2:
     start: "23:15:00"
     end: "23:45:00"
-  # you can add as many seconds as you need
+  # you can add as many sections as you need
 
 message:
   player-only: "&cThis command must be run by a player."

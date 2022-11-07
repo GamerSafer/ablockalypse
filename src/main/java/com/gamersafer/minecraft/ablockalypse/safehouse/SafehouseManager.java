@@ -278,8 +278,7 @@ public class SafehouseManager {
         Character playerCharacter = plugin.getStoryStorage().getActiveStory(player.getUniqueId()).join()
                 .get().character();
 
-        // todo uncomment when we'll have a LOCKSMITH character
-        if (playerCharacter == Character.THIEF /*|| playerCharacter == Character.LOCKSMITH*/) {
+        if (playerCharacter == Character.THIEF) {
             result *= 0.75;
         }
         return result;

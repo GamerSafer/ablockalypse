@@ -100,6 +100,14 @@ public class Safehouse {
     }
 
     /**
+     * Checks whether this safehouse has an owner.
+     * @return {@code true} if it is claimed, {@code false} otherwise
+     */
+    public boolean isClaimed() {
+        return getOwner() != null;
+    }
+
+    /**
      * Checks whether the given player is allowed to claim the safehouse.
      * In the 10 minutes following a raid, only the previous owner and the player who broke in are allowed to claim it.
      *

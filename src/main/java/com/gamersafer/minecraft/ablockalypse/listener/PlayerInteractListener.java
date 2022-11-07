@@ -76,7 +76,7 @@ public class PlayerInteractListener implements Listener {
                     if (safehouse.getSpawnLocation() != null) {
                         player.teleport(safehouse.getSpawnLocation());
                     }
-                } else if (player.isSneaking()) {
+                } else {
                     ItemStack item = event.getItem();
 
                     // todo PvE-only players cannot claim a safe house. Players can toggle between PVP and PVE at
@@ -88,6 +88,12 @@ public class PlayerInteractListener implements Listener {
                         // after a house is raided, only the previous owner and the player who raided it can claim it
                         if (safehouse.canClaim(player.getUniqueId())) {
                             int claimingDurationSeconds = safehouseManager.getClaimingDuration(player, safehouse);
+
+                            // tell the player they need to sneak
+                            if (!player.isSneaking()) {
+                                player.sendMessage(plugin.getMessage("claim-not-sneaking"));
+                                return;
+                            }
 
                             // check if the player who is trying to claim this house already owns one house
                             if (warnedOwners.getOrDefault(player.getUniqueId(), -1) != safehouse.getId()
@@ -157,6 +163,12 @@ public class PlayerInteractListener implements Listener {
                             return;
                         }
 
+                        // tell the player they need to sneak
+                        if (!player.isSneaking()) {
+                            player.sendMessage(plugin.getMessage("break-in-not-sneaking"));
+                            return;
+                        }
+
                         // duration based on door level
                         int breakingInDurationSeconds = safehouseManager.getBreakInDuration(player, safehouse);
 
@@ -186,6 +198,12 @@ public class PlayerInteractListener implements Listener {
                             }
                         } else {
                             startBreakIn(player, safehouse, breakingInDurationSeconds);
+                        }
+                    } else {
+                        if (safehouse.isClaimed()) {
+                            player.sendMessage(plugin.getMessage("safehouse-click-claimed"));
+                        } else {
+                            player.sendMessage(plugin.getMessage("safehouse-click-not-claimed"));
                         }
                     }
                 }

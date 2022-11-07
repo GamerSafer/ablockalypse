@@ -36,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 public class SafehouseManager {
 
@@ -177,7 +178,7 @@ public class SafehouseManager {
      */
     public Optional<Safehouse> getSafehouseFromOwnerUuid(UUID playerUuid) {
         return safehouseStorage.getAllSafehouses().join().stream()
-                .filter(safehouse -> safehouse.getOwner() != null)
+                .filter(Safehouse::isClaimed)
                 .filter(safehouse -> safehouse.getOwner().equals(playerUuid))
                 .findAny();
     }
@@ -238,7 +239,7 @@ public class SafehouseManager {
 
     public Optional<Safehouse> getNearestUnclaimedSafehouse(Location from) {
         return safehouseStorage.getAllSafehouses().join().stream()
-                .filter(safehouse -> safehouse.getOwner() == null)
+                .filter(Predicate.not(Safehouse::isClaimed))
                 .filter(safehouse -> safehouse.getDoorLocation() != null)
                 .filter(safehouse -> safehouse.getDoorLocation().getWorld().equals(from.getWorld()))
                 .min(Comparator.comparingDouble(safehouse -> safehouse.getDoorLocation().distanceSquared(from)));

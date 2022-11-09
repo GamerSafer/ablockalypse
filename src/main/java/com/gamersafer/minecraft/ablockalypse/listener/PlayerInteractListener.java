@@ -199,7 +199,8 @@ public class PlayerInteractListener implements Listener {
                         } else {
                             startBreakIn(player, safehouse, breakingInDurationSeconds);
                         }
-                    } else {
+                    } else if ((!claimingClicks.containsKey(player.getUniqueId()) || claimingClicks.get(player.getUniqueId()).getMillisSinceLastClick() > MILLIS_BETWEEN_INTERACTIONS + 1000)
+                            && (!breakingInClicks.containsKey(player.getUniqueId()) || breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() > MILLIS_BETWEEN_INTERACTIONS + 1000)) {
                         if (safehouse.isClaimed()) {
                             player.sendMessage(plugin.getMessage("safehouse-click-claimed"));
                         } else {

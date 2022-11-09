@@ -13,7 +13,8 @@ repositories {
     maven("https://jitpack.io/")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://maven.enginehub.org/repo/")
-    maven("https://repo.alessiodp.com/releases/")
+    maven("https://repo.alessiodp.com/releases/") // parties
+    maven("https://nexus.phoenixdvpt.fr/repository/maven-public/") // mmoitems
 }
 
 dependencies {
@@ -24,6 +25,8 @@ dependencies {
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7-SNAPSHOT")
     compileOnly("com.alessiodp.parties:parties-api:3.2.6") // docs: https://alessiodp.com/docs/parties/hookintoparties
+    compileOnly("net.Indyuce:MMOItems-API:6.7.5-SNAPSHOT") // docs: https://gitlab.com/phoenix-dvpmt/mmoitems/-/wikis/Main%20API%20Features
+    compileOnly("io.lumine:MythicLib-dist:1.3.4-SNAPSHOT")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.papermc:paperlib:1.0.7")

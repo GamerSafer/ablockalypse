@@ -4,7 +4,7 @@ main: com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin
 api-version: 1.18
 authors: [ GamerSafer ]
 softdepend: [ PlaceholderAPI, ProtocolLib ]
-depend: [ WorldGuard, Parties ]
+depend: [ WorldGuard, Parties, MMOItems ]
 
 commands:
   ablockalypse:

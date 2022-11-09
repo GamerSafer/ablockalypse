@@ -14,6 +14,7 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import io.lumine.mythic.lib.api.item.NBTItem;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -308,8 +309,8 @@ public class SafehouseManager {
         if (item == null) {
             return false;
         }
-        // todo implement MMOItem integration
-        return item.getType() == Material.SHEARS; // for testing
+        NBTItem nbtItem = NBTItem.get(item);
+        return nbtItem.hasType() && "KEY".equals(nbtItem.getString("MMOITEMS_ITEM_ID"));
     }
 
     /**
@@ -323,8 +324,8 @@ public class SafehouseManager {
         if (item == null) {
             return false;
         }
-        // todo implement MMOItem integration
-        return item.getType() == Material.STICK; // for testing
+        NBTItem nbtItem = NBTItem.get(item);
+        return nbtItem.hasType() && ("CROWBAR".equals(nbtItem.getString("MMOITEMS_ITEM_ID")) || "LOCKPICK".equals(nbtItem.getString("MMOITEMS_ITEM_ID")));
     }
 
     public void shutdown() {

@@ -208,13 +208,6 @@ public class PlayerInteractListener implements Listener {
                         }
                     }
                 }
-            } else if (clickedBlock.getType() == Material.CHEST | clickedBlock.getType() == Material.TRAPPED_CHEST) {
-                // prevent non-owners from opening chests
-                Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseAt(clickedBlock.getLocation());
-                if (safehouseOptional.isPresent() && !player.getUniqueId().equals(safehouseOptional.get().getOwner())) {
-                    player.sendMessage(plugin.getMessage("safehouse-container-open"));
-                    event.setCancelled(true);
-                }
             }
         }
     }

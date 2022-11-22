@@ -4,6 +4,7 @@ import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -25,18 +26,23 @@ public class PlayerDeathListener implements Listener {
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
+    private final BoosterManager boosterManager;
 
-
-    public PlayerDeathListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
+    public PlayerDeathListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager,
+                               BoosterManager boosterManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
+        this.boosterManager = boosterManager;
     }
 
     @SuppressWarnings("unused")
     @EventHandler
     private void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
+
+        // try to remove boosters
+        boosterManager.removeBoosters(player);
 
         storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
             if (story.isEmpty()) {

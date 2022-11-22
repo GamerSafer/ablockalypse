@@ -2,8 +2,10 @@ package com.gamersafer.minecraft.ablockalypse.listener;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
 import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
+import me.NoChance.PvPManager.PvPlayer;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -26,14 +28,17 @@ public class PlayerInteractListener implements Listener {
     private final AblockalypsePlugin plugin;
     private final SafehouseManager safehouseManager;
     private final StoryStorage storyStorage;
+    private final BoosterManager boosterManager;
 
     private final Map<UUID, ClickDuration> breakingInClicks;
     private final Map<UUID, ClickDuration> claimingClicks;
     private final Map<UUID, Integer> warnedOwners;
 
-    public PlayerInteractListener(AblockalypsePlugin plugin, SafehouseManager safehouseManager, StoryStorage storyStorage) {
+    public PlayerInteractListener(AblockalypsePlugin plugin, SafehouseManager safehouseManager, BoosterManager boosterManager,
+                                  StoryStorage storyStorage) {
         this.plugin = plugin;
         this.safehouseManager = safehouseManager;
+        this.boosterManager = boosterManager;
         this.storyStorage = storyStorage;
         this.breakingInClicks = new HashMap<>();
         this.claimingClicks = new HashMap<>();
@@ -67,24 +72,29 @@ public class PlayerInteractListener implements Listener {
 
                 // allow anyone to exit safehouses
                 if (safehouseManager.isInsideSafehouse(safehouse, player.getLocation()) && safehouse.getOutsideLocation() != null) {
+                    // remove boosters and teleport outside
+                    boosterManager.removeBoosters(player);
                     player.teleport(safehouse.getOutsideLocation());
                     return;
                 }
 
                 if (safehouseManager.canAccess(safehouse, player.getUniqueId())) {
-                    // the player is outside the safehouse, teleport them inside
+                    // the player is outside the safehouse, teleport them inside and remove boosters
                     if (safehouse.getSpawnLocation() != null) {
                         player.teleport(safehouse.getSpawnLocation());
+                        boosterManager.tryGiveBoosters(player);
                     }
                 } else {
                     ItemStack item = event.getItem();
 
-                    // todo PvE-only players cannot claim a safe house. Players can toggle between PVP and PVE at
-                    //  the beginning of the run based on a permission. They are given a permission if they are PVP.
-                    //  Players can claim and raid only if they have that permission
-                    //  ask tim what's the permission
-
                     if (safehouseManager.isKey(item)) {
+                        // prevent pve players from claiming safehouses
+                        PvPlayer pvPlayer = PvPlayer.get(player);
+                        if (!pvPlayer.hasPvPEnabled()) {
+                            player.sendMessage(plugin.getMessage("claim-pve-no"));
+                            return;
+                        }
+
                         // after a house is raided, only the previous owner and the player who raided it can claim it
                         if (safehouse.canClaim(player.getUniqueId())) {
                             int claimingDurationSeconds = safehouseManager.getClaimingDuration(player, safehouse);
@@ -151,6 +161,13 @@ public class PlayerInteractListener implements Listener {
                             }
                         }
                     } else if (safehouseManager.isLockpickOrCrowbar(item)) {
+                        // prevent pve players from breaking into safehouses
+                        PvPlayer pvPlayer = PvPlayer.get(player);
+                        if (!pvPlayer.hasPvPEnabled()) {
+                            player.sendMessage(plugin.getMessage("break-in-pve-no"));
+                            return;
+                        }
+
                         // return if the player is already allowed to claim the house. in that case they don't need to break in,
                         if (safehouse.canClaim(player.getUniqueId())) {
                             player.sendMessage(plugin.getMessage("break-in-not-needed"));

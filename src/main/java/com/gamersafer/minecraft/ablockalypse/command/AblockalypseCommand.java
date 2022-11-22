@@ -6,6 +6,8 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Booster;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
 import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -58,12 +60,15 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
     private final SafehouseManager safehouseManager;
+    private final BoosterManager boosterManager;
 
-    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager, SafehouseManager safehouseManager) {
+    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager,
+                               SafehouseManager safehouseManager, BoosterManager boosterManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
         this.safehouseManager = safehouseManager;
+        this.boosterManager = boosterManager;
     }
 
     @Override
@@ -139,6 +144,17 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     }
                 });
             } else if (action.equals("thirst_increase")) {
+                // increase the thirst if the player as the active thirst booster
+                if (boosterManager.hasBooster(player, Booster.LESS_THIRST)) {
+                    PlayerHudsHolderWrapper huds = new PlayerHudsHolderWrapper(player);
+                    PlayerQuantityHudWrapper thirstHud = new PlayerQuantityHudWrapper(huds, "ablockalypse:thirst_bar");
+                    if (thirstHud.exists()) {
+                        thirstHud.setFloatValue(Math.min(thirstHud.getFloatValue() + 2, 10f));
+                    } else {
+                        sender.sendMessage("Unable to increase the thirst bar of the player " + player.getName() + " who has a less_thirst booster. They don't have a thirst bar.");
+                    }
+                }
+
                 // Survivalist - (Hunger decreases slower and) Thirst increases faster (water items are more effective)
                 storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                     if (story.isPresent() && story.get().character() == Character.SURVIVALIST) {
@@ -148,8 +164,6 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             if (thirstHud.exists()) {
                                 thirstHud.setFloatValue(Math.min(thirstHud.getFloatValue() + 2, 10f));
                             } else {
-                                // todo if the player is riding or is underwater the hud is not presnet.
-                                //  this message may be sent too often. test
                                 sender.sendMessage("Unable to increase the thirst bar of the survivalist " + player.getName() + ". They don't have a thirst bar.");
                             }
                         });

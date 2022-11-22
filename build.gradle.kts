@@ -15,6 +15,7 @@ repositories {
     maven("https://maven.enginehub.org/repo/")
     maven("https://repo.alessiodp.com/releases/") // parties
     maven("https://nexus.phoenixdvpt.fr/repository/maven-public/") // mmoitems
+    maven("https://repo.codemc.org/repository/maven-public/") // PvPManager
 }
 
 dependencies {
@@ -27,6 +28,7 @@ dependencies {
     compileOnly("com.alessiodp.parties:parties-api:3.2.6") // docs: https://alessiodp.com/docs/parties/hookintoparties
     compileOnly("net.Indyuce:MMOItems-API:6.7.5-SNAPSHOT") // docs: https://gitlab.com/phoenix-dvpmt/mmoitems/-/wikis/Main%20API%20Features
     compileOnly("io.lumine:MythicLib-dist:1.3.4-SNAPSHOT")
+    compileOnly("me.NoChance.PvPManager:PvPManager:3.10.9") // docs: https://github.com/ChanceSD/PvPManager/wiki/Developers
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.papermc:paperlib:1.0.7")

@@ -2,6 +2,8 @@ package com.gamersafer.minecraft.ablockalypse.listener;
 
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Booster;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,9 +12,11 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 public class FoodLevelChangeListener implements Listener {
 
     private final StoryStorage storyStorage;
+    private final BoosterManager boosterManager;
 
-    public FoodLevelChangeListener(StoryStorage storyStorage) {
+    public FoodLevelChangeListener(StoryStorage storyStorage, BoosterManager boosterManager) {
         this.storyStorage = storyStorage;
+        this.boosterManager = boosterManager;
     }
 
     @SuppressWarnings("unused")
@@ -37,9 +41,15 @@ public class FoodLevelChangeListener implements Listener {
                     }
                 }
             });
-        }
 
-        // todo make thirst decrease slower for survivalists
+            // make hunger decrease slower if the user has LESS_HUNGER booster
+            if (boosterManager.hasBooster(player, Booster.LESS_HUNGER)) {
+                if (player.getFoodLevel() > event.getFoodLevel()) {
+                    int average = (player.getFoodLevel() + event.getFoodLevel()) / 2;
+                    event.setFoodLevel(average);
+                }
+            }
+        }
     }
 
 }

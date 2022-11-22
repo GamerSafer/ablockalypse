@@ -19,6 +19,8 @@ enum Permission {
     CMD_CINEMATIC_TP,
     CMD_RESET,
     CMD_SAFEHOUSE,
+
+    // boosters permissions are in Booster.java
     ;
 
     private final String permission;

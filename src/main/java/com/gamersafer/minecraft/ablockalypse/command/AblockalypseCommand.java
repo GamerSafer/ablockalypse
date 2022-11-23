@@ -564,6 +564,23 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .replace("{level}", Integer.toString(updatedLevel)));
                     return true;
                 }
+            } else if (args.length == 4 && args[2].equalsIgnoreCase("setowner")) {
+                if (safehouse.getOwner() != null) {
+                    player.sendMessage(plugin.getMessage("safehouse-setowner-already"));
+                    return false;
+                }
+
+                String targetName = args[3];
+                Player targetPlayer = Bukkit.getPlayer(targetName);
+                if (targetPlayer == null) {
+                    player.sendMessage(plugin.getMessage("safehouse-setowner-not-found"));
+                    return false;
+                }
+
+                safehouse.setOwner(targetPlayer.getUniqueId());
+                player.sendMessage(plugin.getMessage("safehouse-setowner-set"));
+
+                return true;
             }
         }
 

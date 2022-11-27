@@ -20,6 +20,7 @@ CREATE TABLE safehouse
 (
     id              int(11) NOT NULL AUTO_INCREMENT,
     regionName      varchar(48) NOT NULL UNIQUE,
+    houseType       varchar(48) NOT NULL DEFAULT 'SAFEHOUSE',
     ownerUuid       binary(16),
     doorLevel       INT UNSIGNED NOT NULL DEFAULT 1,
     doorLocation    varchar(48),

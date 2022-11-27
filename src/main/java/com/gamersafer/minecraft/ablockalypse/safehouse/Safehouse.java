@@ -12,23 +12,25 @@ import java.util.UUID;
 
 public class Safehouse {
 
-    private int id;
     private final String regionName;
+    private final Set<UUID> canClaim;
+    private Type type;
+    private int id;
     private int doorLevel;
     private Location doorLocation;
     private Location spawnLocation;
     private Location outsideLocation;
     private UUID owner;
-    private final Set<UUID> canClaim;
     private UUID previousOwner;
 
     public Safehouse(String regionName) {
-        this(0, regionName, 1, null, null, null, null);
+        this(0, regionName, Type.SAFEHOUSE, 1, null, null, null, null);
     }
 
-    public Safehouse(int id, String regionName, int doorLevel, Location doorLocation, Location spawnLocation, Location outsideLocation, UUID owner) {
+    public Safehouse(int id, String regionName, Type type, int doorLevel, Location doorLocation, Location spawnLocation, Location outsideLocation, UUID owner) {
         this.id = id;
         this.regionName = regionName;
+        this.type = type;
         this.doorLevel = doorLevel;
         this.doorLocation = doorLocation;
         this.spawnLocation = spawnLocation;
@@ -55,6 +57,14 @@ public class Safehouse {
 
     public String getRegionName() {
         return regionName;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public Location getDoorLocation() {
@@ -85,14 +95,14 @@ public class Safehouse {
         return owner;
     }
 
-    public UUID getPreviousOwner() {
-        return previousOwner;
-    }
-
     public void setOwner(UUID owner) {
         this.previousOwner = this.owner;
         this.owner = owner;
         this.canClaim.clear();
+    }
+
+    public UUID getPreviousOwner() {
+        return previousOwner;
     }
 
     public boolean isOwner(Player player) {
@@ -101,6 +111,7 @@ public class Safehouse {
 
     /**
      * Checks whether this safehouse has an owner.
+     *
      * @return {@code true} if it is claimed, {@code false} otherwise
      */
     public boolean isClaimed() {
@@ -161,6 +172,20 @@ public class Safehouse {
             return Optional.empty();
         }
         return Optional.ofNullable(Bukkit.getPlayer(getPreviousOwner()));
+    }
+
+    public enum Type {
+        SAFEHOUSE,
+        BUNKER;
+
+        public static Optional<Type> fromString(String string) {
+            for (Type type : values()) {
+                if (type.name().equalsIgnoreCase(string)) {
+                    return Optional.of(type);
+                }
+            }
+            return Optional.empty();
+        }
     }
 
 // todo implement equals and hashcode

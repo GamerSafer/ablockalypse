@@ -40,6 +40,7 @@ public class SafehouseDAO implements SafehouseStorage {
                 (
                     id              int(11) NOT NULL AUTO_INCREMENT,
                     regionName      varchar(48) NOT NULL UNIQUE,
+                    houseType       varchar(48) NOT NULL DEFAULT 'SAFEHOUSE',
                     ownerUuid       binary(16),
                     doorLevel       INT UNSIGNED NOT NULL DEFAULT 1,
                     doorLocation    varchar(48),
@@ -64,12 +65,13 @@ public class SafehouseDAO implements SafehouseStorage {
     public CompletableFuture<Safehouse> createSafehouse(Safehouse safehouse) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection conn = dataSource.getConnection();
-                 PreparedStatement statement = conn.prepareStatement("INSERT INTO safehouse (regionName, doorLocation, spawnLocation, outsideLocation) VALUES (?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
+                 PreparedStatement statement = conn.prepareStatement("INSERT INTO safehouse (regionName, houseType, doorLocation, spawnLocation, outsideLocation) VALUES (?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
                 statement.setString(1, safehouse.getRegionName());
-                statement.setString(2, serializeLocation(safehouse.getDoorLocation()));
-                statement.setString(3, serializeLocation(safehouse.getSpawnLocation()));
-                statement.setString(4, serializeLocation(safehouse.getOutsideLocation()));
+                statement.setString(2, safehouse.getType().name());
+                statement.setString(3, serializeLocation(safehouse.getDoorLocation()));
+                statement.setString(4, serializeLocation(safehouse.getSpawnLocation()));
+                statement.setString(5, serializeLocation(safehouse.getOutsideLocation()));
 
                 statement.executeUpdate();
 
@@ -125,6 +127,7 @@ public class SafehouseDAO implements SafehouseStorage {
                         Safehouse safehouse = new Safehouse(
                                 resultSet.getInt("id"),
                                 resultSet.getString("regionName"),
+                                Safehouse.Type.fromString(resultSet.getString("houseType")).orElseThrow(),
                                 resultSet.getInt("doorLevel"),
                                 parseLocation(resultSet.getString("doorLocation")),
                                 parseLocation(resultSet.getString("spawnLocation")),
@@ -148,18 +151,19 @@ public class SafehouseDAO implements SafehouseStorage {
     @Override
     public CompletableFuture<Void> updateSafehouses(Set<Safehouse> safehouses) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE safehouse SET ownerUuid = UNHEX(?), doorLevel = ?, doorLocation = ?, spawnLocation = ?, outsideLocation = ? WHERE id = ?;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE safehouse SET houseType = ?, ownerUuid = UNHEX(?), doorLevel = ?, doorLocation = ?, spawnLocation = ?, outsideLocation = ? WHERE id = ?;")) {
                 for (Safehouse safehouse : safehouses) {
                     String uuidStr = null;
                     if (safehouse.getOwner() != null) {
                         uuidStr = safehouse.getOwner().toString().replace("-", "");
                     }
-                    statement.setString(1, uuidStr);
-                    statement.setInt(2, safehouse.getDoorLevel());
-                    statement.setString(3, serializeLocation(safehouse.getDoorLocation()));
-                    statement.setString(4, serializeLocation(safehouse.getSpawnLocation()));
-                    statement.setString(5, serializeLocation(safehouse.getOutsideLocation()));
-                    statement.setInt(6, safehouse.getId());
+                    statement.setString(1, safehouse.getType().name());
+                    statement.setString(2, uuidStr);
+                    statement.setInt(3, safehouse.getDoorLevel());
+                    statement.setString(4, serializeLocation(safehouse.getDoorLocation()));
+                    statement.setString(5, serializeLocation(safehouse.getSpawnLocation()));
+                    statement.setString(6, serializeLocation(safehouse.getOutsideLocation()));
+                    statement.setInt(7, safehouse.getId());
 
                     statement.addBatch();
                 }

@@ -564,23 +564,35 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .replace("{level}", Integer.toString(updatedLevel)));
                     return true;
                 }
-            } else if (args.length == 4 && args[2].equalsIgnoreCase("setowner")) {
-                if (safehouse.getOwner() != null) {
-                    player.sendMessage(plugin.getMessage("safehouse-setowner-already"));
-                    return false;
+            } else if (args.length == 4) {
+                if (args[2].equalsIgnoreCase("setowner")) {
+                    if (safehouse.getOwner() != null) {
+                        player.sendMessage(plugin.getMessage("safehouse-setowner-already"));
+                        return false;
+                    }
+
+                    String targetName = args[3];
+                    Player targetPlayer = Bukkit.getPlayer(targetName);
+                    if (targetPlayer == null) {
+                        player.sendMessage(plugin.getMessage("safehouse-setowner-not-found"));
+                        return false;
+                    }
+
+                    safehouse.setOwner(targetPlayer.getUniqueId());
+                    player.sendMessage(plugin.getMessage("safehouse-setowner-set"));
+
+                    return true;
+                } else if (args[2].equalsIgnoreCase("settype")) {
+                    Optional<Safehouse.Type> safehouseTypeOpt = Safehouse.Type.fromString(args[3]);
+                    if (safehouseTypeOpt.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-settype-invalid"));
+                        return false;
+                    }
+
+                    safehouse.setType(safehouseTypeOpt.get());
+                    player.sendMessage(plugin.getMessage("safehouse-settype-set"));
+                    return true;
                 }
-
-                String targetName = args[3];
-                Player targetPlayer = Bukkit.getPlayer(targetName);
-                if (targetPlayer == null) {
-                    player.sendMessage(plugin.getMessage("safehouse-setowner-not-found"));
-                    return false;
-                }
-
-                safehouse.setOwner(targetPlayer.getUniqueId());
-                player.sendMessage(plugin.getMessage("safehouse-setowner-set"));
-
-                return true;
             }
         }
 
@@ -634,7 +646,13 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("reset")) {
                     yield List.of("current", "history");
                 } else if (args[0].equalsIgnoreCase("safehouse")) {
-                    yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel");
+                    yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel", "setowner", "settype");
+                }
+                yield Collections.emptyList();
+            }
+            case 4 -> {
+                if (args[0].equalsIgnoreCase("safehouse") && args[2].equalsIgnoreCase("settype")) {
+                    yield Arrays.stream(Safehouse.Type.values()).map(Safehouse.Type::name).toList();
                 }
                 yield Collections.emptyList();
             }

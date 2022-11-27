@@ -295,6 +295,8 @@ message:
   safehouse-setowner-already: "&cThe house already has an owner"
   safehouse-setowner-not-found: "&cUnable to find the target player"
   safehouse-setowner-set: "&aSafehouse owner set!"
+  safehouse-settype-invalid: "&cInvalid safehouse type"
+  safehouse-settype-set: "&aSafehouse type set"
   compass-searching: "&aSearching for the nearest unclaimed safehouse..."
   compass-found: "&aCompass pointing to the nearest safehouse!"
   compass-none: "&cThere isn't any unclaimed safehouse"
@@ -342,3 +344,4 @@ message:
     - " &c/ablockalypse safehouse <region|id> setoutside - &7Set the safehouse outside location"
     - " &c/ablockalypse safehouse <region|id> nextdoorlevel - &7Increases the door level"
     - " &c/ablockalypse safehouse <region|id> setowner <player> - &7Sets the owner of a safehouse"
+    - " &c/ablockalypse safehouse <region|id> settype <type> - &7Sets the type of a safehouse"

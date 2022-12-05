@@ -101,6 +101,12 @@ public class Safehouse {
         this.canClaim.clear();
     }
 
+    public void removeOwner() {
+        this.previousOwner = null;
+        this.owner = null;
+        this.canClaim.clear();
+    }
+
     public UUID getPreviousOwner() {
         return previousOwner;
     }

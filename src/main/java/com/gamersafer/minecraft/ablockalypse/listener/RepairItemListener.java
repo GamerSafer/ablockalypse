@@ -29,7 +29,12 @@ public class RepairItemListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     private void onItemRepair(PrepareItemCraftEvent event) {
-        Player player = (Player) event.getInventory().getViewers().get(0);
+        Player player;
+        try {
+            player = (Player) event.getInventory().getViewers().get(0)
+        } catch (IndexOutOfBoundsException ignore) {
+            return;
+        }
         List<Material> materials = Arrays.stream(event.getInventory().getContents())
                 .filter(Objects::nonNull)
                 .map(ItemStack::getType)

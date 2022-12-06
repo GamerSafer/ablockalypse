@@ -8,3 +8,4 @@ softdepend: [ PlaceholderAPI, ProtocolLib ]
 commands:
   ablockalypse:
     description: Main command
+    aliases: [ "ablock" ]

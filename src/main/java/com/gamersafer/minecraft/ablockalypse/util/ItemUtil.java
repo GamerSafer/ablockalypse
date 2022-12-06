@@ -48,7 +48,6 @@ public final class ItemUtil {
             Material.DIAMOND_CHESTPLATE,
             Material.DIAMOND_HELMET,
             Material.TURTLE_HELMET,
-            Material.SHIELD,
             Material.GOLDEN_BOOTS,
             Material.GOLDEN_LEGGINGS,
             Material.GOLDEN_CHESTPLATE,

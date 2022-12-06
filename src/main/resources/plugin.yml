@@ -9,3 +9,4 @@ depend: [ WorldGuard, Parties, MMOItems, PvPManager ]
 commands:
   ablockalypse:
     description: Main command
+    aliases: [ "ablock" ]

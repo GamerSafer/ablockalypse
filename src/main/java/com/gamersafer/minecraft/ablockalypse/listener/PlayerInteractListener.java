@@ -191,7 +191,7 @@ public class PlayerInteractListener implements Listener {
 
                         if (breakingInClicks.containsKey(player.getUniqueId())) {
                             if (breakingInClicks.get(player.getUniqueId()).getMillisSinceFirstClick() >= breakingInDurationSeconds * 1000L) {
-                                if (breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= 60) {
+                                if (breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= MILLIS_BETWEEN_INTERACTIONS) {
                                     Optional<Player> previousOwnerOpt = safehouse.getOwnerPlayer();
                                     safehouse.handleBreakIn(player.getUniqueId());
                                     previousOwnerOpt.ifPresent(previousOwner -> previousOwner.sendMessage(plugin.getMessage("break-in-done-owner")));
@@ -202,7 +202,7 @@ public class PlayerInteractListener implements Listener {
                                     startBreakIn(player, safehouse, breakingInDurationSeconds);
                                 }
                             } else {
-                                if (breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= 60) {
+                                if (breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= MILLIS_BETWEEN_INTERACTIONS) {
                                     if (breakingInClicks.get(player.getUniqueId()).recordNewClick()) {
                                         long secondsLeft = breakingInDurationSeconds - breakingInClicks.get(player.getUniqueId()).getMillisSinceFirstClick() / 1000;
                                         player.sendMessage(plugin.getMessage("break-in-during")

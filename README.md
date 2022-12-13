@@ -24,17 +24,21 @@
 | ablockalypse.cmd.safehouse         | Access to _/ablockalypse safehouse_ commands                                               |
 | ablockalypse.canselect.<CHARACTER> | Ability to select a specific character from the backstory menu                             |
 
-
 ## PAPI placeholders
 
-| Placeholder                                    | Description                                                                                 |
-|------------------------------------------------|---------------------------------------------------------------------------------------------|
-| %ablockalypse_character%                       | The name of the character of the active story                                               |
-| %ablockalypse_displayname%                     | The name the player choose for their current character                                      |
-| %ablockalypse_survivaltime%                    | How long the player survived with their current character                                   |
-| %ablockalypse_playtime%                        | The sum of the survival times of all the stories started by the player                      |
-| %ablockalypse_level%                           | The level of the current character                                                          |
-| %ablockalypse_alltop_survivaltime_X_name%      | Name of the player at the X position on the top survival time leaderboard (X is a number)   |
-| %ablockalypse_alltop_survivaltime_X_playtime%  | Formatted survival time of the story at the X position on the top survival time leaderboard |
-| %ablockalypse_alltop_survivaltime_X_character% | Display name of the story character at the X position on the top survival time leaderboard  |
-| %ablockalypse_safehouse_door_lvl%              | Display the level of the safehouse door or 0 if the player isn't part of any safehouse      |
+| Placeholder                                            | Description                                                                                                        |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| %ablockalypse_character%                               | The name of the character of the active story                                                                      |
+| %ablockalypse_displayname%                             | The name the player choose for their current character                                                             |
+| %ablockalypse_survivaltime%                            | How long the player survived with their current character                                                          |
+| %ablockalypse_playtime%                                | The sum of the survival times of all the stories started by the player                                             |
+| %ablockalypse_level%                                   | The level of the current character                                                                                 |
+| %ablockalypse_ptop_survivaltime_playtime%              | Formatted longest survival time achieved by the player                                                             |
+| %ablockalypse_ptop_survivaltime_character%             | Display name of the character used by the player in their longest survival time                                    |
+| %ablockalypse_ptop_survivaltime_CHARATER_playtime%     | Formatted longest survival time achieved by the player with the given character                                    |
+| %ablockalypse_alltop_survivaltime_X_name%              | Name of the player at the X position on the top survival time leaderboard (X is a number)                          |
+| %ablockalypse_alltop_survivaltime_X_playtime%          | Formatted survival time of the story at the X position on the top survival time leaderboard                        |
+| %ablockalypse_alltop_survivaltime_X_character%         | Display name of the story character at the X position on the top survival time leaderboard                         |
+| %ablockalypse_alltop_survivaltime_CHARATER_X_name%     | Name of the player at the X position on the top survival time leaderboard of the given character(X is a number)    |
+| %ablockalypse_alltop_survivaltime_CHARATER_X_playtime% | Formatted survival time of the story at the X position on the top survival time leaderboard by the given character |
+| %ablockalypse_safehouse_door_lvl%                      | Display the level of the safehouse door or 0 if the player isn't part of any safehouse                             |

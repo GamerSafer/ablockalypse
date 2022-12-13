@@ -116,7 +116,6 @@ public class StoryDAO implements StoryStorage {
                                 .map(Timestamp::toLocalDateTime).orElse(null);
 
                         LocalDateTime sessionStartTime = endTime == null && isOnline ? LocalDateTime.now() : null;
-                        ;
 
                         EntityDamageEvent.DamageCause deathCause = null;
                         Location deathLocation = null;
@@ -308,6 +307,142 @@ public class StoryDAO implements StoryStorage {
         }, executor).exceptionally(throwable -> {
             throwable.printStackTrace();
             return Collections.emptyList();
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<Story>> getTopSurvivalTimeStoriesByCharacter(Character character, int count) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Story> stories = new ArrayList<>();
+
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, HEX(playerUuid) AS uuid, characterName, startTime, endTime, survivalTime, deathCause, deathLocWorld, deathLocX, deathLocY, deathLocZ FROM story WHERE characterType = ? ORDER BY survivalTime DESC LIMIT ?;")) {
+                statement.setString(1, character.name());
+                statement.setInt(2, count);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        //noinspection DuplicatedCode
+                        LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
+                                .map(Timestamp::toLocalDateTime).orElse(null);
+
+                        EntityDamageEvent.DamageCause deathCause = null;
+                        Location deathLocation = null;
+                        if (endTime != null) {
+                            deathCause = EntityDamageEvent.DamageCause.valueOf(resultSet.getString("deathCause"));
+                            World deathLocationWorld = Bukkit.getWorld(resultSet.getString("deathLocWorld"));
+                            deathLocation = new Location(deathLocationWorld, resultSet.getDouble("deathLocX"),
+                                    resultSet.getDouble("deathLocY"), resultSet.getDouble("deathLocZ"));
+                        }
+
+                        //noinspection OptionalGetWithoutIsPresent we can assume the uuid is valid
+                        Story story = new Story(resultSet.getInt("id"),
+                                UUIDUtil.parseUUID(resultSet.getString("uuid")).get(),
+                                character,
+                                resultSet.getString("characterName"),
+                                resultSet.getTimestamp("startTime").toLocalDateTime(),
+                                endTime,
+                                null,
+                                resultSet.getInt("survivalTime"),
+                                deathCause,
+                                deathLocation);
+                        stories.add(story);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return stories;
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Collections.emptyList();
+        });
+    }
+
+    @Override
+    public CompletableFuture<Optional<Story>> getTopSurvivalTimePersonal(UUID playerUuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            Story result = null;
+
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterType, characterName, startTime, survivalTime, deathCause, deathLocWorld, deathLocX, deathLocY, deathLocZ FROM story WHERE playerUuid = UNHEX(?) ORDER BY survivalTime LIMIT 1;")) {
+                statement.setString(1, playerUuid.toString().replace("-", ""));
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        //noinspection DuplicatedCode
+                        LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
+                                .map(Timestamp::toLocalDateTime).orElse(null);
+
+                        EntityDamageEvent.DamageCause deathCause = null;
+                        Location deathLocation = null;
+                        if (endTime != null) {
+                            deathCause = EntityDamageEvent.DamageCause.valueOf(resultSet.getString("deathCause"));
+                            World deathLocationWorld = Bukkit.getWorld(resultSet.getString("deathLocWorld"));
+                            deathLocation = new Location(deathLocationWorld, resultSet.getDouble("deathLocX"),
+                                    resultSet.getDouble("deathLocY"), resultSet.getDouble("deathLocZ"));
+                        }
+
+                        result = new Story(resultSet.getInt("id"),
+                                playerUuid,
+                                Character.valueOf(resultSet.getString("characterType")),
+                                resultSet.getString("characterName"),
+                                resultSet.getTimestamp("startTime").toLocalDateTime(),
+                                endTime,
+                                LocalDateTime.now(),
+                                resultSet.getInt("survivalTime"),
+                                deathCause,
+                                deathLocation);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return Optional.ofNullable(result);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Optional.empty();
+        });
+    }
+
+    @Override
+    public CompletableFuture<Optional<Story>> getTopSurvivalTimePersonalByCharacter(Character character, UUID playerUuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            Story result = null;
+
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("SELECT id, characterName, startTime, survivalTime, deathCause, deathLocWorld, deathLocX, deathLocY, deathLocZ FROM story WHERE playerUuid = UNHEX(?) AND characterType = ? ORDER BY survivalTime LIMIT 1;")) {
+                statement.setString(1, playerUuid.toString().replace("-", ""));
+                statement.setString(2, character.name());
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        //noinspection DuplicatedCode
+                        LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
+                                .map(Timestamp::toLocalDateTime).orElse(null);
+
+                        EntityDamageEvent.DamageCause deathCause = null;
+                        Location deathLocation = null;
+                        if (endTime != null) {
+                            deathCause = EntityDamageEvent.DamageCause.valueOf(resultSet.getString("deathCause"));
+                            World deathLocationWorld = Bukkit.getWorld(resultSet.getString("deathLocWorld"));
+                            deathLocation = new Location(deathLocationWorld, resultSet.getDouble("deathLocX"),
+                                    resultSet.getDouble("deathLocY"), resultSet.getDouble("deathLocZ"));
+                        }
+
+                        result = new Story(resultSet.getInt("id"),
+                                playerUuid,
+                                character,
+                                resultSet.getString("characterName"),
+                                resultSet.getTimestamp("startTime").toLocalDateTime(),
+                                endTime,
+                                LocalDateTime.now(),
+                                resultSet.getInt("survivalTime"),
+                                deathCause,
+                                deathLocation);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return Optional.ofNullable(result);
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return Optional.empty();
         });
     }
 

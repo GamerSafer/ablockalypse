@@ -62,18 +62,6 @@ public class SafehouseDAO implements SafehouseStorage {
             throwable.printStackTrace();
             return null;
         });
-
-        // todo remove once updated on production
-        CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement updateSchemaStatement = conn.prepareStatement("ALTER TABLE safehouse ADD COLUMN IF NOT EXISTS activeBoosters varchar(256)")) {
-                updateSchemaStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }, executor).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
     }
 
     @Override

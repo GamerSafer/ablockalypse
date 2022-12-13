@@ -4,6 +4,9 @@ import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -19,24 +22,32 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class PlayerDeathListener implements Listener {
 
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
+    private final BoosterManager boosterManager;
+    private final SafehouseManager safehouseManager;
 
-
-    public PlayerDeathListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
+    public PlayerDeathListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager,
+                               BoosterManager boosterManager, SafehouseManager safehouseManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
+        this.boosterManager = boosterManager;
+        this.safehouseManager = safehouseManager;
     }
 
     @SuppressWarnings("unused")
     @EventHandler
     private void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
+
+        // try to remove boosters
+        boosterManager.removeBoosters(player);
 
         storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
             if (story.isEmpty()) {
@@ -74,7 +85,10 @@ public class PlayerDeathListener implements Listener {
                     }
                 }
 
-                // todo integrate with the claims plugin and remove all claims
+                // remove the safehouse owned by the player if it exists. we can safely assume that if the player
+                // doesn't have an active story, they don't have a safehouse
+                Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
+                safehouseOptional.ifPresent(Safehouse::removeOwner);
             }
         }).exceptionally(throwable -> {
             throwable.printStackTrace();

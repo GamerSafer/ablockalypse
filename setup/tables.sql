@@ -15,3 +15,18 @@ CREATE TABLE story
     deathLocZ     DOUBLE NULL DEFAULT NULL,
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE safehouse
+(
+    id              int(11) NOT NULL AUTO_INCREMENT,
+    regionName      varchar(48) NOT NULL UNIQUE,
+    houseType       varchar(48) NOT NULL DEFAULT 'SAFEHOUSE',
+    ownerUuid       binary(16),
+    doorLevel       INT UNSIGNED NOT NULL DEFAULT 1,
+    doorLocation    varchar(48),
+    spawnLocation   varchar(48),
+    outsideLocation varchar(48),
+    activeBoosters  varchar(256),
+    PRIMARY KEY (`id`)
+);
+

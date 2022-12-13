@@ -115,7 +115,8 @@ public class StoryDAO implements StoryStorage {
                         LocalDateTime endTime = Optional.ofNullable(resultSet.getTimestamp("endTime"))
                                 .map(Timestamp::toLocalDateTime).orElse(null);
 
-                        LocalDateTime sessionStartTime = endTime == null && isOnline ? LocalDateTime.now() : null;;
+                        LocalDateTime sessionStartTime = endTime == null && isOnline ? LocalDateTime.now() : null;
+                        ;
 
                         EntityDamageEvent.DamageCause deathCause = null;
                         Location deathLocation = null;

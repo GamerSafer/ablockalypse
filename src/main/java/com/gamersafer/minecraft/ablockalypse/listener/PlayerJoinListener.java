@@ -18,6 +18,7 @@ public class PlayerJoinListener implements Listener {
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
+
     public PlayerJoinListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;

@@ -23,8 +23,8 @@ Mechanic - Can repair weapons
 Chef - Raises effectiveness of all foods
 Dog Walker - Can tame/ starts with 1 wolf (can re-tame wolves if they lose theirs) - give wolfs when spawn the first time. if the wolf dies, can tame another one. onlyl 1 at a time
 Warehouse Worker (Spy?) - Has Nightvision
-TODO Thief - Name (both character name and username) is hidden at all times (only visible within 5 block radius)
-TODO Gambler (Youtuber?) - increase of luck on mob drops - loottable, when a gambler kills an entity there is a chance to get something
+Thief - breaks into safehouses faster
+TODO Gambler (Youtuber?) - increase of luck on mob drops - loottable, when a gambler kills an entity there is a chance to get something todo remove it?
 I.T Consultant - Moves faster while sneaking
 Free Runner - No fall damage
 Baller - Jump Boost

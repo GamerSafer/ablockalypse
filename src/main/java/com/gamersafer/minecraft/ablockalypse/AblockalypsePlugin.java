@@ -1,16 +1,23 @@
 package com.gamersafer.minecraft.ablockalypse;
 
 import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
+import com.gamersafer.minecraft.ablockalypse.database.SafehouseDAO;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
+import com.gamersafer.minecraft.ablockalypse.database.api.SafehouseStorage;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.leaderboard.SurvivalTimeLeaderboard;
 import com.gamersafer.minecraft.ablockalypse.listener.ChunkUnloadListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
+import com.gamersafer.minecraft.ablockalypse.listener.EntityDamagedByEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityInteractEntityListener;
+import com.gamersafer.minecraft.ablockalypse.listener.EntityPotionEffectListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
+import com.gamersafer.minecraft.ablockalypse.listener.HDBLoadListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerBuildListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
+import com.gamersafer.minecraft.ablockalypse.listener.PlayerInteractListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerItemConsumeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerJoinListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerQuitListener;
@@ -19,6 +26,9 @@ import com.gamersafer.minecraft.ablockalypse.listener.PlayerToggleSprintListener
 import com.gamersafer.minecraft.ablockalypse.listener.RepairItemListener;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.papi.AblockalypsePAPIExpansion;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseCache;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import com.gamersafer.minecraft.ablockalypse.story.StoryCache;
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
@@ -39,6 +49,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -50,6 +61,9 @@ public class AblockalypsePlugin extends JavaPlugin {
 
     private HikariDataSource dataSource;
     private StoryStorage storyStorage;
+    private SafehouseStorage safehouseStorage;
+    private SafehouseManager safehouseManager;
+    private BoosterManager boosterManager;
     private SurvivalTimeLeaderboard survivalTimeLeaderboard;
     private LocationManager locationManager;
 
@@ -76,31 +90,39 @@ public class AblockalypsePlugin extends JavaPlugin {
         dataSource = new HikariDataSource(hikariConfig);
 
         this.storyStorage = new StoryCache(new StoryDAO(dataSource));
+        this.safehouseStorage = new SafehouseCache(new SafehouseDAO(dataSource));
+        this.safehouseManager = new SafehouseManager(this, safehouseStorage, Bukkit.getWorld(Objects.requireNonNull(getConfig().getString("safehouse-world"))));
+        this.boosterManager = new BoosterManager(this, safehouseManager);
         this.locationManager = new LocationManager();
         this.survivalTimeLeaderboard = new SurvivalTimeLeaderboard(this, storyStorage);
 
         // register commands
         //noinspection ConstantConditions
-        getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager));
+        getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager, safehouseManager, boosterManager));
 
         // register listeners
         getServer().getPluginManager().registerEvents(new ChunkUnloadListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityDamagedByEntityListener(boosterManager), this);
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityInteractEntityListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityPotionEffectListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
-        getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage), this);
-        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager), this);
+        getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage, boosterManager), this);
+        getServer().getPluginManager().registerEvents(new HDBLoadListener(), this);
+        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager, safehouseManager, boosterManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerBuildListener(this, safehouseManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager, boosterManager, safehouseManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerInteractListener(this, safehouseManager, boosterManager, storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerItemConsumeListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(storyStorage, boosterManager), this);
         getServer().getPluginManager().registerEvents(new PlayerToggleSneakListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerToggleSprintListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new RepairItemListener(this, storyStorage), this);
 
         // register PAPI expansion
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new AblockalypsePAPIExpansion(storyStorage, survivalTimeLeaderboard).register();
+            new AblockalypsePAPIExpansion(storyStorage, survivalTimeLeaderboard, safehouseManager).register();
         }
     }
 
@@ -112,7 +134,9 @@ public class AblockalypsePlugin extends JavaPlugin {
                 .forEach(storyStorage::updateSurvivalTime);
 
         storyStorage.shutdown();
+        safehouseStorage.shutdown();
         locationManager.shutdown();
+        safehouseManager.shutdown();
 
         dataSource.close();
     }
@@ -123,10 +147,23 @@ public class AblockalypsePlugin extends JavaPlugin {
         Character.reload();
         MenuListener.reload();
         survivalTimeLeaderboard.reload();
+        safehouseManager.reload();
     }
 
     public StoryStorage getStoryStorage() {
         return storyStorage;
+    }
+
+    public SafehouseStorage getSafehouseStorage() {
+        return safehouseStorage;
+    }
+
+    public SafehouseManager getSafehouseManager() {
+        return safehouseManager;
+    }
+
+    public BoosterManager getBoosterManager() {
+        return boosterManager;
     }
 
     public void sendMessage(CommandSender user, String messageId) {

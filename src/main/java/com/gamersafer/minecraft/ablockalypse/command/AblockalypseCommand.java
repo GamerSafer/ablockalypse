@@ -6,6 +6,16 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseBoostersMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseDoorMenu;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Booster;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import dev.lone.itemsadder.api.FontImages.PlayerHudsHolderWrapper;
 import dev.lone.itemsadder.api.FontImages.PlayerQuantityHudWrapper;
 import io.papermc.lib.PaperLib;
@@ -13,24 +23,37 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Door;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
@@ -40,11 +63,16 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
+    private final SafehouseManager safehouseManager;
+    private final BoosterManager boosterManager;
 
-    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
+    public AblockalypseCommand(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager,
+                               SafehouseManager safehouseManager, BoosterManager boosterManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
+        this.safehouseManager = safehouseManager;
+        this.boosterManager = boosterManager;
     }
 
     @Override
@@ -120,6 +148,17 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     }
                 });
             } else if (action.equals("thirst_increase")) {
+                // increase the thirst if the player as the active thirst booster
+                if (boosterManager.hasBooster(player, Booster.LESS_THIRST)) {
+                    PlayerHudsHolderWrapper huds = new PlayerHudsHolderWrapper(player);
+                    PlayerQuantityHudWrapper thirstHud = new PlayerQuantityHudWrapper(huds, "ablockalypse:thirst_bar");
+                    if (thirstHud.exists()) {
+                        thirstHud.setFloatValue(Math.min(thirstHud.getFloatValue() + 2, 10f));
+                    } else {
+                        sender.sendMessage("Unable to increase the thirst bar of the player " + player.getName() + " who has a less_thirst booster. They don't have a thirst bar.");
+                    }
+                }
+
                 // Survivalist - (Hunger decreases slower and) Thirst increases faster (water items are more effective)
                 storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                     if (story.isPresent() && story.get().character() == Character.SURVIVALIST) {
@@ -129,8 +168,6 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             if (thirstHud.exists()) {
                                 thirstHud.setFloatValue(Math.min(thirstHud.getFloatValue() + 2, 10f));
                             } else {
-                                // todo if the player is riding or is underwater the hud is not presnet.
-                                //  this message may be sent too often. test
                                 sender.sendMessage("Unable to increase the thirst bar of the survivalist " + player.getName() + ". They don't have a thirst bar.");
                             }
                         });
@@ -140,6 +177,71 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 throw new IllegalArgumentException("Unknown action " + action);
             }
 
+            return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("reset") && hasPermission(sender, Permission.CMD_RESET)) {
+            boolean targetAll = args[1].equalsIgnoreCase("all");
+            boolean endAllStories = false;
+            OfflinePlayer targetPlayer = null;
+            if (!targetAll) {
+                targetPlayer = Bukkit.getOfflinePlayer(args[1]);
+                if (!targetPlayer.hasPlayedBefore()) {
+                    sender.sendMessage("Unable to find the player " + args[1]);
+                    return false;
+                }
+            }
+
+            CompletableFuture<Void> resetFuture;
+            if (args[2].equalsIgnoreCase("current")) {
+                if (targetAll) {
+                    resetFuture = storyStorage.resetActiveStory();
+                } else {
+                    resetFuture = storyStorage.resetActiveStory(targetPlayer.getUniqueId());
+                }
+            } else if (args[2].equalsIgnoreCase("history")) {
+                endAllStories = true;
+                if (targetAll) {
+                    resetFuture = storyStorage.resetAllStories();
+                } else {
+                    resetFuture = storyStorage.resetAllStories(targetPlayer.getUniqueId());
+                }
+            } else {
+                sender.sendMessage("Invalid subcommand");
+                return false;
+            }
+
+            OfflinePlayer finalTargetPlayer = targetPlayer;
+            boolean finalEndAllStories = endAllStories;
+            resetFuture.thenRun(() -> {
+                if (finalEndAllStories) {
+                    plugin.sync(() -> {
+                        Collection<? extends OfflinePlayer> targetPlayers;
+                        if (targetAll) {
+                            targetPlayers = Bukkit.getOnlinePlayers();
+                        } else {
+                            targetPlayers = List.of(finalTargetPlayer);
+                        }
+                        // reset walking speed and potion effects
+                        targetPlayers.forEach(offlinePlayer -> {
+                            Player onlinePlayer = offlinePlayer.getPlayer();
+                            if (onlinePlayer != null) {
+                                onlinePlayer.setWalkSpeed(0.2f); // set default walking speed. it's changed for sprinters
+                                Arrays.stream(PotionEffectType.values()).forEach(onlinePlayer::removePotionEffect);
+                            }
+                        });
+                        // remove all tamed wolves
+                        List<UUID> targetPlayersUuids = targetPlayers.stream().map(OfflinePlayer::getUniqueId).toList();
+                        for (World world : Bukkit.getWorlds()) {
+                            for (Entity wolfEntity : world.getEntitiesByClasses(Wolf.class)) {
+                                //noinspection ConstantConditions
+                                if (((Tameable) wolfEntity).isTamed() && targetPlayersUuids.contains(((Tameable) wolfEntity).getOwner().getUniqueId())) {
+                                    wolfEntity.remove();
+                                }
+                            }
+                        }
+                        sender.sendMessage("Reset completed!");
+                    });
+                }
+            });
             return true;
         }
 
@@ -321,46 +423,200 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
                     return true;
                 }
+            } else if (args[0].equalsIgnoreCase("safehouse")) {
+                Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
+                if (args[1].equalsIgnoreCase("boosters")) {
+                    if (safehouseOptional.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                        return false;
+                    }
+
+                    new SafehouseBoostersMenu(player, safehouseOptional.get()).open();
+                } else if (args[1].equalsIgnoreCase("door")) {
+                    if (safehouseOptional.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                        return false;
+                    }
+                    new SafehouseDoorMenu(safehouseOptional.get()).open(player);
+                }
             }
-        } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("cinematic")) {
-                // validate character type
-                Character character;
-                try {
-                    character = Character.valueOf(args[1].toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    player.sendMessage(plugin.getMessage("invalid-character-type")
-                            .replace("{input}", args[1])
-                            .replace("{valid}", Arrays.stream(Character.values())
-                                    .map(Character::name)
-                                    .map(String::toLowerCase)
-                                    .collect(Collectors.joining(", ")))
-                    );
-                    return true;
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("cinematic")) {
+            // validate character type
+            Character character;
+            try {
+                character = Character.valueOf(args[1].toUpperCase());
+            } catch (IllegalArgumentException e) {
+                player.sendMessage(plugin.getMessage("invalid-character-type")
+                        .replace("{input}", args[1])
+                        .replace("{valid}", Arrays.stream(Character.values())
+                                .map(Character::name)
+                                .map(String::toLowerCase)
+                                .collect(Collectors.joining(", ")))
+                );
+                return true;
+            }
+
+            if (args[2].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_CINEMATIC_SET)) {
+
+                // set the location and send feedback message
+                locationManager.setCinematicLoc(character, player.getLocation());
+                player.sendMessage(plugin.getMessage("cinematic-location-set-success")
+                        .replace("{character}", character.name().toLowerCase()));
+
+                return true;
+            } else if (args[2].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_CINEMATIC_TP)) {
+
+                Optional<Location> cinematicLoc = locationManager.getCinematicLoc(character);
+                if (cinematicLoc.isPresent()) {
+                    // teleport the player
+                    player.sendMessage(plugin.getMessage("cinematic-location-tp")
+                            .replace("{character}", character.name().toLowerCase()));
+                    PaperLib.teleportAsync(player, cinematicLoc.get());
+                    player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+                } else {
+                    // the location is not present
+                    player.sendMessage(plugin.getMessage("cinematic-location-none")
+                            .replace("{character}", character.name().toLowerCase()));
+                }
+                return true;
+            }
+        } else if (args.length > 2 && args[0].equalsIgnoreCase("safehouse") && hasPermission(sender, Permission.CMD_SAFEHOUSE)) {
+            if (args.length == 3 && args[2].equalsIgnoreCase("create")) {
+                String regionName = args[1];
+
+                // make sure there isn't another safehouse in that region
+                if (safehouseManager.getSafehouseFromRegion(regionName).isPresent()) {
+                    player.sendMessage(plugin.getMessage("safehouse-create-invalid-exists")
+                            .replace("{name}", regionName));
+                    return false;
                 }
 
-                if (args[2].equalsIgnoreCase("set") && hasPermission(sender, Permission.CMD_CINEMATIC_SET)) {
+                // try to get the region
+                RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(player.getWorld()));
+                ProtectedRegion region = Objects.requireNonNull(regionManager).getRegion(regionName);
+                if (region == null) {
+                    player.sendMessage(plugin.getMessage("safehouse-create-invalid-region")
+                            .replace("{name}", regionName));
+                    return false;
+                }
 
-                    // set the location and send feedback message
-                    locationManager.setCinematicLoc(character, player.getLocation());
-                    player.sendMessage(plugin.getMessage("cinematic-location-set-success")
-                            .replace("{character}", character.name().toLowerCase()));
+                safehouseManager.createSafehouse(regionName).thenAccept(safehouse -> {
+                    player.sendMessage(plugin.getMessage("safehouse-create-success")
+                            .replace("{id}", Integer.toString(safehouse.getId())));
+
+                });
+                return true;
+            }
+
+            Optional<Safehouse> safehouseOpt;
+            try {
+                int safehouseID = Integer.parseInt(args[1]);
+                safehouseOpt = safehouseManager.getSafehouseFromID(safehouseID);
+            } catch (NumberFormatException ignore) {
+                safehouseOpt = safehouseManager.getSafehouseFromRegion(args[1]);
+            }
+
+            // make sure that safehouse exists
+            if (safehouseOpt.isEmpty()) {
+                player.sendMessage(plugin.getMessage("safehouse-cmd-invalid-id")
+                        .replace("{id-region}", args[1]));
+                return false;
+            }
+            Safehouse safehouse = safehouseOpt.get();
+
+            if (args.length == 3) {
+                if (args[2].equalsIgnoreCase("delete")) {
+                    // try to delete the safehouse
+                    safehouseManager.deleteSafehouse(safehouse).thenRun(() -> {
+                        player.sendMessage(plugin.getMessage("safehouse-deleted"));
+
+                        safehouse.getOwnerPlayer().ifPresent(owner -> {
+                            // notify owner
+                            owner.sendMessage(plugin.getMessage("safehouse-deleted-owner"));
+                        });
+                    });
+                    return true;
+                } else if (args[2].equalsIgnoreCase("teleport")) {
+                    if (safehouse.getSpawnLocation() == null) {
+                        player.sendMessage(plugin.getMessage("safehouse-spawn-not-set"));
+                        return false;
+                    }
+
+                    player.sendMessage(plugin.getMessage("safehouse-spawn-teleporting"));
+                    player.teleport(safehouse.getSpawnLocation());
+                    return true;
+                } else if (args[2].equalsIgnoreCase("setdoor")) {
+                    Block targetBlock = player.getTargetBlock(4);
+
+                    if (targetBlock == null || !targetBlock.getType().name().endsWith("_DOOR")) {
+                        player.sendMessage(plugin.getMessage("safehouse-door-set-invalid"));
+                        return false;
+                    }
+
+                    Door door = (Door) targetBlock.getState().getBlockData();
+                    if (door.getHalf() != Bisected.Half.TOP) {
+                        player.sendMessage(plugin.getMessage("safehouse-door-set-invalid-half"));
+                        return false;
+                    }
+                    door.setOpen(false);
+                    safehouse.setDoorLocation(targetBlock.getLocation());
+                    player.sendMessage(plugin.getMessage("safehouse-door-set"));
+                    return true;
+                } else if (args[2].equalsIgnoreCase("setspawn")) {
+                    Location spawnLocation = player.getLocation();
+
+                    if (!safehouseManager.isInsideSafehouse(safehouse, spawnLocation)) {
+                        player.sendMessage(plugin.getMessage("safehouse-spawn-set-invalid"));
+                        return false;
+                    }
+
+                    safehouse.setSpawnLocation(spawnLocation);
+                    player.sendMessage(plugin.getMessage("safehouse-spawn-set"));
+                    return true;
+                } else if (args[2].equalsIgnoreCase("setoutside")) {
+                    Location outsideLocation = player.getLocation();
+
+                    if (safehouseManager.isInsideSafehouse(safehouse, outsideLocation)) {
+                        player.sendMessage(plugin.getMessage("safehouse-outside-set-invalid"));
+                        return false;
+                    }
+
+                    safehouse.setOutsideLocation(outsideLocation);
+                    player.sendMessage(plugin.getMessage("safehouse-outside-set"));
+                    return true;
+                } else if (args[2].equalsIgnoreCase("nextdoorlevel")) {
+                    int updatedLevel = safehouse.increaseDoorLevel();
+                    player.sendMessage(plugin.getMessage("safehouse-door-level-increased")
+                            .replace("{level}", Integer.toString(updatedLevel)));
+                    return true;
+                }
+            } else if (args.length == 4) {
+                if (args[2].equalsIgnoreCase("setowner")) {
+                    if (safehouse.getOwner() != null) {
+                        player.sendMessage(plugin.getMessage("safehouse-setowner-already"));
+                        return false;
+                    }
+
+                    String targetName = args[3];
+                    Player targetPlayer = Bukkit.getPlayer(targetName);
+                    if (targetPlayer == null) {
+                        player.sendMessage(plugin.getMessage("safehouse-setowner-not-found"));
+                        return false;
+                    }
+
+                    safehouse.setOwner(targetPlayer.getUniqueId());
+                    player.sendMessage(plugin.getMessage("safehouse-setowner-set"));
 
                     return true;
-                } else if (args[2].equalsIgnoreCase("tp") && hasPermission(sender, Permission.CMD_CINEMATIC_TP)) {
-
-                    Optional<Location> cinematicLoc = locationManager.getCinematicLoc(character);
-                    if (cinematicLoc.isPresent()) {
-                        // teleport the player
-                        player.sendMessage(plugin.getMessage("cinematic-location-tp")
-                                .replace("{character}", character.name().toLowerCase()));
-                        PaperLib.teleportAsync(player, cinematicLoc.get());
-                        player.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-                    } else {
-                        // the location is not present
-                        player.sendMessage(plugin.getMessage("cinematic-location-none")
-                                .replace("{character}", character.name().toLowerCase()));
+                } else if (args[2].equalsIgnoreCase("settype")) {
+                    Optional<Safehouse.Type> safehouseTypeOpt = Safehouse.Type.fromString(args[3]);
+                    if (safehouseTypeOpt.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-settype-invalid"));
+                        return false;
                     }
+
+                    safehouse.setType(safehouseTypeOpt.get());
+                    player.sendMessage(plugin.getMessage("safehouse-settype-set"));
                     return true;
                 }
             }
@@ -389,7 +645,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         }
 
         return switch (args.length) {
-            case 0, 1 -> List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "story");
+            case 0, 1 ->
+                    List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "safehouse", "story", "reset");
             case 2 -> {
                 if (args[0].equalsIgnoreCase("stories") || args[0].equalsIgnoreCase("story")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
@@ -400,6 +657,10 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(Character::name)
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
+                } else if (args[0].equalsIgnoreCase("safehouse")) {
+                    yield Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), Stream.of("boosters", "door")).toList();
+                } else if (args[0].equalsIgnoreCase("reset")) {
+                    yield Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), Stream.of("all")).toList();
                 }
                 yield Collections.emptyList();
             }
@@ -408,6 +669,16 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     yield List.of("set", "tp");
                 } else if (args[0].equalsIgnoreCase("story")) {
                     yield List.of("nextlevel");
+                } else if (args[0].equalsIgnoreCase("reset")) {
+                    yield List.of("current", "history");
+                } else if (args[0].equalsIgnoreCase("safehouse")) {
+                    yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel", "setowner", "settype");
+                }
+                yield Collections.emptyList();
+            }
+            case 4 -> {
+                if (args[0].equalsIgnoreCase("safehouse") && args[2].equalsIgnoreCase("settype")) {
+                    yield Arrays.stream(Safehouse.Type.values()).map(Safehouse.Type::name).toList();
                 }
                 yield Collections.emptyList();
             }

@@ -20,6 +20,8 @@
 | ablockalypse.cmd.cinematic.set     | Access to _/ablockalypse cinematic <character> set_ to set a character cinematic location  |
 | ablockalypse.cmd.cinematic.tp      | Access to _/ablockalypse cinematic <character> tp_ to tp to a character cinematic location |
 | ablockalypse.cmd.cinematic.tp      | Access to _/ablockalypse cinematic <character> tp_ to tp to a character cinematic location |
+| ablockalypse.cmd.reset             | Access to _/ablockalypse reset_ subcommands to reset stories                               |
+| ablockalypse.cmd.safehouse         | Access to _/ablockalypse safehouse_ commands                                               |
 | ablockalypse.canselect.<CHARACTER> | Ability to select a specific character from the backstory menu                             |
 
 ## PAPI placeholders
@@ -39,3 +41,4 @@
 | %ablockalypse_alltop_survivaltime_X_character%         | Display name of the story character at the X position on the top survival time leaderboard                         |
 | %ablockalypse_alltop_survivaltime_CHARATER_X_name%     | Name of the player at the X position on the top survival time leaderboard of the given character(X is a number)    |
 | %ablockalypse_alltop_survivaltime_CHARATER_X_playtime% | Formatted survival time of the story at the X position on the top survival time leaderboard by the given character |
+| %ablockalypse_safehouse_door_lvl%                      | Display the level of the safehouse door or 0 if the player isn't part of any safehouse                             |

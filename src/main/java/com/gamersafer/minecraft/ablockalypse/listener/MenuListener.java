@@ -6,6 +6,11 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseBoostersMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseDoorMenu;
+import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
+import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import com.gamersafer.minecraft.ablockalypse.story.OnboardingSessionData;
 import io.papermc.lib.PaperLib;
 import net.kyori.adventure.text.Component;
@@ -40,11 +45,16 @@ public class MenuListener implements Listener {
     private final AblockalypsePlugin plugin;
     private final StoryStorage storyStorage;
     private final LocationManager locationManager;
+    private final SafehouseManager safehouseManager;
+    private final BoosterManager boosterManager;
 
-    public MenuListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager) {
+    public MenuListener(AblockalypsePlugin plugin, StoryStorage storyStorage, LocationManager locationManager,
+                        SafehouseManager safehouseManager, BoosterManager boosterManager) {
         this.plugin = plugin;
         this.storyStorage = storyStorage;
         this.locationManager = locationManager;
+        this.safehouseManager = safehouseManager;
+        this.boosterManager = boosterManager;
 
         reload();
     }
@@ -156,6 +166,35 @@ public class MenuListener implements Listener {
                 } else if (event.getRawSlot() == PastStoriesMenu.PREVIOUS_PAGE_SLOT) {
                     pastStoriesMenu.openNextPage((Player) event.getWhoClicked());
                 }
+            }
+        } else if (event.getInventory().getHolder() instanceof SafehouseDoorMenu doorMenu) {
+            // door upgrades menu
+            event.setCancelled(true);
+
+            if (event.getCurrentItem() != null) {
+                Safehouse safehouse = doorMenu.getSafehouse();
+                int currentDoorLevel = safehouse.getDoorLevel();
+                Player player = (Player) event.getWhoClicked();
+                if ((event.getRawSlot() == SafehouseDoorMenu.SLOT_LEVEL_2 && currentDoorLevel == 1)
+                        || (event.getRawSlot() == SafehouseDoorMenu.SLOT_LEVEL_3 && currentDoorLevel == 2)) {
+                    boolean success = safehouseManager.tryUpgradeDoor(safehouse, player);
+                    if (success) {
+                        player.sendMessage(plugin.getMessage("safehouse-upgrade-door-success")
+                                .replace("{level}", Integer.toString(safehouse.getDoorLevel() + 1)));
+                        player.closeInventory();
+                    } else {
+                        player.sendMessage(plugin.getMessage("safehouse-upgrade-door-failure"));
+                    }
+                } else if (event.getRawSlot() == SafehouseDoorMenu.SLOT_LEVEL_3 && currentDoorLevel < 2) {
+                    player.sendMessage(plugin.getMessage("safehouse-upgrade-door-level-2-first"));
+                }
+            }
+        } else if (event.getInventory().getHolder() instanceof SafehouseBoostersMenu boostersMenu) {
+            // boosters menu
+            event.setCancelled(true);
+
+            if (event.getCurrentItem() != null) {
+                boostersMenu.handleClick(event.getRawSlot(), safehouseManager, boosterManager);
             }
         }
     }

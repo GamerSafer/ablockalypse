@@ -107,9 +107,21 @@ public enum Booster {
         this.head = head;
     }
 
+    /**
+     * Gives this booster potion effect to the given player.
+     * If the player has an active higher potion effect of the same type, it won't be replaced.
+     * If there isn't a potion effect type for this booster, nothing happens.
+     *
+     * @param player who should get the potion effect
+     */
     void give(Player player) {
         if (potionEffectType != null) {
-            player.addPotionEffect(new PotionEffect(potionEffectType, 20 * 6, 1));
+            boolean hasHigherAmplifier = player.getActivePotionEffects().stream()
+                    .filter(potionEffect -> potionEffect.getType() == potionEffectType)
+                    .anyMatch(potionEffect -> potionEffect.getAmplifier() > 1);
+            if (!hasHigherAmplifier) {
+                player.addPotionEffect(new PotionEffect(potionEffectType, 20 * 6, 1));
+            }
         }
     }
 

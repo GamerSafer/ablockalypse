@@ -10,6 +10,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.ChunkUnloadListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamageListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityDamagedByEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityInteractEntityListener;
+import com.gamersafer.minecraft.ablockalypse.listener.EntityPotionEffectListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
 import com.gamersafer.minecraft.ablockalypse.listener.HDBLoadListener;
@@ -104,6 +105,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityDamagedByEntityListener(boosterManager), this);
         getServer().getPluginManager().registerEvents(new EntityDamageListener(storyStorage), this);
         getServer().getPluginManager().registerEvents(new EntityInteractEntityListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityPotionEffectListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage, boosterManager), this);
         getServer().getPluginManager().registerEvents(new HDBLoadListener(), this);

@@ -2,10 +2,12 @@ package com.gamersafer.minecraft.ablockalypse.listener;
 
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseDoorMenu;
 import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
 import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import me.NoChance.PvPManager.PvPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -70,6 +72,12 @@ public class PlayerInteractListener implements Listener {
                 event.setCancelled(true);
                 Safehouse safehouse = clickedSafehouse.get();
 
+                // open door upgrade menu
+                if (player.isSneaking() && safehouse.isOwner(player)) {
+                    new SafehouseDoorMenu(safehouse).open(player);
+                    return;
+                }
+
                 // allow anyone to exit safehouses
                 if (safehouseManager.isInsideSafehouse(safehouse, player.getLocation()) && safehouse.getOutsideLocation() != null) {
                     // remove boosters and teleport outside
@@ -118,7 +126,10 @@ public class PlayerInteractListener implements Listener {
                                 if (claimingClicks.get(player.getUniqueId()).getMillisSinceFirstClick() >= claimingDurationSeconds * 1000L) {
                                     if (claimingClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= MILLIS_BETWEEN_INTERACTIONS) {
                                         Optional<Safehouse> previousSafehouseOpt = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
-                                        previousSafehouseOpt.ifPresent(Safehouse::removeOwner);
+                                        previousSafehouseOpt.ifPresent(previousSafehouse -> {
+                                            previousSafehouse.removeOwner();
+                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi removehome home " + player.getName());
+                                        });
                                         Optional<Player> previousOwnerOpt = safehouse.getPreviousOwnerPlayer();
                                         if (previousOwnerOpt.isPresent() && !previousOwnerOpt.get().getUniqueId().equals(player.getUniqueId())) {
                                             previousOwnerOpt.get().sendMessage(plugin.getMessage("claim-done-previous-owner"));
@@ -160,7 +171,7 @@ public class PlayerInteractListener implements Listener {
                                 player.sendMessage(plugin.getMessage("claim-already-owned"));
                             }
                         }
-                    } else if (safehouseManager.isLockpickOrCrowbar(item)) {
+                    } else if (safehouseManager.isLockpick(item) || safehouseManager.isCrowbar(item)) {
                         // prevent pve players from breaking into safehouses
                         PvPlayer pvPlayer = PvPlayer.get(player);
                         if (!pvPlayer.hasPvPEnabled()) {
@@ -188,6 +199,11 @@ public class PlayerInteractListener implements Listener {
 
                         // duration based on door level
                         int breakingInDurationSeconds = safehouseManager.getBreakInDuration(player, safehouse);
+
+                        // decrease duration if the player used a crowbar
+                        if (safehouseManager.isCrowbar(item)) {
+                            breakingInDurationSeconds *= .75;
+                        }
 
                         if (breakingInClicks.containsKey(player.getUniqueId())) {
                             if (breakingInClicks.get(player.getUniqueId()).getMillisSinceFirstClick() >= breakingInDurationSeconds * 1000L) {

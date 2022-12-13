@@ -31,7 +31,7 @@ public class RepairItemListener implements Listener {
     private void onItemRepair(PrepareItemCraftEvent event) {
         Player player;
         try {
-            player = (Player) event.getInventory().getViewers().get(0)
+            player = (Player) event.getInventory().getViewers().get(0);
         } catch (IndexOutOfBoundsException ignore) {
             return;
         }

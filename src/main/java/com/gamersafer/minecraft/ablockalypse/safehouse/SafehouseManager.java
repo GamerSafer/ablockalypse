@@ -6,6 +6,7 @@ import com.alessiodp.parties.api.interfaces.Party;
 import com.gamersafer.minecraft.ablockalypse.AblockalypsePlugin;
 import com.gamersafer.minecraft.ablockalypse.Character;
 import com.gamersafer.minecraft.ablockalypse.database.api.SafehouseStorage;
+import com.gamersafer.minecraft.ablockalypse.util.BlockUtil;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
@@ -28,10 +29,13 @@ import org.bukkit.inventory.ItemStack;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -40,6 +44,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public class SafehouseManager {
+
+    /**
+     * The cost of upgrading a safehouse door.
+     * <p>
+     * The key is the door level, the value is the cost in planks and sheet metal.
+     */
+    private final static Map<Integer, Integer> DOOR_COST = Map.of(2, 5, 3, 8);
+
+    /**
+     * The type of blocks to remove when clearing safehouses.
+     */
+    private final static Set<Material> WIPE_BLOCKS = Set.of(
+            Material.CHEST,
+            Material.TRAPPED_CHEST,
+            Material.BARRIER,
+            Material.BROWN_SHULKER_BOX,
+            Material.YELLOW_SHULKER_BOX
+    );
 
     private final World safehouseWorld;
     private final SafehouseStorage safehouseStorage;
@@ -58,6 +80,92 @@ public class SafehouseManager {
         this.raidTimeScheduler = Executors.newScheduledThreadPool(1);
 
         reload();
+    }
+
+    /**
+     * Gets how much it costs to upgrade a safehouse door at the given level.
+     *
+     * @param level the level
+     * @return the cost in scrap metala
+     */
+    public static int getDoorLevelCost(int level) {
+        if (!DOOR_COST.containsKey(level)) {
+            throw new IllegalArgumentException("No door level " + level);
+        }
+        return DOOR_COST.get(level);
+    }
+
+    /**
+     * Tries to upgrade the door of the given safehouse.
+     *
+     * @param safehouse the safehouse whose door to upgrade
+     * @param player    the player who is trying to upgrade the door. they must be the safehouse owner.
+     * @return true if the door was upgraded, false if the player does not have enough scrap metal
+     */
+    public boolean tryUpgradeDoor(Safehouse safehouse, Player player) {
+        if (!player.getUniqueId().equals(safehouse.getOwner())) {
+            throw new IllegalArgumentException("Only owners can upgrade doors");
+        }
+
+        // make sure the player has enough resources to upgrade the door
+        int plankAmount = 0;
+        int sheetMetalAmount = 0;
+        ItemStack plankItem = null;
+        ItemStack sheetMetalItem = null;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null) {
+                continue;
+            }
+            NBTItem nbtItem = NBTItem.get(item);
+            if (nbtItem.hasType()) {
+                if ("PLANK".equals(nbtItem.getString("MMOITEMS_ITEM_ID"))) {
+                    if (plankItem == null) {
+                        plankItem = item.clone();
+                    }
+                    plankAmount += item.getAmount();
+                } else if ("SHEETMETAL".equals(nbtItem.getString("MMOITEMS_ITEM_ID"))) {
+                    sheetMetalAmount += item.getAmount();
+                    if (sheetMetalItem == null) {
+                        sheetMetalItem = item.clone();
+                    }
+                }
+            }
+        }
+        int cost = getDoorLevelCost(safehouse.getDoorLevel() + 1);
+        if (cost < 0 || plankAmount < cost || sheetMetalAmount < cost) {
+            return false;
+        }
+
+        // remove resources
+//        int removedPlans = 0;
+//        int removedSheetMetal = 0;
+//        for (ItemStack item : player.getInventory().getContents()) {
+//            if (removedPlans >= cost && removedSheetMetal >= cost) {
+//                break;
+//            }
+//            if (item == null) {
+//                continue;
+//            }
+//            NBTItem nbtItem = NBTItem.get(item);
+//            if (nbtItem.hasType()) {
+//                if ("PLANK".equals(nbtItem.getString("MMOITEMS_ITEM_ID"))) {
+//                    if (item.)
+//                    removedPlans += item.getAmount();
+//                } else if ("SHEETMETAL".equals(nbtItem.getString("MMOITEMS_ITEM_ID"))) {
+//                    removedSheetMetal += item.getAmount();
+//                }
+//            }
+//        }
+        //noinspection DataFlowIssue
+        plankItem.setAmount(cost);
+        player.getInventory().removeItem(plankItem);
+        //noinspection DataFlowIssue
+        sheetMetalItem.setAmount(cost);
+        player.getInventory().removeItem(sheetMetalItem);
+
+        // finally, increase the door level
+        safehouse.increaseDoorLevel();
+        return true;
     }
 
     public void reload() {
@@ -95,11 +203,23 @@ public class SafehouseManager {
         }
     }
 
+    /**
+     * Create a safehouse at the given WG region name.
+     *
+     * @param regionName the WG region name
+     * @return the created safehouse
+     */
     public CompletableFuture<Safehouse> createSafehouse(String regionName) {
         Safehouse safehouse = new Safehouse(regionName);
         return safehouseStorage.createSafehouse(safehouse);
     }
 
+    /**
+     * Deletes a safehouse from the database and removes all its contents.
+     *
+     * @param safehouse the safehouse to delete
+     * @return a future that completes when the safehouse has been deleted
+     */
     public CompletableFuture<Void> deleteSafehouse(Safehouse safehouse) {
         return safehouseStorage.deleteSafehouse(safehouse).thenAccept(unused -> {
             // remove house furniture
@@ -125,23 +245,53 @@ public class SafehouseManager {
                     .filter(entity -> entity.getType() == EntityType.ARMOR_STAND)
                     .forEach(Entity::remove);
 
-            // remove chests
+            // remove chests, barriers, and shulker boxes
             for (BlockVector3 blockVector : region.getBoundingBox()) {
                 Location bukkitLocation = BukkitAdapter.adapt(safehouseWorld, blockVector);
                 Block block = bukkitLocation.getBlock();
-                if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST || block.getType() == Material.BARRIER) {
+                if (WIPE_BLOCKS.contains(block.getType())) {
                     block.setType(Material.AIR);
                 }
             }
         }
+
+        // reset the door material
+        BlockUtil.updateDoorMaterial(safehouse.getDoorLocation(), Material.WARPED_DOOR);
     }
 
+    /**
+     * Gets all the entities inside the given safehouse.
+     *
+     * @param safehouse the safehouse
+     */
+    public Collection<Entity> getEntitiesInSafehouse(Safehouse safehouse) {
+        ProtectedRegion protectedRegion = regionManager.getRegion(safehouse.getRegionName());
+        if (protectedRegion != null) {
+            Region region = new CuboidRegion(protectedRegion.getMaximumPoint(), protectedRegion.getMinimumPoint());
+            Location centerLoc = new Location(safehouseWorld, region.getCenter().getX(), region.getCenter().getY(), region.getCenter().getZ());
+            return safehouseWorld.getNearbyEntities(centerLoc, region.getWidth() >> 1, region.getHeight() >> 1, region.getLength() >> 1);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Gets the safehouse configured at the given WG region.
+     *
+     * @param regionName the name of the WG region
+     * @return the safehouse or an empty optional if no safehouse is configured at the given region
+     */
     public Optional<Safehouse> getSafehouseFromRegion(String regionName) {
         return safehouseStorage.getAllSafehouses().join().stream()
                 .filter(safehouse -> safehouse.getRegionName().equals(regionName))
                 .findAny();
     }
 
+    /**
+     * Gets the safehouse where the given location is in.
+     *
+     * @param location the inside location
+     * @return the safehouse or an empty optional if the location is not in a safehouse
+     */
     public Optional<Safehouse> getSafehouseAt(Location location) {
         ApplicableRegionSet regionSet = regionManager.getApplicableRegions(BukkitAdapter.asBlockVector(location));
         List<String> regionsAtLocation = regionSet.getRegions().stream()
@@ -153,12 +303,24 @@ public class SafehouseManager {
                 .findAny();
     }
 
+    /**
+     * Gets the safehouse with the given id.
+     *
+     * @param safehouseID the id of the safehouse
+     * @return the safehouse with the given id or an empty optional if no safehouse with the given id exists
+     */
     public Optional<Safehouse> getSafehouseFromID(int safehouseID) {
         return safehouseStorage.getAllSafehouses().join().stream()
                 .filter(safehouse -> safehouse.getId() == safehouseID)
                 .findAny();
     }
 
+    /**
+     * Tries to get the safehouse associated with the given door.
+     *
+     * @param door the entrance door
+     * @return the safehouse or an empty optional if the door is not a safehouse door
+     */
     public Optional<Safehouse> getSafehouseFromDoor(Block door) {
         if (door == null || !door.getType().name().endsWith("_DOOR")) {
             return Optional.empty();
@@ -221,6 +383,9 @@ public class SafehouseManager {
     /**
      * Checks whether the given player is allowed to access the passed safehouse.
      * Players are allowed to enter houses they own and houses owned by party members.
+     * <p>
+     * If a player raids a house, them, their party, the previous owner, and their party
+     * members are allowed to enter the house for 10 minutes after the raid.
      *
      * @param safehouse  the safehouse
      * @param playerUuid the player UUId
@@ -233,20 +398,42 @@ public class SafehouseManager {
 
         PartiesAPI api = Parties.getApi();
         Party playerParty = api.getPartyOfPlayer(playerUuid);
-        Party ownerParty = api.getPartyOfPlayer(safehouse.getOwner());
+        if (playerParty != null) {
+            for (UUID canClaimPlayerUUID : safehouse.getCanClaimPlayers()) {
+                if (playerUuid.equals(canClaimPlayerUUID)) {
+                    return true;
+                }
 
-        return playerParty != null && ownerParty != null && playerParty.getId().equals(ownerParty.getId());
+                Party canClaimPlayerParty = api.getPartyOfPlayer(canClaimPlayerUUID);
+                if (canClaimPlayerParty != null && playerParty.getId().equals(canClaimPlayerParty.getId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
+    /**
+     * Gets the nearest safehouse unclaimed safehouse of type {@link Safehouse.Type#SAFEHOUSE} to the passed location.
+     *
+     * @param from the starting location
+     * @return the closest safehouse, or an empty optional if no safehouse was found
+     */
     public Optional<Safehouse> getNearestUnclaimedSafehouse(Location from) {
         return safehouseStorage.getAllSafehouses().join().stream()
                 .filter(Predicate.not(Safehouse::isClaimed))
                 .filter(safehouse -> safehouse.getDoorLocation() != null)
+                .filter(safehouse -> safehouse.getType() == Safehouse.Type.SAFEHOUSE)
                 .filter(safehouse -> safehouse.getDoorLocation().getWorld().equals(from.getWorld()))
                 .min(Comparator.comparingDouble(safehouse -> safehouse.getDoorLocation().distanceSquared(from)));
         // todo test the comparator above
     }
 
+    /**
+     * Gets a list containing all the names of the WG regions where a safehouse is configured.
+     *
+     * @return all WG region names
+     */
     public List<String> getSafehouseRegionNamesIds() {
         return safehouseStorage.getAllSafehouses().join().stream()
                 .<String>mapMulti((safehouse, objectConsumer) -> {
@@ -274,7 +461,7 @@ public class SafehouseManager {
      * @return the duration in seconds
      */
     public int getBreakInDuration(Player player, Safehouse safehouse) {
-        int result = safehouse.getDoorLevel() * 5; // todo ask tim the duration
+        int result = 5 + safehouse.getDoorLevel() * 5;
 
         // we can assume that when this method is called, the active story exists and is in the cache
         //noinspection OptionalGetWithoutIsPresent
@@ -294,8 +481,9 @@ public class SafehouseManager {
      * @param safehouse the safehouse they are trying to claim
      * @return the duration in seconds
      */
+    @SuppressWarnings("unused")
     public int getClaimingDuration(Player player, Safehouse safehouse) {
-        return safehouse.getDoorLevel() * 5; // todo ask tim the duration
+        return 3;
     }
 
     /**
@@ -314,18 +502,33 @@ public class SafehouseManager {
     }
 
     /**
-     * Checks whether the given item is a lockpick or a crowbar.
+     * Checks whether the given item is a lockpick
      * These items can be used to break in houses.
      *
      * @param item the item to check
-     * @return {@code true} if the item is a lockpick or crowbar, {@code false} otherwise
+     * @return {@code true} if the item is a lockpick, {@code false} otherwise
      */
-    public boolean isLockpickOrCrowbar(ItemStack item) {
+    public boolean isLockpick(ItemStack item) {
         if (item == null) {
             return false;
         }
         NBTItem nbtItem = NBTItem.get(item);
-        return nbtItem.hasType() && ("CROWBAR".equals(nbtItem.getString("MMOITEMS_ITEM_ID")) || "LOCKPICK".equals(nbtItem.getString("MMOITEMS_ITEM_ID")));
+        return nbtItem.hasType() && "LOCKPICK".equals(nbtItem.getString("MMOITEMS_ITEM_ID"));
+    }
+
+    /**
+     * Checks whether the given item is a crowbar
+     * These items can be used to break in houses.
+     *
+     * @param item the item to check
+     * @return {@code true} if the item is a crowbar, {@code false} otherwise
+     */
+    public boolean isCrowbar(ItemStack item) {
+        if (item == null) {
+            return false;
+        }
+        NBTItem nbtItem = NBTItem.get(item);
+        return nbtItem.hasType() && "CROWBAR".equals(nbtItem.getString("MMOITEMS_ITEM_ID"));
     }
 
     public void shutdown() {

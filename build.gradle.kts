@@ -29,6 +29,7 @@ dependencies {
     compileOnly("net.Indyuce:MMOItems-API:6.7.5-SNAPSHOT") // docs: https://gitlab.com/phoenix-dvpmt/mmoitems/-/wikis/Main%20API%20Features
     compileOnly("io.lumine:MythicLib-dist:1.3.4-SNAPSHOT")
     compileOnly("me.NoChance.PvPManager:PvPManager:3.10.9") // docs: https://github.com/ChanceSD/PvPManager/wiki/Developers
+    compileOnly("com.arcaniax:HeadDatabase-API:1.3.1") // docs: https://github.com/ChanceSD/PvPManager/wiki/Developers
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("io.papermc:paperlib:1.0.7")

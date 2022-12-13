@@ -12,6 +12,7 @@ import com.gamersafer.minecraft.ablockalypse.listener.EntityDamagedByEntityListe
 import com.gamersafer.minecraft.ablockalypse.listener.EntityInteractEntityListener;
 import com.gamersafer.minecraft.ablockalypse.listener.EntityTameListener;
 import com.gamersafer.minecraft.ablockalypse.listener.FoodLevelChangeListener;
+import com.gamersafer.minecraft.ablockalypse.listener.HDBLoadListener;
 import com.gamersafer.minecraft.ablockalypse.listener.MenuListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerBuildListener;
 import com.gamersafer.minecraft.ablockalypse.listener.PlayerDeathListener;
@@ -105,9 +106,10 @@ public class AblockalypsePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityInteractEntityListener(), this);
         getServer().getPluginManager().registerEvents(new EntityTameListener(this, storyStorage), this);
         getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(storyStorage, boosterManager), this);
-        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager), this);
+        getServer().getPluginManager().registerEvents(new HDBLoadListener(), this);
+        getServer().getPluginManager().registerEvents(new MenuListener(this, storyStorage, locationManager, safehouseManager, boosterManager), this);
         getServer().getPluginManager().registerEvents(new PlayerBuildListener(this, safehouseManager), this);
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager, boosterManager), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this, storyStorage, locationManager, boosterManager, safehouseManager), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractListener(this, safehouseManager, boosterManager, storyStorage), this);
         getServer().getPluginManager().registerEvents(new PlayerItemConsumeListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this, storyStorage, locationManager), this);
@@ -156,6 +158,10 @@ public class AblockalypsePlugin extends JavaPlugin {
 
     public SafehouseManager getSafehouseManager() {
         return safehouseManager;
+    }
+
+    public BoosterManager getBoosterManager() {
+        return boosterManager;
     }
 
     public void sendMessage(CommandSender user, String messageId) {

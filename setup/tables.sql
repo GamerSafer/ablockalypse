@@ -26,6 +26,7 @@ CREATE TABLE safehouse
     doorLocation    varchar(48),
     spawnLocation   varchar(48),
     outsideLocation varchar(48),
+    activeBoosters  varchar(256),
     PRIMARY KEY (`id`)
 );
 

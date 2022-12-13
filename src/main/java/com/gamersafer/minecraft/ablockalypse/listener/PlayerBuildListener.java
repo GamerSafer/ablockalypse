@@ -53,4 +53,7 @@ public class PlayerBuildListener implements Listener {
         // todo test whether this listener is invoked when breaking ItemsAdder furniture
     }
 
+    // todo allow only safehouse owner to break furniture inside safehouses. furniture is made of
+    //  armour stands and in some cases, barriers
+
 }

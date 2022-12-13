@@ -3,6 +3,8 @@ package com.gamersafer.minecraft.ablockalypse.util;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -78,6 +80,22 @@ public final class ItemUtil {
         if (lore != null) meta.setLore(lore);
         head.setItemMeta(meta);
         return head;
+    }
+
+    public static ItemStack createItem(Material material, String name, List<String> lore) {
+        ItemStack result = new ItemStack(material);
+        ItemMeta meta = result.getItemMeta();
+        meta.setDisplayName(FormatUtil.color(name));
+        meta.setLore(FormatUtil.color(lore));
+        result.setItemMeta(meta);
+        return result;
+    }
+
+    public static void addItemGlow(ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.addEnchant(Enchantment.DAMAGE_ALL, 1, true);
+        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS); //If you want to hide the enchantment
+        item.setItemMeta(itemMeta);
     }
 
 }

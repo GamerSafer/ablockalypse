@@ -6,6 +6,8 @@ import com.gamersafer.minecraft.ablockalypse.database.api.StoryStorage;
 import com.gamersafer.minecraft.ablockalypse.location.LocationManager;
 import com.gamersafer.minecraft.ablockalypse.menu.CharacterSelectionMenu;
 import com.gamersafer.minecraft.ablockalypse.menu.PastStoriesMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseBoostersMenu;
+import com.gamersafer.minecraft.ablockalypse.menu.SafehouseDoorMenu;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Booster;
 import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
@@ -26,6 +28,8 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Door;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -419,6 +423,22 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
                     return true;
                 }
+            } else if (args[0].equalsIgnoreCase("safehouse")) {
+                Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
+                if (args[1].equalsIgnoreCase("boosters")) {
+                    if (safehouseOptional.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                        return false;
+                    }
+
+                    new SafehouseBoostersMenu(player, safehouseOptional.get()).open();
+                } else if (args[1].equalsIgnoreCase("door")) {
+                    if (safehouseOptional.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                        return false;
+                    }
+                    new SafehouseDoorMenu(safehouseOptional.get()).open(player);
+                }
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("cinematic")) {
             // validate character type
@@ -533,6 +553,12 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         return false;
                     }
 
+                    Door door = (Door) targetBlock.getState().getBlockData();
+                    if (door.getHalf() != Bisected.Half.TOP) {
+                        player.sendMessage(plugin.getMessage("safehouse-door-set-invalid-half"));
+                        return false;
+                    }
+                    door.setOpen(false);
                     safehouse.setDoorLocation(targetBlock.getLocation());
                     player.sendMessage(plugin.getMessage("safehouse-door-set"));
                     return true;
@@ -632,7 +658,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
                 } else if (args[0].equalsIgnoreCase("safehouse")) {
-                    yield safehouseManager.getSafehouseRegionNamesIds();
+                    yield Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), Stream.of("boosters", "door")).toList();
                 } else if (args[0].equalsIgnoreCase("reset")) {
                     yield Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), Stream.of("all")).toList();
                 }

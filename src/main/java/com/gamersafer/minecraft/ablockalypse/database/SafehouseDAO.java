@@ -1,6 +1,7 @@
 package com.gamersafer.minecraft.ablockalypse.database;
 
 import com.gamersafer.minecraft.ablockalypse.database.api.SafehouseStorage;
+import com.gamersafer.minecraft.ablockalypse.safehouse.Booster;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
 import com.gamersafer.minecraft.ablockalypse.util.UUIDUtil;
 import com.google.common.io.BaseEncoding;
@@ -21,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class SafehouseDAO implements SafehouseStorage {
 
@@ -46,12 +48,25 @@ public class SafehouseDAO implements SafehouseStorage {
                     doorLocation    varchar(48),
                     spawnLocation   varchar(48),
                     outsideLocation varchar(48),
+                    activeBoosters  varchar(256),
                     PRIMARY KEY (`id`)
                 );
                 """;
         CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection(); PreparedStatement safehouseStatement = conn.prepareStatement(tableSafehouseQuery)) {
                 safehouseStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, executor).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
+        // todo remove once updated on production
+        CompletableFuture.runAsync(() -> {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement updateSchemaStatement = conn.prepareStatement("ALTER TABLE safehouse ADD COLUMN IF NOT EXISTS activeBoosters varchar(256)")) {
+                updateSchemaStatement.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -132,7 +147,8 @@ public class SafehouseDAO implements SafehouseStorage {
                                 parseLocation(resultSet.getString("doorLocation")),
                                 parseLocation(resultSet.getString("spawnLocation")),
                                 parseLocation(resultSet.getString("outsideLocation")),
-                                ownerUuid
+                                ownerUuid,
+                                parseSet(resultSet.getString("activeBoosters"), Booster.class)
                         );
 
                         safehouses.add(safehouse);
@@ -151,7 +167,7 @@ public class SafehouseDAO implements SafehouseStorage {
     @Override
     public CompletableFuture<Void> updateSafehouses(Set<Safehouse> safehouses) {
         return CompletableFuture.runAsync(() -> {
-            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE safehouse SET houseType = ?, ownerUuid = UNHEX(?), doorLevel = ?, doorLocation = ?, spawnLocation = ?, outsideLocation = ? WHERE id = ?;")) {
+            try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE safehouse SET houseType = ?, ownerUuid = UNHEX(?), doorLevel = ?, doorLocation = ?, spawnLocation = ?, outsideLocation = ?, activeBoosters = ? WHERE id = ?;")) {
                 for (Safehouse safehouse : safehouses) {
                     String uuidStr = null;
                     if (safehouse.getOwner() != null) {
@@ -163,7 +179,8 @@ public class SafehouseDAO implements SafehouseStorage {
                     statement.setString(4, serializeLocation(safehouse.getDoorLocation()));
                     statement.setString(5, serializeLocation(safehouse.getSpawnLocation()));
                     statement.setString(6, serializeLocation(safehouse.getOutsideLocation()));
-                    statement.setInt(7, safehouse.getId());
+                    statement.setString(7, serializeSet(safehouse.getActiveBoosters()));
+                    statement.setInt(8, safehouse.getId());
 
                     statement.addBatch();
                 }
@@ -209,6 +226,24 @@ public class SafehouseDAO implements SafehouseStorage {
                 Float.parseFloat(split[4]),
                 Float.parseFloat(split[5])
         );
+    }
+
+    private <T extends Enum<T>> String serializeSet(Set<T> set) {
+        if (set == null) {
+            return null;
+        }
+        return set.stream().map(Enum::name).collect(Collectors.joining(","));
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private <T extends Enum<T>> Set<T> parseSet(String setStr, Class<T> enumClass) {
+        Set<T> set = new HashSet<>();
+        if (setStr != null && !setStr.isEmpty()) {
+            for (String str : setStr.split(",")) {
+                set.add(Enum.valueOf(enumClass, str));
+            }
+        }
+        return set;
     }
 
     private double truncateDouble(double value) {

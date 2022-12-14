@@ -18,6 +18,7 @@ public class Safehouse {
 
     private final String regionName;
     private final Set<UUID> canClaim;
+    private final Set<Booster> activeBoosters;
     private Type type;
     private int id;
     private int doorLevel;
@@ -26,7 +27,6 @@ public class Safehouse {
     private Location outsideLocation;
     private UUID owner;
     private UUID previousOwner;
-    private Set<Booster> activeBoosters;
 
     public Safehouse(String regionName) {
         this(0, regionName, Type.SAFEHOUSE, 1, null, null, null,
@@ -201,10 +201,12 @@ public class Safehouse {
     }
 
     public void removeOwner() {
+        String ownerName = Bukkit.getOfflinePlayer(owner).getName();
         this.previousOwner = null;
         this.owner = null;
         this.canClaim.clear();
         this.activeBoosters.clear();
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi removehome home " + ownerName);
     }
 
     /**

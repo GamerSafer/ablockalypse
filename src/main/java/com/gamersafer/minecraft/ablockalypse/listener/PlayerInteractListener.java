@@ -72,8 +72,9 @@ public class PlayerInteractListener implements Listener {
                 event.setCancelled(true);
                 Safehouse safehouse = clickedSafehouse.get();
 
-                // open door upgrade menu
-                if (player.isSneaking() && safehouse.isOwner(player)) {
+                // open door upgrade menu. do not open if they recently claimed it
+                if (player.isSneaking() && safehouse.isOwner(player) && (!claimingClicks.containsKey(player.getUniqueId())
+                                                                         || claimingClicks.get(player.getUniqueId()).getMillisSinceLastClick() > 1500L)) {
                     new SafehouseDoorMenu(safehouse).open(player);
                     return;
                 }
@@ -115,7 +116,7 @@ public class PlayerInteractListener implements Listener {
 
                             // check if the player who is trying to claim this house already owns one house
                             if (warnedOwners.getOrDefault(player.getUniqueId(), -1) != safehouse.getId()
-                                    && safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId()).isPresent()) {
+                                && safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId()).isPresent()) {
                                 // the player already owns a house. notify they will lose their house and its content if they claim this one
                                 player.sendMessage(plugin.getMessage("claim-already-own"));
                                 warnedOwners.put(player.getUniqueId(), safehouse.getId());
@@ -233,7 +234,7 @@ public class PlayerInteractListener implements Listener {
                             startBreakIn(player, safehouse, breakingInDurationSeconds);
                         }
                     } else if ((!claimingClicks.containsKey(player.getUniqueId()) || claimingClicks.get(player.getUniqueId()).getMillisSinceLastClick() > MILLIS_BETWEEN_INTERACTIONS + 1000)
-                            && (!breakingInClicks.containsKey(player.getUniqueId()) || breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() > MILLIS_BETWEEN_INTERACTIONS + 1000)) {
+                               && (!breakingInClicks.containsKey(player.getUniqueId()) || breakingInClicks.get(player.getUniqueId()).getMillisSinceLastClick() > MILLIS_BETWEEN_INTERACTIONS + 1000)) {
                         if (safehouse.isClaimed()) {
                             player.sendMessage(plugin.getMessage("safehouse-click-claimed"));
                         } else {

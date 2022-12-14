@@ -167,7 +167,7 @@ public class PlayerInteractListener implements Listener {
                         } else {
                             if (safehouse.wasRecentlyRaided()) {
                                 // the house was recently raided and this player is not allowed to claim it yet
-                                player.sendMessage(plugin.getMessage("raid-recent-no"));
+                                player.sendMessage(plugin.getMessage("claim-recent-no"));
                             } else {
                                 player.sendMessage(plugin.getMessage("claim-already-owned"));
                             }

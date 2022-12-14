@@ -658,7 +658,11 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
                 } else if (args[0].equalsIgnoreCase("safehouse")) {
-                    yield Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), Stream.of("boosters", "door")).toList();
+                    Stream<String> result = Stream.of("boosters", "door");
+                    if (sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
+                        result = Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), result);
+                    }
+                    yield result.toList();
                 } else if (args[0].equalsIgnoreCase("reset")) {
                     yield Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), Stream.of("all")).toList();
                 }
@@ -671,13 +675,13 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     yield List.of("nextlevel");
                 } else if (args[0].equalsIgnoreCase("reset")) {
                     yield List.of("current", "history");
-                } else if (args[0].equalsIgnoreCase("safehouse")) {
+                } else if (args[0].equalsIgnoreCase("safehouse") && sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
                     yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel", "setowner", "settype");
                 }
                 yield Collections.emptyList();
             }
             case 4 -> {
-                if (args[0].equalsIgnoreCase("safehouse") && args[2].equalsIgnoreCase("settype")) {
+                if (args[0].equalsIgnoreCase("safehouse") && args[2].equalsIgnoreCase("settype") && sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
                     yield Arrays.stream(Safehouse.Type.values()).map(Safehouse.Type::name).toList();
                 }
                 yield Collections.emptyList();

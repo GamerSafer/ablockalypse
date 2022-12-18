@@ -392,7 +392,7 @@ public class SafehouseManager {
      * @return {@code true} if they can access, {@code false} otherwise
      */
     public boolean canAccess(Safehouse safehouse, UUID playerUuid) {
-        if (playerUuid.equals(safehouse.getOwner())) {
+        if (playerUuid.equals(safehouse.getOwner()) || safehouse.getCanClaimPlayers().contains(playerUuid)) {
             return true;
         }
 
@@ -400,10 +400,6 @@ public class SafehouseManager {
         Party playerParty = api.getPartyOfPlayer(playerUuid);
         if (playerParty != null) {
             for (UUID canClaimPlayerUUID : safehouse.getCanClaimPlayers()) {
-                if (playerUuid.equals(canClaimPlayerUUID)) {
-                    return true;
-                }
-
                 Party canClaimPlayerParty = api.getPartyOfPlayer(canClaimPlayerUUID);
                 if (canClaimPlayerParty != null && playerParty.getId().equals(canClaimPlayerParty.getId())) {
                     return true;

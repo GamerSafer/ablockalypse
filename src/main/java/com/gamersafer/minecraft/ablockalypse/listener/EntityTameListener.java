@@ -50,7 +50,7 @@ public class EntityTameListener implements Listener {
             }
 
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
-                if (story.isEmpty() || story.get().character() != Character.DOG_WALKER) {
+                if (story.isEmpty() || story.get().character() != Character.VETERINARIAN) {
                     // the player is not a dog walker, they can't tame wolves
                     event.setCancelled(true);
                     plugin.sendMessage(player, "tame-wolf-only-dogwalker");

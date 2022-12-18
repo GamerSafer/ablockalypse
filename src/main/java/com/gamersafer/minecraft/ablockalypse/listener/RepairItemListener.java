@@ -46,7 +46,7 @@ public class RepairItemListener implements Listener {
         if (containsArmor) {
             // check whether the player is a farmer. that's the only character allowed to repair armor
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
-                if (story.isEmpty() || story.get().character() != Character.FARMER) {
+                if (story.isEmpty() || story.get().character() != Character.TAILOR) {
                     // cancel the event and send feedback message
                     event.getInventory().setResult(null);
                     plugin.sendMessage(player, "anvil-armor-no");
@@ -55,7 +55,7 @@ public class RepairItemListener implements Listener {
         } else if (containsWeapon) {
             // check whether the player is a mechanic. that's the only character allowed to repair weapons
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
-                if (story.isEmpty() || story.get().character() != Character.MECHANIC) {
+                if (story.isEmpty() || story.get().character() != Character.REPAIR_TECH) {
                     // cancel the event and send feedback message
                     event.getInventory().setResult(null);
                     plugin.sendMessage(player, "anvil-weapon-no");
@@ -80,7 +80,7 @@ public class RepairItemListener implements Listener {
         if (ItemUtil.ARMOR.contains(firstItem.getType())) {
             // check whether the player is a farmer. that's the only character allowed to repair armor
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
-                if (story.isEmpty() || story.get().character() != Character.FARMER) {
+                if (story.isEmpty() || story.get().character() != Character.TAILOR) {
                     // cancel the event and send feedback message
                     event.getInventory().setRepairCost(0);
                     event.setResult(null);
@@ -90,7 +90,7 @@ public class RepairItemListener implements Listener {
         } else if (ItemUtil.WEAPONS.contains(firstItem.getType())) {
             // check whether the player is a mechanic. that's the only character allowed to repair weapons
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
-                if (story.isEmpty() || story.get().character() != Character.MECHANIC) {
+                if (story.isEmpty() || story.get().character() != Character.REPAIR_TECH) {
                     // cancel the event and send feedback message
                     event.getInventory().setRepairCost(0);
                     event.setResult(null);

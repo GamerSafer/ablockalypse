@@ -31,7 +31,7 @@ public class FoodLevelChangeListener implements Listener {
                             int average = (player.getFoodLevel() + event.getFoodLevel()) / 2;
                             event.setFoodLevel(average);
                         }
-                    } else if (story.get().character() == Character.CHEF) {
+                    } else if (story.get().character() == Character.COOK) {
                         // Chef - Raises effectiveness of all foods
                         int foodLevelIncrease = event.getFoodLevel() - player.getFoodLevel();
                         if (foodLevelIncrease > 0) {

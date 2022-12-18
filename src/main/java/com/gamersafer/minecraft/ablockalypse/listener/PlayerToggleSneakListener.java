@@ -19,7 +19,7 @@ public class PlayerToggleSneakListener implements Listener {
     private void onToggleSneak(PlayerToggleSneakEvent event) {
         // I.T Consultant - Moves faster while sneaking
         storyStorage.getActiveStory(event.getPlayer().getUniqueId()).thenAccept(story -> {
-            if (story.isPresent() && story.get().character() == Character.IT_CONSULTANT) {
+            if (story.isPresent() && story.get().character() == Character.LIBRARIAN) {
                 if (event.isSneaking()) {
                     event.getPlayer().setWalkSpeed(0.3f);
                 } else {

@@ -13,37 +13,18 @@ import java.util.List;
 
 public enum Character {
 
-/* Skills:
-Nurse - Raises effectiveness of bandages/ first aid kits - hook into ItemsAdder
-Farmer - Can repair armour
-Sprinter - Can sprint faster (regular speed when walking and sneaking)
-Construction Worker - Reduces damage taken (has resistance 1)
-Police Officer - Has strength 1
-Mechanic - Can repair weapons
-Chef - Raises effectiveness of all foods
-Dog Walker - Can tame/ starts with 1 wolf (can re-tame wolves if they lose theirs) - give wolfs when spawn the first time. if the wolf dies, can tame another one. onlyl 1 at a time
-Warehouse Worker (Spy?) - Has Nightvision
-Thief - breaks into safehouses faster
-TODO Gambler (Youtuber?) - increase of luck on mob drops - loottable, when a gambler kills an entity there is a chance to get something todo remove it?
-I.T Consultant - Moves faster while sneaking
-Free Runner - No fall damage
-Baller - Jump Boost
-Survivalist - Hunger decreases slower and Thirst increases faster (water items are more effective)
- */
-
-
     NURSE,
-    FARMER,
+    TAILOR,
     SPRINTER,
-    CONSTRUCTION_WORKER,
-    POLICE_OFFICER,
-    MECHANIC,
-    CHEF,
-    DOG_WALKER,
-    WAREHOUSE_WORKER,
-    THIEF,
+    OFFICER,
+    PRIVATE,
+    REPAIR_TECH,
+    COOK,
+    VETERINARIAN,
+    SPY,
+    LOCKSMITH,
     GAMBLER,
-    IT_CONSULTANT,
+    LIBRARIAN,
     FREE_RUNNER,
     BALLER,
     SURVIVALIST,

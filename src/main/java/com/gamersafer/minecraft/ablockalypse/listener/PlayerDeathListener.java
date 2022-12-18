@@ -73,7 +73,7 @@ public class PlayerDeathListener implements Listener {
                         .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
 
                 // try to remove tamed wolf
-                if (story.get().character() == Character.DOG_WALKER) {
+                if (story.get().character() == Character.VETERINARIAN) {
                     // only dog walkers can tame mobs and they can have max 1 wolf
                     for (World world : Bukkit.getWorlds()) {
                         for (Entity wolfEntity : world.getEntitiesByClasses(Wolf.class)) {

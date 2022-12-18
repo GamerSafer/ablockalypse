@@ -23,8 +23,8 @@ character:
         2: [ ]
         3: [ ]
         4: [ ]
-  farmer:
-    display-name: "&aFarmer"
+  tailor:
+    display-name: "&aTailor"
     description:
       - "&7Can repair armour"
     menu:
@@ -43,8 +43,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  construction_worker:
-    display-name: "&aConstruction Worker"
+  officer:
+    display-name: "&aOfficer"
     description:
       - "&7Reduces damage taken"
     menu:
@@ -53,8 +53,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  police_officer:
-    display-name: "&aPolice Officer"
+  private:
+    display-name: "&aPrivate"
     description:
       - "&7Does more weapon damage"
     menu:
@@ -63,8 +63,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  mechanic:
-    display-name: "&aMechanic"
+  repair_tech:
+    display-name: "&aRepair Tech"
     description:
       - "&7Can repair weapons"
     menu:
@@ -73,8 +73,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  chef:
-    display-name: "&aChef"
+  cook:
+    display-name: "&aCook"
     description:
       - "&7Raises effectiveness of all foods"
     menu:
@@ -83,8 +83,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  dog_walker:
-    display-name: "&aDog Walker"
+  veterinarian:
+    display-name: "&aVeterinarian"
     description:
       - "&7Can tame/ starts with wolf (can re-tame wolves if they lose theirs)"
     menu:
@@ -93,8 +93,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  warehouse_worker:
-    display-name: "&aWarehouse Worker (Spy?)"
+  spy:
+    display-name: "&aSpy"
     description:
       - "&7Has Nightvision"
     menu:
@@ -103,8 +103,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  thief:
-    display-name: "&aThief"
+  locksmith:
+    display-name: "&aLocksmith"
     description:
       - "&7Name is hidden at all times (only visible within 5 block radius)"
     menu:
@@ -123,8 +123,8 @@ character:
     run-commands:
       story-start: [ ]
       story-end: [ ]
-  it_consultant:
-    display-name: "&aI.T Consultant"
+  librarian:
+    display-name: "&aLibrarian"
     description:
       - "&7Quiet (zombies can only hear them if within 5 block radius)"
     menu:

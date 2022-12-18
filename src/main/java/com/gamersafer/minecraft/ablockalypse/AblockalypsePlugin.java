@@ -250,7 +250,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                     giveCharacterPermanentPotionEffect(player, story.character());
 
                     // give dog to dog walker
-                    if (story.character() == Character.DOG_WALKER) {
+                    if (story.character() == Character.VETERINARIAN) {
                         Wolf wolf = (Wolf) player.getWorld().spawnEntity(player.getLocation(), EntityType.WOLF, CreatureSpawnEvent.SpawnReason.CUSTOM);
                         wolf.setOwner(player);
                     }
@@ -280,9 +280,9 @@ public class AblockalypsePlugin extends JavaPlugin {
     public void giveCharacterPermanentPotionEffect(Player player, Character character) {
         sync(() -> {
             PotionEffectType potionEffectType = switch (character) {
-                case CONSTRUCTION_WORKER -> PotionEffectType.DAMAGE_RESISTANCE;
-                case POLICE_OFFICER -> PotionEffectType.INCREASE_DAMAGE;
-                case WAREHOUSE_WORKER -> PotionEffectType.NIGHT_VISION;
+                case OFFICER -> PotionEffectType.DAMAGE_RESISTANCE;
+                case PRIVATE -> PotionEffectType.INCREASE_DAMAGE;
+                case SPY -> PotionEffectType.NIGHT_VISION;
                 case BALLER -> PotionEffectType.JUMP;
                 default -> null;
             };

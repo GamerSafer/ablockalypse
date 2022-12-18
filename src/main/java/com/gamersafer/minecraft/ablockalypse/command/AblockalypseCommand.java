@@ -240,6 +240,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         }
                         sender.sendMessage("Reset completed!");
                     });
+                } else {
+                    sender.sendMessage("Reset completed!");
                 }
             });
             return true;

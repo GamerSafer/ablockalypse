@@ -78,21 +78,21 @@ public class RepairItemListener implements Listener {
         Player player = (Player) event.getView().getPlayer();
 
         if (ItemUtil.ARMOR.contains(firstItem.getType())) {
+            event.getInventory().setRepairCost(0);
             // check whether the player is a farmer. that's the only character allowed to repair armor
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                 if (story.isEmpty() || story.get().character() != Character.TAILOR) {
                     // cancel the event and send feedback message
-                    event.getInventory().setRepairCost(0);
                     event.setResult(null);
                     plugin.sendMessage(player, "anvil-armor-no");
                 }
             });
         } else if (ItemUtil.WEAPONS.contains(firstItem.getType())) {
+            event.getInventory().setRepairCost(0);
             // check whether the player is a mechanic. that's the only character allowed to repair weapons
             storyStorage.getActiveStory(player.getUniqueId()).thenAccept(story -> {
                 if (story.isEmpty() || story.get().character() != Character.REPAIR_TECH) {
                     // cancel the event and send feedback message
-                    event.getInventory().setRepairCost(0);
                     event.setResult(null);
                     plugin.sendMessage(player, "anvil-weapon-no");
                 }

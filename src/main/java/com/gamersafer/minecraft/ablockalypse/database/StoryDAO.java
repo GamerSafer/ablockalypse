@@ -457,7 +457,7 @@ public class StoryDAO implements StoryStorage {
 
                 statement.executeUpdate();
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }, executor).exceptionally(throwable -> {
             throwable.printStackTrace();

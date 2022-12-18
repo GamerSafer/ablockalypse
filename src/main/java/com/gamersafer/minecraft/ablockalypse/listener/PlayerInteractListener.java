@@ -198,8 +198,8 @@ public class PlayerInteractListener implements Listener {
                         // duration based on door level
                         int breakingInDurationSeconds = safehouseManager.getBreakInDuration(player, safehouse);
 
-                        // decrease duration if the player used a crowbar
-                        if (safehouseManager.isCrowbar(item)) {
+                        // decrease duration if the player used a lockpick
+                        if (safehouseManager.isLockpick(item)) {
                             breakingInDurationSeconds *= .75;
                         }
 

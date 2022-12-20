@@ -427,7 +427,13 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 }
             } else if (args[0].equalsIgnoreCase("safehouse")) {
                 Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
-                if (args[1].equalsIgnoreCase("boosters")) {
+                if (args[1].equalsIgnoreCase("teleport")) {
+                    if (safehouseOptional.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                        return false;
+                    }
+                    PaperLib.teleportAsync(player, safehouseOptional.get().getSpawnLocation());
+                } else if (args[1].equalsIgnoreCase("boosters")) {
                     if (safehouseOptional.isEmpty()) {
                         player.sendMessage(plugin.getMessage("safehouse-not-owner"));
                         return false;
@@ -660,7 +666,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
                 } else if (args[0].equalsIgnoreCase("safehouse")) {
-                    Stream<String> result = Stream.of("boosters", "door");
+                    Stream<String> result = Stream.of("teleport", "boosters", "door");
                     if (sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
                         result = Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), result);
                     }

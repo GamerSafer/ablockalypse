@@ -355,3 +355,4 @@ message:
     - " &c/ablockalypse safehouse <region|id> settype <type> - &7Sets the type of a safehouse"
     - " &c/ablockalypse safehouse boosters - &7Opens the boosters menu"
     - " &c/ablockalypse safehouse door - &7Opens the door upgrade menu"
+    - " &c/ablockalypse safehouse teleport - &7Teleport to owned safehouse"

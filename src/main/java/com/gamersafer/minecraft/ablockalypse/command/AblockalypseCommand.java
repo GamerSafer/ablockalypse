@@ -433,6 +433,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                         return false;
                     }
                     PaperLib.teleportAsync(player, safehouseOptional.get().getSpawnLocation());
+                    return true;
                 } else if (args[1].equalsIgnoreCase("boosters")) {
                     if (safehouseOptional.isEmpty()) {
                         player.sendMessage(plugin.getMessage("safehouse-not-owner"));
@@ -440,12 +441,32 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     }
 
                     new SafehouseBoostersMenu(player, safehouseOptional.get()).open();
+                    return true;
                 } else if (args[1].equalsIgnoreCase("door")) {
                     if (safehouseOptional.isEmpty()) {
                         player.sendMessage(plugin.getMessage("safehouse-not-owner"));
                         return false;
                     }
                     new SafehouseDoorMenu(safehouseOptional.get()).open(player);
+                    return true;
+                } else if (args[1].equalsIgnoreCase("claimedlist") && hasPermission(sender, Permission.CMD_SAFEHOUSE)) {
+                    List<Safehouse> claimedSafehouses = safehouseManager.getClaimedSafehouses();
+                    if (claimedSafehouses.isEmpty()) {
+                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                    } else {
+                        int idx = 1;
+                        for (Safehouse claimedSafehouse : claimedSafehouses) {
+                            String ownerName = Optional.of(Bukkit.getOfflinePlayer(claimedSafehouse.getOwner()))
+                                    .map(OfflinePlayer::getName)
+                                    .orElse("Unknown");
+                            player.sendMessage(plugin.getMessage("safehouse-claimedlist-entry")
+                                    .replace("{idx}", String.valueOf(idx++))
+                                    .replace("{region}", claimedSafehouse.getRegionName())
+                                    .replace("{owner_name}", ownerName)
+                            );
+                        }
+                    }
+                    return true;
                 }
             }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("cinematic")) {
@@ -668,7 +689,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("safehouse")) {
                     Stream<String> result = Stream.of("teleport", "boosters", "door");
                     if (sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
-                        result = Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), result);
+                        result = Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), Stream.concat(result, Stream.of("claimedlist")));
                     }
                     yield result.toList();
                 } else if (args[0].equalsIgnoreCase("reset")) {

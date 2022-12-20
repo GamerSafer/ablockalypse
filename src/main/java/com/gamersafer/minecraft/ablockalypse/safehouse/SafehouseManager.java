@@ -442,6 +442,17 @@ public class SafehouseManager {
     }
 
     /**
+     * Gets a list containing all the claimed safehouses.
+     *
+     * @return all claimed safehouses
+     */
+    public List<Safehouse> getClaimedSafehouses() {
+        return safehouseStorage.getAllSafehouses().join().stream()
+                .filter(Safehouse::isClaimed)
+                .toList();
+    }
+
+    /**
      * Checks whether raids are enabled at the current time.
      * Players can break into houses owned by online players regardless of whether raids are enabled.
      *

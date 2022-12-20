@@ -305,6 +305,8 @@ message:
   safehouse-booster-deactivated: "&cYou deactivated the safehouse {booster} booster"
   safehouse-booster-max: "&cYou can't activate more than {max} boosters"
   safehouse-not-owner: "&cYou don't own a safehouse"
+  safehouse-claimedlist-empty: "&cThere isn't any claimed claimed safehouse"
+  safehouse-claimedlist-entry: "&7{idx} {region} - {owner_name}"
   compass-searching: "&aSearching for the nearest unclaimed safehouse..."
   compass-found: "&aCompass pointing to the nearest safehouse!"
   compass-none: "&cThere isn't any unclaimed safehouse"
@@ -356,3 +358,4 @@ message:
     - " &c/ablockalypse safehouse boosters - &7Opens the boosters menu"
     - " &c/ablockalypse safehouse door - &7Opens the door upgrade menu"
     - " &c/ablockalypse safehouse teleport - &7Teleport to owned safehouse"
+    - " &c/ablockalypse safehouse claimedlist - &7Display all claimed safehouses"

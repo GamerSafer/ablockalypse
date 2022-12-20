@@ -60,7 +60,9 @@ public class SafehouseManager {
             Material.TRAPPED_CHEST,
             Material.BARRIER,
             Material.BROWN_SHULKER_BOX,
-            Material.YELLOW_SHULKER_BOX
+            Material.YELLOW_SHULKER_BOX,
+            Material.PLAYER_HEAD,
+            Material.PLAYER_WALL_HEAD
     );
 
     private final World safehouseWorld;

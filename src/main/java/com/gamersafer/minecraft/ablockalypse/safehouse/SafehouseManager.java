@@ -16,6 +16,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import io.lumine.mythic.lib.api.item.NBTItem;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -70,6 +71,8 @@ public class SafehouseManager {
     private final RegionManager regionManager;
     private final AblockalypsePlugin plugin;
     private ScheduledExecutorService raidTimeScheduler;
+    private List<String> safehouseClaimCommands;
+    private List<String> safehouseLossCommands;
 
     private boolean raidEnabled;
 
@@ -203,6 +206,9 @@ public class SafehouseManager {
                 }, delay, TimeUnit.MILLISECONDS);
             }
         }
+
+        this.safehouseClaimCommands = plugin.getConfig().getStringList("safehouse-commands.claim");
+        this.safehouseLossCommands = plugin.getConfig().getStringList("safehouse-commands.loss");
     }
 
     /**
@@ -538,6 +544,28 @@ public class SafehouseManager {
         }
         NBTItem nbtItem = NBTItem.get(item);
         return nbtItem.hasType() && "CROWBAR".equals(nbtItem.getString("MMOITEMS_ITEM_ID"));
+    }
+
+    /**
+     * Dispatches the commands that should be executed when a player claims a safehouse.
+     *
+     * @param playerName the name of the player who lost their safehouse
+     */
+    public void dispatchSafehouseClaimCommands(String playerName) {
+        safehouseClaimCommands.stream()
+                .map(cmd -> cmd.replace("{name}", playerName))
+                .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
+    }
+
+    /**
+     * Dispatches the commands that should be executed when a player loses their safehouse.
+     *
+     * @param playerName the name of the player who lost their safehouse
+     */
+    public void dispatchSafehouseLossCommands(String playerName) {
+        safehouseLossCommands.stream()
+                .map(cmd -> cmd.replace("{name}", playerName))
+                .forEach(cmd -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd));
     }
 
     public void shutdown() {

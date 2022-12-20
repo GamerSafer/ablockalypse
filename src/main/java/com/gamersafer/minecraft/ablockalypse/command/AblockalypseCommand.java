@@ -634,6 +634,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     }
 
                     safehouse.setOwner(targetPlayer.getUniqueId());
+                    safehouseManager.dispatchSafehouseClaimCommands(targetPlayer.getName());
                     player.sendMessage(plugin.getMessage("safehouse-setowner-set"));
 
                     return true;

@@ -64,7 +64,7 @@ public class PlayerDeathListener implements Listener {
                 EntityDamageEvent.DamageCause deathCause = Objects.requireNonNull(player.getLastDamageCause()).getCause();
                 Location deathLocation = player.getLocation();
                 storyStorage.endStory(player.getUniqueId(), deathCause, deathLocation).thenRun(() -> plugin.getLogger().info("The player "
-                        + player.getUniqueId() + " just completed a story as a " + story.get().character().name()));
+                                                                                                                             + player.getUniqueId() + " just completed a story as a " + story.get().character().name()));
 
                 // dispatch story-end commands
                 story.get().character().getCommandsOnStoryEnd().stream()
@@ -88,7 +88,10 @@ public class PlayerDeathListener implements Listener {
                 // remove the safehouse owned by the player if it exists. we can safely assume that if the player
                 // doesn't have an active story, they don't have a safehouse
                 Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
-                safehouseOptional.ifPresent(Safehouse::removeOwner);
+                safehouseOptional.map(Safehouse::removeOwner)
+                        .map(Bukkit::getPlayer)
+                        .map(Player::getName)
+                        .ifPresent(safehouseManager::dispatchSafehouseLossCommands);
             }
         }).exceptionally(throwable -> {
             throwable.printStackTrace();

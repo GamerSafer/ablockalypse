@@ -127,7 +127,10 @@ public class PlayerInteractListener implements Listener {
                                 if (claimingClicks.get(player.getUniqueId()).getMillisSinceFirstClick() >= claimingDurationSeconds * 1000L) {
                                     if (claimingClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= MILLIS_BETWEEN_INTERACTIONS) {
                                         Optional<Safehouse> previousSafehouseOpt = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
-                                        previousSafehouseOpt.ifPresent(Safehouse::removeOwner);
+                                        previousSafehouseOpt.map(Safehouse::removeOwner)
+                                                .map(Bukkit::getPlayer)
+                                                .map(Player::getName)
+                                                .ifPresent(safehouseManager::dispatchSafehouseLossCommands);
                                         Optional<Player> previousOwnerOpt = safehouse.getPreviousOwnerPlayer();
                                         if (previousOwnerOpt.isPresent() && !previousOwnerOpt.get().getUniqueId().equals(player.getUniqueId())) {
                                             previousOwnerOpt.get().sendMessage(plugin.getMessage("claim-done-previous-owner"));
@@ -137,6 +140,7 @@ public class PlayerInteractListener implements Listener {
                                             safehouseManager.clearSafehouseContent(safehouse);
                                         }
                                         safehouse.setOwner(player.getUniqueId());
+                                        safehouseManager.dispatchSafehouseClaimCommands(player.getName());
                                         player.sendMessage(plugin.getMessage("claim-done"));
                                         if (previousSafehouseOpt.isPresent()) {
                                             player.sendMessage(plugin.getMessage("claim-done-lost"));

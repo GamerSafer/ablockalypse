@@ -221,6 +221,14 @@ leaderboard:
 # The name of the world where all safehouses are
 safehouse-world: "world"
 
+safehouse-commands:
+  # Commands to run when a player claims a safehouse
+  # {name} -> player's name
+  claim: [ ]
+  # Commands to run when a player loses a safehouse
+  loss:
+    - "cmi removehome home {name}"
+
 # Specify at what time(s) players can raid safehouses
 safehouse-raid-windows:
   # please make sure they don't overlap

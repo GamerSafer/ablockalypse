@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -200,13 +201,19 @@ public class Safehouse {
         this.activeBoosters.clear();
     }
 
-    public void removeOwner() {
-        String ownerName = Bukkit.getOfflinePlayer(owner).getName();
+    /**
+     * Removes the safehouse owner.
+     *
+     * @return the previous owner UUID, or null if there was no owner
+     */
+    @Nullable
+    public UUID removeOwner() {
+        UUID result = this.owner;
         this.previousOwner = null;
         this.owner = null;
         this.canClaim.clear();
         this.activeBoosters.clear();
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi removehome home " + ownerName);
+        return result;
     }
 
     /**
@@ -316,7 +323,7 @@ public class Safehouse {
         // remove raider after 10 minutes. after that time, all players should be able to claim the house
         Bukkit.getScheduler().runTaskLater(AblockalypsePlugin.getInstance(), () -> {
             canClaim.clear();
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "cmi removehome home " + previousOwnerName);
+            AblockalypsePlugin.getInstance().getSafehouseManager().dispatchSafehouseLossCommands(previousOwnerName);
         }, 20L * 60L * 10L);
     }
 

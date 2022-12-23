@@ -98,10 +98,12 @@ public class PlayerInteractListener implements Listener {
 
                     if (safehouseManager.isKey(item)) {
                         // prevent pve players from claiming safehouses
-                        PvPlayer pvPlayer = PvPlayer.get(player);
-                        if (!pvPlayer.hasPvPEnabled()) {
-                            player.sendMessage(plugin.getMessage("claim-pve-no"));
-                            return;
+                        if (safehouse.getType() != Safehouse.Type.BUNKER) {
+                            PvPlayer pvPlayer = PvPlayer.get(player);
+                            if (!pvPlayer.hasPvPEnabled()) {
+                                player.sendMessage(plugin.getMessage("claim-pve-no"));
+                                return;
+                            }
                         }
 
                         // after a house is raided, only the previous owner and the player who raided it can claim it

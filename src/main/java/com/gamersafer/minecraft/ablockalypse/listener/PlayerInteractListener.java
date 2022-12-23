@@ -6,7 +6,6 @@ import com.gamersafer.minecraft.ablockalypse.menu.SafehouseDoorMenu;
 import com.gamersafer.minecraft.ablockalypse.safehouse.BoosterManager;
 import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
 import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
-import me.NoChance.PvPManager.PvPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -97,15 +96,6 @@ public class PlayerInteractListener implements Listener {
                     ItemStack item = event.getItem();
 
                     if (safehouseManager.isKey(item)) {
-                        // prevent pve players from claiming safehouses
-                        if (safehouse.getType() != Safehouse.Type.BUNKER) {
-                            PvPlayer pvPlayer = PvPlayer.get(player);
-                            if (!pvPlayer.hasPvPEnabled()) {
-                                player.sendMessage(plugin.getMessage("claim-pve-no"));
-                                return;
-                            }
-                        }
-
                         // after a house is raided, only the previous owner and the player who raided it can claim it
                         if (safehouse.canClaim(player.getUniqueId())) {
                             int claimingDurationSeconds = safehouseManager.getClaimingDuration(player, safehouse);
@@ -176,10 +166,9 @@ public class PlayerInteractListener implements Listener {
                             }
                         }
                     } else if (safehouseManager.isLockpick(item) || safehouseManager.isCrowbar(item)) {
-                        // prevent pve players from breaking into safehouses
-                        PvPlayer pvPlayer = PvPlayer.get(player);
-                        if (!pvPlayer.hasPvPEnabled()) {
-                            player.sendMessage(plugin.getMessage("break-in-pve-no"));
+                        // prevent pve players from breaking into bunkers
+                        if (safehouse.getType() == Safehouse.Type.BUNKER) {
+                            player.sendMessage(plugin.getMessage("break-in-bunker-no"));
                             return;
                         }
 

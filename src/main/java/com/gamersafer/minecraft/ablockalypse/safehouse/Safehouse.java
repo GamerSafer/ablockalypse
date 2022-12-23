@@ -335,7 +335,7 @@ public class Safehouse {
      * @return {@code true} if it was, {@code false} otherwise
      */
     public boolean wasRecentlyRaided() {
-        return canClaim.isEmpty();
+        return !canClaim.isEmpty();
     }
 
     /**

@@ -302,6 +302,7 @@ message:
   safehouse-deleted-owner: "&cYour safehouse was deleted"
   safehouse-block-place: "&cOnly the owner is allowed to place blocks in the safehouse!"
   safehouse-block-break: "&cOnly the owner is allowed to break blocks in the safehouse!"
+  safehouse-block-break-blocked: "&cYou can't break this safehouse block!"
   safehouse-click-claimed: "&cThis is a claimed safehouse. Use a crowbar or lockpick to raid it."
   safehouse-click-not-claimed: "&cThis is an unclaimed safehouse. Use a key to claim it for your own!"
   safehouse-setowner-already: "&cThe house already has an owner"

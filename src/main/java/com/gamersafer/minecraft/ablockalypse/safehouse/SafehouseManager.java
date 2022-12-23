@@ -47,16 +47,9 @@ import java.util.function.Predicate;
 public class SafehouseManager {
 
     /**
-     * The cost of upgrading a safehouse door.
-     * <p>
-     * The key is the door level, the value is the cost in planks and sheet metal.
-     */
-    private final static Map<Integer, Integer> DOOR_COST = Map.of(2, 5, 3, 8);
-
-    /**
      * The type of blocks to remove when clearing safehouses.
      */
-    private final static Set<Material> WIPE_BLOCKS = Set.of(
+    public final static Set<Material> WIPE_BLOCKS = Set.of(
             Material.CHEST,
             Material.TRAPPED_CHEST,
             Material.BARRIER,
@@ -65,6 +58,13 @@ public class SafehouseManager {
             Material.PLAYER_HEAD,
             Material.PLAYER_WALL_HEAD
     );
+
+    /**
+     * The cost of upgrading a safehouse door.
+     * <p>
+     * The key is the door level, the value is the cost in planks and sheet metal.
+     */
+    private final static Map<Integer, Integer> DOOR_COST = Map.of(2, 5, 3, 8);
 
     private final World safehouseWorld;
     private final SafehouseStorage safehouseStorage;

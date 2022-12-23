@@ -47,6 +47,9 @@ public class PlayerBuildListener implements Listener {
             if (!safehouseOptional.get().isOwner(player)) {
                 player.sendMessage(plugin.getMessage("safehouse-block-break"));
                 event.setCancelled(true);
+            } else if (!SafehouseManager.WIPE_BLOCKS.contains(event.getBlock().getType())) {
+                player.sendMessage(plugin.getMessage("safehouse-block-break-blocked"));
+                event.setCancelled(true);
             }
         }
 

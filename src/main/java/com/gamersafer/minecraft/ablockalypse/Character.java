@@ -21,7 +21,6 @@ public enum Character {
     REPAIR_TECH,
     COOK,
     VETERINARIAN,
-    SPY,
     LOCKSMITH,
     GAMBLER,
     LIBRARIAN,

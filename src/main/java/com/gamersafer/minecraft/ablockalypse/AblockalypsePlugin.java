@@ -282,7 +282,6 @@ public class AblockalypsePlugin extends JavaPlugin {
             PotionEffectType potionEffectType = switch (character) {
                 case OFFICER -> PotionEffectType.DAMAGE_RESISTANCE;
                 case PRIVATE -> PotionEffectType.INCREASE_DAMAGE;
-                case SPY -> PotionEffectType.NIGHT_VISION;
                 case BALLER -> PotionEffectType.JUMP;
                 default -> null;
             };

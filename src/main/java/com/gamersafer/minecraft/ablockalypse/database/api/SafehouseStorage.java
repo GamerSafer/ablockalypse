@@ -38,6 +38,20 @@ public interface SafehouseStorage {
      */
     CompletableFuture<Void> updateSafehouses(Set<Safehouse> safehouses);
 
+    /**
+     * Sets after how many days of inactivity players will lose their safehouse.
+     *
+     * @param expirationDays the amount of days since their last logout
+     */
+    void setSafehouseExpirationForInactivity(int expirationDays);
+
+    /**
+     * Sets after how many days of inactivity players will lose their bunker.
+     *
+     * @param expirationDays the amount of days since the last logout
+     */
+    void setBunkerExpirationForInactivity(int expirationDays);
+
     void shutdown();
 
 }

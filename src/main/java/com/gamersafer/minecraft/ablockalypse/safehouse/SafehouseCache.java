@@ -61,6 +61,16 @@ public class SafehouseCache implements SafehouseStorage {
     }
 
     @Override
+    public void setSafehouseExpirationForInactivity(int expirationDays) {
+        base.setSafehouseExpirationForInactivity(expirationDays);
+    }
+
+    @Override
+    public void setBunkerExpirationForInactivity(int expirationDays) {
+        base.setBunkerExpirationForInactivity(expirationDays);
+    }
+
+    @Override
     public void shutdown() {
         // save all safehouses to the DB
         updateSafehouses(safehouses).thenRun(base::shutdown).join();

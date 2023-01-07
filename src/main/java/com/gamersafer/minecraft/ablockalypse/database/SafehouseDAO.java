@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +29,16 @@ public class SafehouseDAO implements SafehouseStorage {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final DataSource dataSource;
+
+    /**
+     * See {@link #setSafehouseExpirationForInactivity(int)}
+     */
+    private long expirationSafehouseMillis;
+
+    /**
+     * See {@link #setBunkerExpirationForInactivity(int)}
+     */
+    private long expirationBunkerMillis;
 
     public SafehouseDAO(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -157,6 +168,16 @@ public class SafehouseDAO implements SafehouseStorage {
         return CompletableFuture.runAsync(() -> {
             try (Connection conn = dataSource.getConnection(); PreparedStatement statement = conn.prepareStatement("UPDATE safehouse SET houseType = ?, ownerUuid = UNHEX(?), doorLevel = ?, doorLocation = ?, spawnLocation = ?, outsideLocation = ?, activeBoosters = ? WHERE id = ?;")) {
                 for (Safehouse safehouse : safehouses) {
+                    long expirationMillis = switch (safehouse.getType()) {
+                        case SAFEHOUSE -> expirationSafehouseMillis;
+                        case BUNKER -> expirationBunkerMillis;
+                        //noinspection UnnecessaryDefault
+                        default -> throw new IllegalStateException();
+                    };
+                    if ((Instant.now().toEpochMilli() - Bukkit.getOfflinePlayer(safehouse.getOwner()).getLastSeen()) > expirationMillis) {
+                        safehouse.removeOwner();
+                    }
+
                     String uuidStr = null;
                     if (safehouse.getOwner() != null) {
                         uuidStr = safehouse.getOwner().toString().replace("-", "");
@@ -183,6 +204,16 @@ public class SafehouseDAO implements SafehouseStorage {
     }
 
     @Override
+    public void setSafehouseExpirationForInactivity(int expirationDays) {
+        this.expirationSafehouseMillis = TimeUnit.DAYS.toMillis(expirationDays);
+    }
+
+    @Override
+    public void setBunkerExpirationForInactivity(int expirationDays) {
+        this.expirationBunkerMillis = TimeUnit.DAYS.toMillis(expirationDays);
+    }
+
+    @Override
     public void shutdown() {
         try {
             executor.shutdown();
@@ -199,7 +230,7 @@ public class SafehouseDAO implements SafehouseStorage {
             return null;
         }
         return location.getWorld().getName() + " " + truncateDouble(location.getX()) + " " + truncateDouble(location.getY())
-                + " " + truncateDouble(location.getZ()) + " " + truncateDouble(location.getYaw()) + " " + truncateDouble(location.getPitch());
+               + " " + truncateDouble(location.getZ()) + " " + truncateDouble(location.getYaw()) + " " + truncateDouble(location.getPitch());
     }
 
     private Location parseLocation(String locationStr) {

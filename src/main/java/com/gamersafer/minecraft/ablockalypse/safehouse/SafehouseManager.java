@@ -209,6 +209,11 @@ public class SafehouseManager {
 
         this.safehouseClaimCommands = plugin.getConfig().getStringList("safehouse-commands.claim");
         this.safehouseLossCommands = plugin.getConfig().getStringList("safehouse-commands.loss");
+
+        int expirationSafehouseDays = plugin.getConfig().getInt("house-expiration.safehouse");
+        int expirationBunkerDays = plugin.getConfig().getInt("house-expiration.bunker");
+        safehouseStorage.setSafehouseExpirationForInactivity(expirationSafehouseDays);
+        safehouseStorage.setBunkerExpirationForInactivity(expirationBunkerDays);
     }
 
     /**

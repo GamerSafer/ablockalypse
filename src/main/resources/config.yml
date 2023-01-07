@@ -230,6 +230,11 @@ safehouse-raid-windows:
     end: "23:45:00"
   # you can add as many sections as you need
 
+# After how many days of inactivity players will lose their house
+house-expiration:
+  safehouse: 10
+  bunker: 15
+
 message:
   player-only: "&cThis command must be run by a player."
   no-permission: "&cYou don't have permissions"

@@ -286,7 +286,7 @@ public class AblockalypsePlugin extends JavaPlugin {
                 default -> null;
             };
             if (potionEffectType != null) {
-                player.addPotionEffect(new PotionEffect(potionEffectType, Integer.MAX_VALUE, 1));
+                player.addPotionEffect(new PotionEffect(potionEffectType, Integer.MAX_VALUE, 0));
             }
         });
     }

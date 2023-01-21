@@ -16,4 +16,5 @@ commands:
     description: Main command
   safehouse:
     description: Main command
-    aliases: ["bunker"]
+  bunker:
+    description: Main command

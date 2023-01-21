@@ -108,6 +108,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         appending.register(getCommand("stories"));
         appending.register(getCommand("backstory"));
         appending.register(getCommand("safehouse"));
+        appending.register(getCommand("bunker"));
         // register listeners
         getServer().getPluginManager().registerEvents(new ChunkUnloadListener(), this);
         getServer().getPluginManager().registerEvents(new EntityDamagedByEntityListener(boosterManager), this);

@@ -260,9 +260,9 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
             if (args.length == 1) {
                 new CharacterSelectionMenu(player).open();
-            } else if (args.length == 2) {
-                Character character = Character.valueOf(args[1].toLowerCase());
-                Player targetPlayer = player;
+            } else if (args.length > 2) {
+                Character character = Character.valueOf(args[1].toUpperCase());
+                Player targetPlayer = (Player) sender;
                 if (args.length == 3 && hasPermission(sender, Permission.CMD_BACKSTORY_OTHERS)) {
                     targetPlayer = Bukkit.getPlayer(args[2]);
                 }
@@ -271,7 +271,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             }
             return true;
         }
-        if (args[0].equalsIgnoreCase("safehouse")) {
+        if (args[0].equalsIgnoreCase("safehouse") || args[0].equalsIgnoreCase("bunker")) {
             if (args.length == 1) {
                 player.performCommand("dm open safehousemain");
                 return true;

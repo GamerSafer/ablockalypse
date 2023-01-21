@@ -16,10 +16,13 @@ public class AppendingCommandExecutor<C extends CommandExecutor & TabCompleter> 
 
     private final C wrapped;
 
-    public AppendingCommandExecutor(C wrapped, PluginCommand parent) {
+    public AppendingCommandExecutor(C wrapped) {
         this.wrapped = wrapped;
-        parent.setTabCompleter(this);
-        parent.setExecutor(this);
+    }
+
+    public void register(PluginCommand command) {
+        command.setTabCompleter(this);
+        command.setExecutor(this);
     }
 
     @Override

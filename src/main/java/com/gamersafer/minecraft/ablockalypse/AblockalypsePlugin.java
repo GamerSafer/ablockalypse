@@ -106,10 +106,10 @@ public class AblockalypsePlugin extends JavaPlugin {
         PluginCommand parentCommand = getCommand(AblockalypseCommand.COMMAND);
         parentCommand.setExecutor(executor);
 
-        AppendingCommandExecutor<AblockalypseCommand> appending = new AppendingCommandExecutor<>(executor, parentCommand);
-        getCommand("stories").setExecutor(appending);
-        getCommand("backstory").setExecutor(appending);
-        getCommand("safehouse").setExecutor(appending);
+        AppendingCommandExecutor<AblockalypseCommand> appending = new AppendingCommandExecutor<>(executor);
+        appending.register(getCommand("stories"));
+        appending.register(getCommand("backstory"));
+        appending.register(getCommand("safehouse"));
         // register listeners
         getServer().getPluginManager().registerEvents(new ChunkUnloadListener(), this);
         getServer().getPluginManager().registerEvents(new EntityDamagedByEntityListener(boosterManager), this);

@@ -260,7 +260,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
         if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
             if (args.length == 1) {
                 new CharacterSelectionMenu(player).open();
-            } else if (args.length > 2) {
+            } else {
                 Character character = Character.valueOf(args[1].toUpperCase());
                 Player targetPlayer = (Player) sender;
                 if (args.length == 3 && hasPermission(sender, Permission.CMD_BACKSTORY_OTHERS)) {
@@ -693,7 +693,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
         return switch (args.length) {
             case 0, 1 ->
-                    List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "safehouse", "story", "reset");
+                    List.of("reload", "backstory", "stories", "hospital", "cinematic", "spawnpoint", "safehouse",  "story", "reset");
             case 2 -> {
                 if (args[0].equalsIgnoreCase("stories") || args[0].equalsIgnoreCase("story")) {
                     yield Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
@@ -704,7 +704,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                             .map(Character::name)
                             .map(String::toLowerCase)
                             .collect(Collectors.toList());
-                } else if (args[0].equalsIgnoreCase("safehouse")) {
+                } else if (args[0].equalsIgnoreCase("safehouse") || args[0].equalsIgnoreCase("bunker")) {
                     Stream<String> result = Stream.of("teleport", "boosters", "door");
                     if (sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
                         result = Stream.concat(safehouseManager.getSafehouseRegionNamesIds().stream(), Stream.concat(result, Stream.of("claimedlist")));
@@ -730,7 +730,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 yield Collections.emptyList();
             }
             case 4 -> {
-                if (args[0].equalsIgnoreCase("safehouse") && args[2].equalsIgnoreCase("settype") && sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
+                if ((args[0].equalsIgnoreCase("safehouse") || args[0].equalsIgnoreCase("bunker")) && args[2].equalsIgnoreCase("settype") && sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
                     yield Arrays.stream(Safehouse.Type.values()).map(Safehouse.Type::name).toList();
                 }
                 yield Collections.emptyList();

@@ -178,9 +178,9 @@ public class SafehouseDAO implements SafehouseStorage {
                     if (safehouse.getOwner() != null) {
                         if ((Instant.now().toEpochMilli() - Bukkit.getOfflinePlayer(safehouse.getOwner()).getLastSeen()) > expirationMillis) {
                             safehouse.removeOwner();
+                        } else {
+                            uuidStr = safehouse.getOwner().toString().replace("-", "");
                         }
-
-                        uuidStr = safehouse.getOwner().toString().replace("-", "");
                     }
                     statement.setString(1, safehouse.getType().name());
                     statement.setString(2, uuidStr);

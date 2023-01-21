@@ -3,6 +3,7 @@ package com.gamersafer.minecraft.ablockalypse.command;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,17 +15,17 @@ import java.util.List;
 public class AppendingCommandExecutor<C extends CommandExecutor & TabCompleter> implements CommandExecutor, TabCompleter {
 
     private final C wrapped;
-    private final Command parent;
 
-    public AppendingCommandExecutor(C wrapped, Command parent) {
+    public AppendingCommandExecutor(C wrapped, PluginCommand parent) {
         this.wrapped = wrapped;
-        this.parent = parent;
+        parent.setTabCompleter(this);
+        parent.setExecutor(this);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> arguments = new ArrayList<>();
-        arguments.add(parent.getName());
+        arguments.add(label);
         Collections.addAll(arguments, args);
 
         return this.wrapped.onCommand(sender, command, label, arguments.toArray(new String[0]));
@@ -34,7 +35,7 @@ public class AppendingCommandExecutor<C extends CommandExecutor & TabCompleter> 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> arguments = new ArrayList<>();
-        arguments.add(parent.getName());
+        arguments.add(label);
         Collections.addAll(arguments, args);
 
         return this.wrapped.onTabComplete(sender, command, label, arguments.toArray(new String[0]));

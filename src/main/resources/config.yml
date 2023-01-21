@@ -295,6 +295,7 @@ message:
   safehouse-upgrade-door-level-2-first: "&cYou must upgrade the door to level 2 before upgrading it to level 3"
   safehouse-deleted: "&aSafehouse deleted"
   safehouse-deleted-owner: "&cYour safehouse was deleted"
+  safehouse-unclaimed: "&cSafehouse was unclaimed"
   safehouse-block-place: "&cOnly the owner is allowed to place blocks in the safehouse!"
   safehouse-block-break: "&cOnly the owner is allowed to break blocks in the safehouse!"
   safehouse-block-break-blocked: "&cYou can't break this safehouse block!"

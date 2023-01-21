@@ -571,7 +571,12 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             Safehouse safehouse = safehouseOpt.get();
 
             if (args.length == 3) {
-                if (args[2].equalsIgnoreCase("delete")) {
+                if (args[2].equalsIgnoreCase("unclaim")) {
+                    safehouseManager.clearSafehouseContent(safehouse);
+                    safehouse.removeOwner();
+                    player.sendMessage(plugin.getMessage("safehouse-unclaimed"));
+                    return true;
+                } else if (args[2].equalsIgnoreCase("delete")) {
                     // try to delete the safehouse
                     safehouseManager.deleteSafehouse(safehouse).thenRun(() -> {
                         player.sendMessage(plugin.getMessage("safehouse-deleted"));
@@ -725,7 +730,7 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                 } else if (args[0].equalsIgnoreCase("reset")) {
                     yield List.of("current", "history");
                 } else if (args[0].equalsIgnoreCase("safehouse") && sender.hasPermission(Permission.CMD_SAFEHOUSE.toString())) {
-                    yield List.of("delete", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel", "setowner", "settype");
+                    yield List.of("delete", "unclaim", "create", "teleport", "setdoor", "setspawn", "setoutside", "nextdoorlevel", "setowner", "settype");
                 }
                 yield Collections.emptyList();
             }

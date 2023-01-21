@@ -1,6 +1,7 @@
 package com.gamersafer.minecraft.ablockalypse;
 
 import com.gamersafer.minecraft.ablockalypse.command.AblockalypseCommand;
+import com.gamersafer.minecraft.ablockalypse.command.AppendingCommandExecutor;
 import com.gamersafer.minecraft.ablockalypse.database.SafehouseDAO;
 import com.gamersafer.minecraft.ablockalypse.database.StoryDAO;
 import com.gamersafer.minecraft.ablockalypse.database.api.SafehouseStorage;
@@ -38,7 +39,10 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -98,8 +102,14 @@ public class AblockalypsePlugin extends JavaPlugin {
 
         // register commands
         //noinspection ConstantConditions
-        getCommand(AblockalypseCommand.COMMAND).setExecutor(new AblockalypseCommand(this, storyStorage, locationManager, safehouseManager, boosterManager));
+        AblockalypseCommand executor = new AblockalypseCommand(this, storyStorage, locationManager, safehouseManager, boosterManager);
+        PluginCommand parentCommand = getCommand(AblockalypseCommand.COMMAND);
+        parentCommand.setExecutor(executor);
 
+        AppendingCommandExecutor<AblockalypseCommand> appending = new AppendingCommandExecutor<>(executor, parentCommand);
+        getCommand("stories").setExecutor(appending);
+        getCommand("backstory").setExecutor(appending);
+        getCommand("safehouse").setExecutor(appending);
         // register listeners
         getServer().getPluginManager().registerEvents(new ChunkUnloadListener(), this);
         getServer().getPluginManager().registerEvents(new EntityDamagedByEntityListener(boosterManager), this);

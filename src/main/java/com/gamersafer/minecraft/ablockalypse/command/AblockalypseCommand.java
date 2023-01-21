@@ -259,8 +259,17 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
-                // display the character selection menu. this subcommand is supposed to be used only by staff members for debug purposes
-                new CharacterSelectionMenu(player).open();
+                if (args.length == 1) {
+                    new CharacterSelectionMenu(player).open();
+                } else if (args.length == 2) {
+                    Character character = Character.valueOf(args[1].toLowerCase());
+                    Player targetPlayer = player;
+                    if (args.length == 3) {
+                        targetPlayer = Bukkit.getPlayer(args[2]);
+                    }
+
+                    CharacterSelectionMenu.pickCharacter(targetPlayer, storyStorage, locationManager, plugin, character);
+                }
                 return true;
             } else if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OWN)) {
 
@@ -695,6 +704,8 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     yield result.toList();
                 } else if (args[0].equalsIgnoreCase("reset")) {
                     yield Stream.concat(Bukkit.getOnlinePlayers().stream().map(Player::getName), Stream.of("all")).toList();
+                } else if (args[0].equalsIgnoreCase("backstory")) {
+                    yield Arrays.asList(Character.values()).stream().map((character) -> character.name().toLowerCase()).toList();
                 }
                 yield Collections.emptyList();
             }

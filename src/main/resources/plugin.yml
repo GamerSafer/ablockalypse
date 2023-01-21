@@ -10,3 +10,9 @@ commands:
   ablockalypse:
     description: Main command
     aliases: [ "ablock" ]
+  stories:
+    description: Main command
+  backstory:
+    description: Main command
+  safehouse:
+    description: Main command

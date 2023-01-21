@@ -174,12 +174,12 @@ public class SafehouseDAO implements SafehouseStorage {
                         //noinspection UnnecessaryDefault
                         default -> throw new IllegalStateException();
                     };
-                    if ((Instant.now().toEpochMilli() - Bukkit.getOfflinePlayer(safehouse.getOwner()).getLastSeen()) > expirationMillis) {
-                        safehouse.removeOwner();
-                    }
-
                     String uuidStr = null;
                     if (safehouse.getOwner() != null) {
+                        if ((Instant.now().toEpochMilli() - Bukkit.getOfflinePlayer(safehouse.getOwner()).getLastSeen()) > expirationMillis) {
+                            safehouse.removeOwner();
+                        }
+
                         uuidStr = safehouse.getOwner().toString().replace("-", "");
                     }
                     statement.setString(1, safehouse.getType().name());

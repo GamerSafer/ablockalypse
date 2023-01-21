@@ -561,6 +561,9 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             } catch (NumberFormatException ignore) {
                 safehouseOpt = safehouseManager.getSafehouseFromRegion(args[1]);
             }
+            if (safehouseOpt.isEmpty()) {
+                safehouseOpt = safehouseManager.getSafehouseFromOwnerUuid(Bukkit.getOfflinePlayer(args[1]).getUniqueId());
+            }
 
             // make sure that safehouse exists
             if (safehouseOpt.isEmpty()) {

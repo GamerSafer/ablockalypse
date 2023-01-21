@@ -39,8 +39,6 @@ import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
@@ -106,7 +104,7 @@ public class AblockalypsePlugin extends JavaPlugin {
         PluginCommand parentCommand = getCommand(AblockalypseCommand.COMMAND);
         parentCommand.setExecutor(executor);
 
-        AppendingCommandExecutor<AblockalypseCommand> appending = new AppendingCommandExecutor<>(executor);
+        AppendingCommandExecutor<AblockalypseCommand> appending = new AppendingCommandExecutor<>(executor, parentCommand);
         appending.register(getCommand("stories"));
         appending.register(getCommand("backstory"));
         appending.register(getCommand("safehouse"));

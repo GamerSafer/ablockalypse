@@ -15,9 +15,11 @@ import java.util.List;
 public class AppendingCommandExecutor<C extends CommandExecutor & TabCompleter> implements CommandExecutor, TabCompleter {
 
     private final C wrapped;
+    private final Command parent;
 
-    public AppendingCommandExecutor(C wrapped) {
+    public AppendingCommandExecutor(C wrapped, Command parent) {
         this.wrapped = wrapped;
+        this.parent = parent;
     }
 
     public void register(PluginCommand command) {
@@ -31,7 +33,7 @@ public class AppendingCommandExecutor<C extends CommandExecutor & TabCompleter> 
         arguments.add(label);
         Collections.addAll(arguments, args);
 
-        return this.wrapped.onCommand(sender, command, label, arguments.toArray(new String[0]));
+        return this.wrapped.onCommand(sender, this.parent, label, arguments.toArray(new String[0]));
     }
 
 
@@ -41,6 +43,6 @@ public class AppendingCommandExecutor<C extends CommandExecutor & TabCompleter> 
         arguments.add(label);
         Collections.addAll(arguments, args);
 
-        return this.wrapped.onTabComplete(sender, command, label, arguments.toArray(new String[0]));
+        return this.wrapped.onTabComplete(sender, this.parent, label, arguments.toArray(new String[0]));
     }
 }

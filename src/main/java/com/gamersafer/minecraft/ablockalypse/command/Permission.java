@@ -4,6 +4,7 @@ enum Permission {
 
     CMD_RELOAD,
     CMD_BACKSTORY,
+    CMD_BACKSTORY_OTHERS,
     CMD_STORIES_OWN,
     CMD_STORIES_OTHERS,
     CMD_STORY,

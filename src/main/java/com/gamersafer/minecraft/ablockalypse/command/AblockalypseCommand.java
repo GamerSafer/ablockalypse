@@ -257,21 +257,72 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
             return false;
         }
 
-        if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
-                if (args.length == 1) {
-                    new CharacterSelectionMenu(player).open();
-                } else if (args.length == 2) {
-                    Character character = Character.valueOf(args[1].toLowerCase());
-                    Player targetPlayer = player;
-                    if (args.length == 3) {
-                        targetPlayer = Bukkit.getPlayer(args[2]);
-                    }
+        if (args[0].equalsIgnoreCase("backstory") && hasPermission(sender, Permission.CMD_BACKSTORY)) {
+            if (args.length == 1) {
+                new CharacterSelectionMenu(player).open();
+            } else if (args.length == 2) {
+                Character character = Character.valueOf(args[1].toLowerCase());
+                Player targetPlayer = player;
+                if (args.length == 3 && hasPermission(sender, Permission.CMD_BACKSTORY_OTHERS)) {
+                    targetPlayer = Bukkit.getPlayer(args[2]);
+                }
 
-                    CharacterSelectionMenu.pickCharacter(targetPlayer, storyStorage, locationManager, plugin, character);
+                CharacterSelectionMenu.pickCharacter(targetPlayer, storyStorage, locationManager, plugin, character);
+            }
+            return true;
+        }
+        if (args[0].equalsIgnoreCase("safehouse")) {
+            if (args.length == 1) {
+                player.performCommand("dm open safehousemain");
+                return true;
+            }
+
+            Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
+            if (args[1].equalsIgnoreCase("teleport")) {
+                if (safehouseOptional.isEmpty()) {
+                    player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                    return false;
+                }
+                PaperLib.teleportAsync(player, safehouseOptional.get().getSpawnLocation());
+                return true;
+            } else if (args[1].equalsIgnoreCase("boosters")) {
+                if (safehouseOptional.isEmpty()) {
+                    player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                    return false;
+                }
+
+                new SafehouseBoostersMenu(player, safehouseOptional.get()).open();
+                return true;
+            } else if (args[1].equalsIgnoreCase("door")) {
+                if (safehouseOptional.isEmpty()) {
+                    player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                    return false;
+                }
+                new SafehouseDoorMenu(safehouseOptional.get()).open(player);
+                return true;
+            } else if (args[1].equalsIgnoreCase("claimedlist") && hasPermission(sender, Permission.CMD_SAFEHOUSE)) {
+                List<Safehouse> claimedSafehouses = safehouseManager.getClaimedSafehouses();
+                if (claimedSafehouses.isEmpty()) {
+                    player.sendMessage(plugin.getMessage("safehouse-not-owner"));
+                } else {
+                    int idx = 1;
+                    for (Safehouse claimedSafehouse : claimedSafehouses) {
+                        String ownerName = Optional.of(Bukkit.getOfflinePlayer(claimedSafehouse.getOwner()))
+                                .map(OfflinePlayer::getName)
+                                .orElse("Unknown");
+                        player.sendMessage(plugin.getMessage("safehouse-claimedlist-entry")
+                                .replace("{idx}", String.valueOf(idx++))
+                                .replace("{region}", claimedSafehouse.getRegionName())
+                                .replace("{owner_name}", ownerName)
+                        );
+                    }
                 }
                 return true;
-            } else if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OWN)) {
+            }
+        }
+
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("stories") && hasPermission(sender, Permission.CMD_STORIES_OWN)) {
 
                 storyStorage.getAllStories(player.getUniqueId()).thenAccept(stories -> {
                     if (stories.isEmpty()) {
@@ -432,49 +483,6 @@ public class AblockalypseCommand implements CommandExecutor, TabCompleter {
                     String messageId = removed ? "hospital-remove-success" : "hospital-remove-none";
                     player.sendMessage(plugin.getMessage(messageId));
 
-                    return true;
-                }
-            } else if (args[0].equalsIgnoreCase("safehouse")) {
-                Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
-                if (args[1].equalsIgnoreCase("teleport")) {
-                    if (safehouseOptional.isEmpty()) {
-                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
-                        return false;
-                    }
-                    PaperLib.teleportAsync(player, safehouseOptional.get().getSpawnLocation());
-                    return true;
-                } else if (args[1].equalsIgnoreCase("boosters")) {
-                    if (safehouseOptional.isEmpty()) {
-                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
-                        return false;
-                    }
-
-                    new SafehouseBoostersMenu(player, safehouseOptional.get()).open();
-                    return true;
-                } else if (args[1].equalsIgnoreCase("door")) {
-                    if (safehouseOptional.isEmpty()) {
-                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
-                        return false;
-                    }
-                    new SafehouseDoorMenu(safehouseOptional.get()).open(player);
-                    return true;
-                } else if (args[1].equalsIgnoreCase("claimedlist") && hasPermission(sender, Permission.CMD_SAFEHOUSE)) {
-                    List<Safehouse> claimedSafehouses = safehouseManager.getClaimedSafehouses();
-                    if (claimedSafehouses.isEmpty()) {
-                        player.sendMessage(plugin.getMessage("safehouse-not-owner"));
-                    } else {
-                        int idx = 1;
-                        for (Safehouse claimedSafehouse : claimedSafehouses) {
-                            String ownerName = Optional.of(Bukkit.getOfflinePlayer(claimedSafehouse.getOwner()))
-                                    .map(OfflinePlayer::getName)
-                                    .orElse("Unknown");
-                            player.sendMessage(plugin.getMessage("safehouse-claimedlist-entry")
-                                    .replace("{idx}", String.valueOf(idx++))
-                                    .replace("{region}", claimedSafehouse.getRegionName())
-                                    .replace("{owner_name}", ownerName)
-                            );
-                        }
-                    }
                     return true;
                 }
             }

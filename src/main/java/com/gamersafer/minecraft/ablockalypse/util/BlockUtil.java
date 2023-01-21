@@ -32,8 +32,8 @@ public final class BlockUtil {
         bottomDoor.setFacing(face);
         topDoor.setFacing(face);
 
-        bottom.setBlockData(bottomDoor);
-        top.setBlockData(topDoor);
+        bottom.setBlockData(bottomDoor, false);
+        top.setBlockData(topDoor, false);
     }
 
 }

@@ -47,8 +47,8 @@ public class SafehouseDoorMenu implements InventoryHolder {
 
         // insert doors
         ItemStack door1 = ItemUtil.createItem(Material.WARPED_DOOR, "&3Level 1", List.of("&7Break in duration: &a15 seconds"));
-        ItemStack door2 = ItemUtil.createItem(Material.SPRUCE_DOOR, "&3Level 2", List.of("&7Break in duration: &a30 seconds", "&7Cost: &a" + SafehouseManager.getDoorLevelCost(2) + " plank and sheet metal"));
-        ItemStack door3 = ItemUtil.createItem(Material.IRON_DOOR, "&3Level 3", List.of("&7Break in duration: &a45 seconds", "&7Cost: &a" + SafehouseManager.getDoorLevelCost(3) + " plank and sheet metal"));
+        ItemStack door2 = ItemUtil.createItem(Material.SPRUCE_DOOR, "&3Level 2", List.of("&7Break in duration: &a30 seconds", "&7Cost: &a" + SafehouseManager.getDoorLevelCost(2) + " planks and" + SafehouseManager.getDoorLevelCost(2) + " sheet metal"));
+        ItemStack door3 = ItemUtil.createItem(Material.IRON_DOOR, "&3Level 3", List.of("&7Break in duration: &a45 seconds", "&7Cost: &a" + SafehouseManager.getDoorLevelCost(3) + " planks and" + SafehouseManager.getDoorLevelCost(2) + " sheet metal"));
 
         ItemUtil.addItemGlow(door1);
         if (doorLevel >= 2) {

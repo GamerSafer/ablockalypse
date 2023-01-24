@@ -481,7 +481,7 @@ public class SafehouseManager {
      * @return the duration in seconds
      */
     public int getBreakInDuration(Player player, Safehouse safehouse) {
-        int result = 5 + safehouse.getDoorLevel() * 5;
+        int result = safehouse.getDoorLevel() * 5 + safehouse.getDoorLevel() * 10;
 
         // we can assume that when this method is called, the active story exists and is in the cache
         //noinspection OptionalGetWithoutIsPresent

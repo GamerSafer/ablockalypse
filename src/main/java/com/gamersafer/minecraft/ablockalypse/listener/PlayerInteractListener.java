@@ -84,7 +84,8 @@ public class PlayerInteractListener implements Listener {
                     return;
                 }
 
-                if (safehouseManager.canAccess(safehouse, player.getUniqueId())) {
+                // only allow to teleport without key in hand
+                if (safehouseManager.canAccess(safehouse, player.getUniqueId()) && !safehouseManager.isKey(event.getItem())) {
                     // the player is outside the safehouse, teleport them inside and remove boosters
                     if (safehouse.getSpawnLocation() != null) {
                         player.teleport(safehouse.getSpawnLocation());

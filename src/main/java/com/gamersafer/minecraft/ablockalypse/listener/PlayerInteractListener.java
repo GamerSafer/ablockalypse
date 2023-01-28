@@ -33,7 +33,6 @@ public class PlayerInteractListener implements Listener {
 
     private final Map<UUID, ClickDuration> breakingInClicks;
     private final Map<UUID, ClickDuration> claimingClicks;
-    private final Map<UUID, Integer> warnedOwners;
 
     public PlayerInteractListener(AblockalypsePlugin plugin, SafehouseManager safehouseManager, BoosterManager boosterManager,
                                   StoryStorage storyStorage) {
@@ -43,7 +42,6 @@ public class PlayerInteractListener implements Listener {
         this.storyStorage = storyStorage;
         this.breakingInClicks = new HashMap<>();
         this.claimingClicks = new HashMap<>();
-        this.warnedOwners = new HashMap<>();
     }
 
     @SuppressWarnings("unused")
@@ -106,15 +104,6 @@ public class PlayerInteractListener implements Listener {
                                 return;
                             }
 
-                            // check if the player who is trying to claim this house already owns one house
-                            if (warnedOwners.getOrDefault(player.getUniqueId(), -1) != safehouse.getId()
-                                && safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId()).isPresent()) {
-                                // the player already owns a house. notify they will lose their house and its content if they claim this one
-                                player.sendMessage(plugin.getMessage("claim-already-own"));
-                                warnedOwners.put(player.getUniqueId(), safehouse.getId());
-                                return;
-                            }
-
                             if (claimingClicks.containsKey(player.getUniqueId())) {
                                 if (claimingClicks.get(player.getUniqueId()).getMillisSinceFirstClick() >= claimingDurationSeconds * 1000L) {
                                     if (claimingClicks.get(player.getUniqueId()).getMillisSinceLastClick() <= MILLIS_BETWEEN_INTERACTIONS) {
@@ -148,6 +137,16 @@ public class PlayerInteractListener implements Listener {
                                             long secondsLeft = claimingDurationSeconds - claimingClicks.get(player.getUniqueId()).getMillisSinceFirstClick() / 1000;
                                             player.sendMessage(plugin.getMessage("claim-during")
                                                     .replace("{seconds}", Long.toString(secondsLeft)));
+                                            // check if the player who is trying to claim this house already owns one house
+                                            if (safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId()).isPresent()) {
+                                                // the player already owns a house. notify they will lose their house and its content if they claim this one
+                                                player.sendMessage(plugin.getMessage("claim-already-own"));
+                                            }
+                                            // return if the player is already allowed to claim the house. in that case they don't need to break in,
+                                            if (safehouse.canClaim(player.getUniqueId())) {
+                                                player.sendMessage(plugin.getMessage("break-in-not-needed"));
+                                                // Don't stop the condition, still allow the player to actually lockpick
+                                            }
                                         }
                                     } else {
                                         // start over
@@ -175,7 +174,7 @@ public class PlayerInteractListener implements Listener {
                         // return if the player is already allowed to claim the house. in that case they don't need to break in,
                         if (safehouse.canClaim(player.getUniqueId())) {
                             player.sendMessage(plugin.getMessage("break-in-not-needed"));
-                            return;
+                            // Don't stop the condition, still allow the player to actually lockpick
                         }
 
                         // make sure the owner is online or at this time of the day break-ins are allowed

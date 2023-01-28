@@ -88,7 +88,7 @@ public class PlayerDeathListener implements Listener {
                 // remove the safehouse owned by the player if it exists. we can safely assume that if the player
                 // doesn't have an active story, they don't have a safehouse
                 Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseFromOwnerUuid(player.getUniqueId());
-                safehouseOptional.map(Safehouse::removeOwner)
+                safehouseOptional.map(Safehouse::removeOwnerKeepPrevious)
                         .map(Bukkit::getPlayer)
                         .map(Player::getName)
                         .ifPresent(safehouseManager::dispatchSafehouseLossCommands);

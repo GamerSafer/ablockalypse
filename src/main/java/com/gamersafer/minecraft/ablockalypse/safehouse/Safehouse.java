@@ -209,12 +209,30 @@ public class Safehouse {
     @Nullable
     public UUID removeOwner() {
         UUID result = this.owner;
-        this.previousOwner = null;
+        this.removeOwner(false);
+        return result;
+    }
+
+    /**
+     * Removes the safehouse owner, while keeping the previous owner
+     *
+     * @return the previous owner UUID, or null if there was no owner
+     */
+    @Nullable
+    public UUID removeOwnerKeepPrevious() {
+        UUID result = this.owner;
+        this.removeOwner(true);
+        return result;
+    }
+
+    private void removeOwner(boolean transferPreviousOwner) {
+        this.previousOwner = transferPreviousOwner ? this.owner : null;
         this.owner = null;
         this.canClaim.clear();
         this.activeBoosters.clear();
-        return result;
     }
+
+
 
     /**
      * Gets the UUID of the player who was the owner of the safehouse before it was raided.

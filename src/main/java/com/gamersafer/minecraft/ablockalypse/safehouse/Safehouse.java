@@ -232,8 +232,6 @@ public class Safehouse {
         this.activeBoosters.clear();
     }
 
-
-
     /**
      * Gets the UUID of the player who was the owner of the safehouse before it was raided.
      * This data is not persisted since it's need for a short period of time only.
@@ -330,21 +328,31 @@ public class Safehouse {
      * @param uuid the UUID of the player
      */
     public void handleBreakIn(UUID uuid) {
-        if (owner != null) {
-            canClaim.add(uuid);
-            canClaim.add(getOwner());
+        // Add person claiming
+        canClaim.add(uuid);
+        this.removeOwnerGiveReclaimTime();
+    }
 
-            previousOwner = owner;
-            owner = null;
-            activeBoosters.clear();
-
-            String previousOwnerName = Bukkit.getOfflinePlayer(previousOwner).getName();
-            // remove raider after 10 minutes. after that time, all players should be able to claim the house
-            Bukkit.getScheduler().runTaskLater(AblockalypsePlugin.getInstance(), () -> {
-                canClaim.clear();
-                AblockalypsePlugin.getInstance().getSafehouseManager().dispatchSafehouseLossCommands(previousOwnerName);
-            }, 20L * 60L * 10L);
+    public void removeOwnerGiveReclaimTime() {
+        // Add owner (or the previous owner)
+        if (owner == null) {
+            if (previousOwner != null) {
+                canClaim.add(previousOwner);
+            }
+        } else {
+            canClaim.add(owner);
         }
+
+        previousOwner = owner;
+        owner = null;
+        activeBoosters.clear();
+
+        String previousOwnerName = Bukkit.getOfflinePlayer(previousOwner).getName();
+        // remove raider after 10 minutes. after that time, all players should be able to claim the house
+        Bukkit.getScheduler().runTaskLater(AblockalypsePlugin.getInstance(), () -> {
+            canClaim.clear();
+            AblockalypsePlugin.getInstance().getSafehouseManager().dispatchSafehouseLossCommands(previousOwnerName);
+        }, 20L * 60L * 10L);
     }
 
     /**

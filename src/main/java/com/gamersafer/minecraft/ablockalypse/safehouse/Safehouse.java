@@ -312,7 +312,7 @@ public class Safehouse {
      * @param uuid the UUID of the player
      */
     public void handleBreakIn(UUID uuid) {
-        if (previousOwner != null) {
+        if (owner != null) {
             canClaim.add(uuid);
             canClaim.add(getOwner());
 

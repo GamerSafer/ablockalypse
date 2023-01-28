@@ -312,14 +312,14 @@ public class Safehouse {
      * @param uuid the UUID of the player
      */
     public void handleBreakIn(UUID uuid) {
-        canClaim.add(uuid);
-        canClaim.add(getOwner());
-
-        previousOwner = owner;
-        owner = null;
-        activeBoosters.clear();
-
         if (previousOwner != null) {
+            canClaim.add(uuid);
+            canClaim.add(getOwner());
+
+            previousOwner = owner;
+            owner = null;
+            activeBoosters.clear();
+
             String previousOwnerName = Bukkit.getOfflinePlayer(previousOwner).getName();
             // remove raider after 10 minutes. after that time, all players should be able to claim the house
             Bukkit.getScheduler().runTaskLater(AblockalypsePlugin.getInstance(), () -> {

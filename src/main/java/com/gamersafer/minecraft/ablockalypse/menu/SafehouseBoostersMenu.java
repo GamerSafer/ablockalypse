@@ -9,6 +9,7 @@ import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,6 +45,25 @@ public class SafehouseBoostersMenu implements InventoryHolder {
     private final Inventory inventory;
     private final Player player;
     private final Safehouse safehouse;
+
+    private static final ItemStack BACK = new ItemStack(Material.ARROW);
+    static {
+        BACK.editMeta((meta) -> {
+            meta.displayName(Component.text("Back", Style.style(NamedTextColor.DARK_RED,
+                    TextDecoration.ITALIC.withState(TextDecoration.State.FALSE),
+                    TextDecoration.BOLD.withState(TextDecoration.State.TRUE)
+            )));
+        });
+    }
+    private static final ItemStack CLOSE = new ItemStack(Material.BARRIER);
+    static {
+        CLOSE.editMeta((meta) -> {
+            meta.displayName(Component.text("Close", Style.style(NamedTextColor.DARK_RED,
+                    TextDecoration.ITALIC.withState(TextDecoration.State.FALSE),
+                    TextDecoration.BOLD.withState(TextDecoration.State.TRUE)
+            )));
+        });
+    }
 
     public SafehouseBoostersMenu(Player player, Safehouse safehouse) {
         this.player = player;
@@ -127,9 +147,21 @@ public class SafehouseBoostersMenu implements InventoryHolder {
         for (Booster booster : Booster.values()) {
             inventory.addItem(booster.getHead());
         }
+
+        inventory.setItem(45, BACK);
+        inventory.setItem(49, CLOSE);
     }
 
     public void handleClick(int slot, SafehouseManager safehouseManager, BoosterManager boosterManager) {
+        if (slot == 45) {
+            player.performCommand("dm open safehousemain");
+            return;
+        }
+        if (slot == 49) {
+            player.closeInventory();
+            return;
+        }
+
         if (BOOSTER_SLOTS.containsKey(slot)) {
             Booster booster = BOOSTER_SLOTS.get(slot);
             if (player.hasPermission(booster.getPermission())) {

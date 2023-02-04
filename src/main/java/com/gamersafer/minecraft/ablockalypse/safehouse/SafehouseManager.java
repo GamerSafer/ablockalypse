@@ -503,6 +503,10 @@ public class SafehouseManager {
      */
     @SuppressWarnings("unused")
     public int getClaimingDuration(Player player, Safehouse safehouse) {
+        if (this.getSafehouseFromOwnerUuid(player.getUniqueId()).isPresent()) {
+            return 3 + 5;
+        }
+
         return 3;
     }
 

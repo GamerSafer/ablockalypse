@@ -91,11 +91,20 @@ public class MenuListener implements Listener {
         } else if (event.getInventory().getHolder() instanceof SafehouseDoorMenu doorMenu) {
             // door upgrades menu
             event.setCancelled(true);
+            int slot = event.getSlot();
+            Player player = (Player) event.getWhoClicked();
+            if (slot == 45) {
+                player.performCommand("dm open safehousemain");
+                return;
+            }
+            if (slot == 49) {
+                player.closeInventory();
+                return;
+            }
 
             if (event.getCurrentItem() != null) {
                 Safehouse safehouse = doorMenu.getSafehouse();
                 int currentDoorLevel = safehouse.getDoorLevel();
-                Player player = (Player) event.getWhoClicked();
                 if ((event.getRawSlot() == SafehouseDoorMenu.SLOT_LEVEL_2 && currentDoorLevel == 1)
                         || (event.getRawSlot() == SafehouseDoorMenu.SLOT_LEVEL_3 && currentDoorLevel == 2)) {
                     boolean success = safehouseManager.tryUpgradeDoor(safehouse, player);

@@ -4,6 +4,10 @@ import com.gamersafer.minecraft.ablockalypse.safehouse.Safehouse;
 import com.gamersafer.minecraft.ablockalypse.safehouse.SafehouseManager;
 import com.gamersafer.minecraft.ablockalypse.util.FormatUtil;
 import com.gamersafer.minecraft.ablockalypse.util.ItemUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -25,6 +29,25 @@ public class SafehouseDoorMenu implements InventoryHolder {
     private static final ItemStack RED_PANE = new ItemStack(Material.RED_STAINED_GLASS_PANE);
     private final Inventory inventory;
     private final Safehouse safehouse;
+
+    private static final ItemStack BACK = new ItemStack(Material.ARROW);
+    static {
+        BACK.editMeta((meta) -> {
+            meta.displayName(Component.text("Back", Style.style(NamedTextColor.DARK_RED,
+                    TextDecoration.ITALIC.withState(TextDecoration.State.FALSE),
+                    TextDecoration.BOLD.withState(TextDecoration.State.TRUE)
+            )));
+        });
+    }
+    private static final ItemStack CLOSE = new ItemStack(Material.BARRIER);
+    static {
+        CLOSE.editMeta((meta) -> {
+            meta.displayName(Component.text("Close", Style.style(NamedTextColor.DARK_RED,
+                    TextDecoration.ITALIC.withState(TextDecoration.State.FALSE),
+                    TextDecoration.BOLD.withState(TextDecoration.State.TRUE)
+            )));
+        });
+    }
 
     public SafehouseDoorMenu(Safehouse safehouse) {
         this.safehouse = safehouse;
@@ -88,6 +111,8 @@ public class SafehouseDoorMenu implements InventoryHolder {
         for (int i = 44; i <= 53; i++) {
             inventory.setItem(i, BLACK_PANE);
         }
+        inventory.setItem(45, BACK);
+        inventory.setItem(49, CLOSE);
     }
 
     @Override

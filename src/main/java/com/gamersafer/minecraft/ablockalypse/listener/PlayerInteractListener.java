@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -47,6 +48,10 @@ public class PlayerInteractListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     private void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
         Player player = event.getPlayer();
         if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && event.getItem() != null && event.getItem().getType() == Material.COMPASS) {
             // make compass point to the nearest unclaimed safehouse
@@ -85,7 +90,7 @@ public class PlayerInteractListener implements Listener {
                 }
 
                 // only allow to teleport without key in hand
-                if (safehouseManager.canAccess(safehouse, player.getUniqueId()) && !safehouseManager.isKey(event.getItem())) {
+                if (safehouseManager.canAccess(safehouse, player.getUniqueId()) && !safehouseManager.isKey(event.getItem()) && event.getHand() == EquipmentSlot.HAND) {
                     // the player is outside the safehouse, teleport them inside and remove boosters
                     if (safehouse.getSpawnLocation() != null) {
                         player.teleport(safehouse.getSpawnLocation());
@@ -143,11 +148,6 @@ public class PlayerInteractListener implements Listener {
                                                 // the player already owns a house. notify they will lose their house and its content if they claim this one
                                                 player.sendMessage(plugin.getMessage("claim-already-own"));
                                             }
-                                            // return if the player is already allowed to claim the house. in that case they don't need to break in,
-                                            if (safehouse.canClaim(player.getUniqueId())) {
-                                                player.sendMessage(plugin.getMessage("break-in-not-needed"));
-                                                // Don't stop the condition, still allow the player to actually lockpick
-                                            }
                                         }
                                     } else {
                                         // start over
@@ -179,7 +179,7 @@ public class PlayerInteractListener implements Listener {
                         }
 
                         // make sure the owner is online or at this time of the day break-ins are allowed
-                        if (safehouse.getOwnerPlayer().isEmpty() || !safehouseManager.areRaidsEnabled()) {
+                        if (safehouse.getOwnerPlayer().isPresent() && safehouseManager.areRaidsEnabled()) {
                             player.sendMessage(plugin.getMessage("break-in-disallow"));
                             return;
                         }

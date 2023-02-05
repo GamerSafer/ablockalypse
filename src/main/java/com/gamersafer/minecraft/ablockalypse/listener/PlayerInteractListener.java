@@ -52,14 +52,6 @@ public class PlayerInteractListener implements Listener {
         if (event.getHand() != EquipmentSlot.HAND) {
             return;
         }
-        Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseAt(event.getInteractionPoint());
-        if (safehouseOptional.isPresent()) {
-            Safehouse presentSafehouse = safehouseOptional.get();
-            if (!safehouseManager.canAccess(presentSafehouse, event.getPlayer().getUniqueId())) {
-                event.setUseInteractedBlock(Event.Result.DENY);
-                return;
-            }
-        }
 
         Player player = event.getPlayer();
         if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && event.getItem() != null && event.getItem().getType() == Material.COMPASS) {
@@ -241,6 +233,14 @@ public class PlayerInteractListener implements Listener {
                         } else {
                             player.sendMessage(plugin.getMessage("safehouse-click-not-claimed"));
                         }
+                    }
+                }
+            } else if (event.getInteractionPoint() != null) {
+                Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseAt(event.getInteractionPoint());
+                if (safehouseOptional.isPresent()) {
+                    Safehouse presentSafehouse = safehouseOptional.get();
+                    if (!safehouseManager.canAccess(presentSafehouse, player.getUniqueId())) {
+                        event.setUseInteractedBlock(Event.Result.DENY);
                     }
                 }
             }

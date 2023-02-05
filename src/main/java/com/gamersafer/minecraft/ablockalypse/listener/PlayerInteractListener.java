@@ -52,9 +52,9 @@ public class PlayerInteractListener implements Listener {
         if (event.getHand() != EquipmentSlot.HAND) {
             return;
         }
-        Optional<Safehouse> safehouse = safehouseManager.getSafehouseAt(event.getInteractionPoint());
-        if (safehouse.isPresent()) {
-            Safehouse presentSafehouse = safehouse.get();
+        Optional<Safehouse> safehouseOptional = safehouseManager.getSafehouseAt(event.getInteractionPoint());
+        if (safehouseOptional.isPresent()) {
+            Safehouse presentSafehouse = safehouseOptional.get();
             if (!safehouseManager.canAccess(presentSafehouse, event.getPlayer().getUniqueId())) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 return;

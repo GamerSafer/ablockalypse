@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -50,6 +51,14 @@ public class PlayerInteractListener implements Listener {
     private void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) {
             return;
+        }
+        Optional<Safehouse> safehouse = safehouseManager.getSafehouseAt(event.getInteractionPoint());
+        if (safehouse.isPresent()) {
+            Safehouse presentSafehouse = safehouse.get();
+            if (!safehouseManager.canAccess(presentSafehouse, event.getPlayer().getUniqueId())) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+                return;
+            }
         }
 
         Player player = event.getPlayer();

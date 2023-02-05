@@ -347,12 +347,14 @@ public class Safehouse {
         owner = null;
         activeBoosters.clear();
 
-        String previousOwnerName = Bukkit.getOfflinePlayer(previousOwner).getName();
-        // remove raider after 10 minutes. after that time, all players should be able to claim the house
-        Bukkit.getScheduler().runTaskLater(AblockalypsePlugin.getInstance(), () -> {
-            canClaim.clear();
-            AblockalypsePlugin.getInstance().getSafehouseManager().dispatchSafehouseLossCommands(previousOwnerName);
-        }, 20L * 60L * 10L);
+       if (previousOwner != null) {
+           String previousOwnerName = Bukkit.getOfflinePlayer(previousOwner).getName();
+           // remove raider after 10 minutes. after that time, all players should be able to claim the house
+           Bukkit.getScheduler().runTaskLater(AblockalypsePlugin.getInstance(), () -> {
+               canClaim.clear();
+               AblockalypsePlugin.getInstance().getSafehouseManager().dispatchSafehouseLossCommands(previousOwnerName);
+           }, 20L * 60L * 10L);
+       }
     }
 
     /**

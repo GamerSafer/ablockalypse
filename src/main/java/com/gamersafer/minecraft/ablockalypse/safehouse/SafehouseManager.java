@@ -412,7 +412,7 @@ public class SafehouseManager {
         PartiesAPI api = Parties.getApi();
         if (safehouse.getOwner() != null) {
             Party ownerParty = api.getPartyOfPlayer(safehouse.getOwner());
-            if (ownerParty.getMembers().contains(playerUuid)) {
+            if (ownerParty != null && ownerParty.getMembers().contains(playerUuid)) {
                 return true;
             }
         }

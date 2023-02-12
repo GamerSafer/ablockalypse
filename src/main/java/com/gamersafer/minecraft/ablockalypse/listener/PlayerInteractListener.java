@@ -49,10 +49,6 @@ public class PlayerInteractListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     private void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
-            return;
-        }
-
         Player player = event.getPlayer();
         if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) && event.getItem() != null && event.getItem().getType() == Material.COMPASS) {
             // make compass point to the nearest unclaimed safehouse
